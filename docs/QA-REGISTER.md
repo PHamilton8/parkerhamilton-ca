@@ -15,6 +15,6 @@ Foundation continuation condition passed at the recorded candidate. Downstream p
 ## Reporting Workflow Automation
 
 - Branch `feat/reporting-workflow`, head `a4b60e6722ea04eb4724d424afea041741591418`, [draft PR #2](https://github.com/PHamilton8/parkerhamilton-ca/pull/2).
-- npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; GitHub CI pending.
+- npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; GitHub CI PASS (quality + browser, run 34445631143).
 - Evidence: feature branch `docs/REPORTING-WORKFLOW-QA.md` and `docs/qa/reporting-workflow/`.
 - No outstanding implementation blocker.

@@ -16,6 +16,6 @@
 
 ## Reporting Workflow Automation
 - Branch `feat/reporting-workflow`; head `a4b60e6722ea04eb4724d424afea041741591418`; [draft PR #2](https://github.com/PHamilton8/parkerhamilton-ca/pull/2), open and unmerged.
-- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI pending.
+- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI PASS (quality + browser, run 34445631143).
 - Screenshots: feature branch `docs/qa/reporting-workflow/`; details in `docs/REPORTING-WORKFLOW-QA.md`.
 - Outstanding: No implementation blocker.
