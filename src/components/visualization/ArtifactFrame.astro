@@ -1,0 +1,7 @@
+---
+interface Props { class?: string; label?: string }
+const { class: className = '', label } = Astro.props;
+---
+<div class:list={['artifact-frame', className]} aria-label={label}>
+  <slot />
+</div>

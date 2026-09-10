@@ -1,0 +1,11 @@
+---
+import { site } from '../../data/site';
+---
+<section class="contact-band" id="contact" aria-labelledby="contact-title">
+  <p class="eyebrow">Contact</p>
+  <h2 id="contact-title">Want to talk about one of these projects?</h2>
+  <div class="contact-actions">
+    <a class="contact-action primary" href={`mailto:${site.email}`}><span>Email</span><span aria-hidden="true">↗</span></a>
+    {site.linkedinUrl && <a class="contact-action" href={site.linkedinUrl}><span>LinkedIn</span><span aria-hidden="true">↗</span></a>}
+  </div>
+</section>

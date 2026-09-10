@@ -1,0 +1,12 @@
+---
+import type { Project } from '../../data/projects';
+import ProjectMetadata from './ProjectMetadata.astro';
+interface Props { project: Project }
+const { project } = Astro.props;
+---
+<header class="case-header">
+  <p class="eyebrow">{project.number} · {project.kicker}</p>
+  <h1>{project.title}</h1>
+  <p class="project-premise">{project.premise}</p>
+  <ProjectMetadata tags={project.tags} />
+</header>

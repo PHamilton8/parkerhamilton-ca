@@ -1,3 +1,3 @@
-# Setup in progress
+# Foundation recovery in progress
 
-The production foundation is currently being transferred from the audited Drive package into this repository. Do not branch downstream case-study implementation work from `main` until the central audit marks the foundation gate complete.
+The canonical Drive foundation source is being recovered on `chore/foundation-recovery`. Main remains the partial bootstrap. See `ORCHESTRATION-STATUS.md` for the current candidate and gates. Do not start downstream production until the workflow continuation condition passes. Do not merge or deploy during the overnight run.

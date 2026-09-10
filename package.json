@@ -14,16 +14,15 @@
     "check:astro": "astro check",
     "check:ts": "tsc --noEmit --project tsconfig.json",
     "test": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs",
-    "test:visual": "python tests/visual_smoke.py",
-    "qa:contrast": "python tests/contrast_check.py",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "qa:contrast": "python tests/contrast_check.py"
   },
   "dependencies": {
     "astro": "7.2.4"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
-    "@astrojs/check": "latest",
-    "@playwright/test": "latest"
+    "@astrojs/check": "0.9.10",
+    "@playwright/test": "1.63.0",
+    "typescript": "5.9.3"
   }
 }

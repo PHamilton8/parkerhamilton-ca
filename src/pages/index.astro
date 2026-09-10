@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroShell from '../components/layout/HeroShell.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import ProjectCardFeatured from '../components/project/ProjectCardFeatured.astro';
+import ProjectCardCompact from '../components/project/ProjectCardCompact.astro';
+import ContactBand from '../components/layout/ContactBand.astro';
+import { featuredProjects, secondaryProjects } from '../data/projects';
+---
+<BaseLayout>
+  <HeroShell />
+  <section class="work-section" id="work" aria-labelledby="featured-title">
+    <SectionHeading eyebrow="Selected work" title="Featured projects" id="featured-title" />
+    <div class="featured-grid">
+      {featuredProjects.map((project) => <ProjectCardFeatured project={project} />)}
+    </div>
+  </section>
+
+  <section class="more-section" aria-labelledby="more-title">
+    <SectionHeading eyebrow="More work" title="Models, systems & automation" id="more-title" />
+    <div class="secondary-grid">
+      {secondaryProjects.map((project) => <ProjectCardCompact project={project} />)}
+    </div>
+  </section>
+
+  <section class="about-section" id="about" aria-labelledby="about-title">
+    <div class="about-statement">
+      <p class="eyebrow">About</p>
+      <h2 id="about-title">Research is one way I solve problems. <span>Building is another.</span></h2>
+    </div>
+    <div class="about-copy">
+      <p>I completed an MSc in Marketing Research & Behavioural Science at the University of Ottawa. My work tends to start with a question or a practical problem, then move through research, decisions, prototyping, analysis, and iteration.</p>
+      <p>The projects here span consumer behaviour, financial decision-making, digital strategy, modelling, and workflow automation.</p>
+      <div class="focus-list" aria-label="Current areas of focus">
+        <span>Consumer insights</span><span>Behavioural science</span><span>Applied research</span><span>Marketing</span><span>Systems & automation</span>
+      </div>
+    </div>
+  </section>
+
+  <ContactBand />
+</BaseLayout>
