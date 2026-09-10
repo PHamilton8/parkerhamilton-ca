@@ -6,6 +6,7 @@ const homepage = fs.readFileSync(new URL('../src/pages/index.astro', import.meta
 const featured = fs.readFileSync(new URL('../src/components/project/ProjectCardFeatured.astro', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8');
 const projects = fs.readFileSync(new URL('../src/data/projects.ts', import.meta.url), 'utf8');
+const reportingCase = fs.readFileSync(new URL('../src/pages/work/reporting-workflow.astro', import.meta.url), 'utf8');
 
 const forbiddenPublicCopy = [
   'Smaller in the homepage hierarchy, not smaller in substance.',
@@ -55,4 +56,19 @@ test('the dynamic work shell can be safely replaced by dedicated pages', () => {
   const routeShell = fs.readFileSync(new URL('../src/pages/work/[slug].astro', import.meta.url), 'utf8');
   assert.match(routeShell, /project\.usesSharedShell/);
   assert.match(projects, /usesSharedShell: true/);
+});
+
+
+test('reporting workflow has a dedicated public-safe route and synthetic demonstration', () => {
+  assert.match(projects, /slug: 'reporting-workflow'[\s\S]*usesSharedShell: false/);
+  assert.match(reportingCase, /45\+ min[\s\S]*under 10 min/);
+  assert.match(reportingCase, /Parker-reported/);
+  assert.match(reportingCase, /human-controlled|Human in the loop/);
+  assert.match(reportingCase, /reporting-dashboard-initial\.png/);
+  assert.match(reportingCase, /reporting-dashboard-populated\.png/);
+  assert.match(reportingCase, /reporting-dashboard-generated\.png/);
+  assert.match(reportingCase, /reporting-dashboard-transfer\.png/);
+  for (const phrase of ['autonomous', 'error elimination', 'production workbook', 'clipboard.writeText']) {
+    assert.equal(reportingCase.includes(phrase), false, phrase);
+  }
 });

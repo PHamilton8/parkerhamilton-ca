@@ -89,7 +89,7 @@ export const projects: Project[] = [
     premise: 'An Excel/VBA workflow redesign that reduced a recurring reporting process from 45+ minutes to under 10.',
     tags: ['Automation & Workflow', 'Build & Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'reporting',
   },
   {
