@@ -6,6 +6,8 @@ const homepage = fs.readFileSync(new URL('../src/pages/index.astro', import.meta
 const featured = fs.readFileSync(new URL('../src/components/project/ProjectCardFeatured.astro', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8');
 const projects = fs.readFileSync(new URL('../src/data/projects.ts', import.meta.url), 'utf8');
+const groceryCase = fs.readFileSync(new URL('../src/pages/work/grocery-automation.astro', import.meta.url), 'utf8');
+const groceryDemo = fs.readFileSync(new URL('../src/data/grocery-demo.ts', import.meta.url), 'utf8');
 
 const forbiddenPublicCopy = [
   'Smaller in the homepage hierarchy, not smaller in substance.',
@@ -55,4 +57,20 @@ test('the dynamic work shell can be safely replaced by dedicated pages', () => {
   const routeShell = fs.readFileSync(new URL('../src/pages/work/[slug].astro', import.meta.url), 'utf8');
   assert.match(routeShell, /project\.usesSharedShell/);
   assert.match(projects, /usesSharedShell: true/);
+});
+
+
+test('grocery automation has a dedicated route with labeled deterministic sample output', () => {
+  assert.match(projects, /slug: 'grocery-automation'[\s\S]*usesSharedShell: false/);
+  assert.match(groceryCase, /structured Wishabi\/Flipp JSON data/);
+  assert.match(groceryCase, /SAMPLE \/ DEMONSTRATION DATA — NOT LIVE PRICES/);
+  assert.match(groceryCase, /Exactly 6 dinners for 9 adult portions/);
+  assert.match(groceryCase, /Walmart Grocery/);
+  assert.match(groceryCase, /response_mime_type/);
+  assert.match(groceryCase, /application\/json/);
+  assert.match(groceryDemo, /\$270\.85 \(meal-level demo total\)/);
+  assert.match(groceryDemo, /\$293\.62 \(meal-level demo total\)/);
+  for (const phrase of ['saved hours', 'cheapest possible', 'order now', 'clipboard.writeText']) {
+    assert.equal(groceryCase.includes(phrase), false, phrase);
+  }
 });
