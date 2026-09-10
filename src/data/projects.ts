@@ -77,7 +77,7 @@ export const projects: Project[] = [
     premise: 'Live flyer data, planning rules, structured AI output, and Excel generation for more varied, sale-aware weekly planning.',
     tags: ['Automation & Workflow', 'Build & Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'grocery',
   },
   {
