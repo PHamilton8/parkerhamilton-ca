@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" role="img" aria-labelledby="t d">
+<title id="t">Coast FI and net worth planning curve</title><desc id="d">A conceptual investment portfolio curve rising over time and crossing a dashed Coast FI threshold before retirement.</desc>
+<rect width="700" height="360" rx="28" fill="#F1F4EE"/>
+<g font-family="Arial,Helvetica,sans-serif"><text x="42" y="52" font-size="18" font-weight="700" fill="#182125">LONG-HORIZON PLANNING</text><text x="42" y="78" font-size="13" fill="#56615B">Conceptual curve — private assumptions removed</text></g>
+<line x1="64" y1="282" x2="650" y2="282" stroke="#AAB4AE" stroke-width="1.5"/><line x1="64" y1="112" x2="64" y2="282" stroke="#AAB4AE" stroke-width="1.5"/>
+<line x1="64" y1="202" x2="650" y2="202" stroke="#788B82" stroke-width="2" stroke-dasharray="7 7"/><text x="510" y="190" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">COAST THRESHOLD</text>
+<path d="M70 270 C160 260 230 248 300 222 C375 194 428 158 482 127 C535 96 586 78 644 65" fill="none" stroke="#0A7774" stroke-width="5" stroke-linecap="round"/>
+<circle cx="355" cy="202" r="7" fill="#fff" stroke="#0A7774" stroke-width="4"/><line x1="355" y1="202" x2="355" y2="282" stroke="#0A7774" stroke-width="1.5" stroke-dasharray="4 5"/><text x="321" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">COAST POINT</text>
+<text x="64" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">NOW</text><text x="586" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">RETIREMENT</text>
+</svg>

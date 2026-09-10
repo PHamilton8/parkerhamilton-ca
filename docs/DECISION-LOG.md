@@ -1,0 +1,111 @@
+# Production decision log
+
+## 2026-09-10 — Run initialization
+
+- Verified current main against GitHub and a clean local clone; it is the six-file bootstrap described by the authoritative workflow.
+- Created `chore/foundation-recovery` from verified main before implementation edits.
+- Preserve the existing Astro static-output architecture and approved Option B hybrid design; reconcile package/config corrections deliberately.
+- Use Luna for batched source retrieval, Terra for ordinary implementation, and Sol for designated independent gates, as authorized by the workflow. Fast Mode is not requested.
+- Original attachments remain outside the public repository. Approved Drive derivatives are the implementation sources.
+- GitHub is the production ledger. Do not merge or deploy during this run.
+
+## Foundation recovery
+
+- Recovered missing source/assets from `parkerhamilton-ca-foundation-source.zip` in the canonical Foundation folder. Existing static Astro config was identical; preserved the main branch's Astro-aware check chain.
+- Kept Astro 7.2.4 and TypeScript 5.9.3; pinned @astrojs/check 0.9.10 and @playwright/test 1.63.0 after registry verification. Generated lockfile with npm 11.9.0; npm ci succeeded under Node 24.19.0.
+- Removed the placeholder import workflow and the parallel HTML QA generator. CI now runs install/check/tests/build and a real-app Chromium suite, with screenshot artifacts.
+- Applied all five central copy corrections. Added a per-project shared-shell opt-out so a future dedicated page can own its route without duplicate generated output.
+- Replaced historical environment-specific closeout/QA claims with current evidence records. Original historical reports remain in canonical Drive.
+- Git CLI read access works, but direct push has no authenticated credential. Use the connected GitHub Git Database operations with verified file hashes and non-forced reference updates. No credential is copied into the checkout.
+- The standard Chromium CDN download timed out. A scratch-only packaged Chromium is being prepared for the same repository test suite; it is not a production dependency. Managed browser preview access is blocked in this runtime.
+
+## Release-gate corrections
+
+- The first GitHub CI check identified a missing direct Node type dependency introduced by environment-based Playwright configuration. Pinned @types/node 24.10.1; the clean npm ci and full check now pass.
+- npm audit reported a critical AVIF-processing advisory in Astro 7.2.4. Upgraded to the smallest patched Astro release, 7.2.8 (same Node compatibility). The current dependency audit reports zero vulnerabilities. Source: https://github.com/advisories/GHSA-26w7-cxv4-gfx2 . The portfolio uses trusted static assets; this correction hardens the build dependency without adding runtime services.
+- The constrained environment's automatic detached Astro CLI preview conflicted with the test runner's process lifecycle. The browser harness now calls Astro's public preview API and retains the real built application's server in the runner lifecycle. It does not recreate page HTML.
+- Draft PR #1 was opened early to expose CI while browser infrastructure was repaired. No foundation candidate or downstream clearance was declared from that early draft.
+
+## Reporting Workflow Automation completed slice
+
+- Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
+- Use four byte-identical approved synthetic dashboard images and local illustration controls; preserve Parker-reported preparation-time scope and human review/submission.
+- Completed local Definition of Done and independent review; opened draft PR #2 against recovery. No merge or deploy.
+
+## Grocery Automation completed slice
+
+- Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
+- Use approved synthetic two-store sample and curated sanitized code excerpts; preserve AI-assisted authorship, price-estimate limits, human review and the historical/public-cleanup distinction.
+- Completed local Definition of Done and independent review; opened draft PR #3 against recovery. No merge or deploy.
+
+## Design Day completed slice and release-control repair
+
+- `feat/design-day` was completed at `c74dc41e31c0eea4e1e035aa1403d2658ae1cc91` from the exact foundation candidate, using approved final-prototype media, museum-reference framing, process media, real demo video/audio, bounded role wording, and evidence-limited accessibility/testing claims.
+- Original push CI run `34447214957` passed quality and browser jobs. The independent morning audit found no content/privacy/visual blocker; it identified only a missing draft PR and stale central ledger.
+- Central orchestration opened draft PR #5 against `chore/foundation-recovery`. The PR-triggered CI run `34503836496` also passed both quality and browser jobs. No merge or deployment.
+
+## Homepage hero implementation
+
+- The scheduled hero workstream independently implemented the selected Cathedral Monument geometry/interaction on `feat/homepage-hero`, head `5bdecc19496611a3cccc6c1608d02786b7a84124`, draft PR #4.
+- Production implementation uses deterministic server-rendered SVG plus a small TypeScript enhancement, with trajectory, responsive, reduced-motion, browser, safety and build gates green in run `34470520493`.
+- This records implementation state only. Parker has subsequently reopened the literal hero H1/eyebrow wording and the surrounding homepage visual composition for specialist review. Do not infer that current copy/layout treatment is final merely because the implementation passes QA.
+
+## Editorial and visual review hold
+
+- Parker has intentionally opened two interactive specialist review loops before more user-facing production work: final copy/editorial review and visual-design audit.
+- Current completed routes/hero should be preserved as audited starting points, not treated as immutable final copy or final composition.
+- Known owner concerns include AI/cliche-sounding homepage H1/eyebrow wording, a weak Design Day title, inconsistent alignment of the lower model/system/automation card visuals, and excessive height in those cards.
+- Until the specialist decision documents are available, do not spend Work allowance implementing new user-facing page copy or final layout for AskWill, Coast FI, Thesis, or Smith. Headless model/data/test preparation that cannot prejudice those decisions may proceed on isolated branches.
+
+
+## 2026-09-10 — Headless prep: Coast FI complete
+
+Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQGZE7v-2TBku`), fresh durable-state continuation.
+
+- Branch: `prep/coast-fi-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
+- Head: `3e29b184bd1ee6935b5f9ff0c2761f256a36a894`; [draft PR #6](https://github.com/PHamilton8/parkerhamilton-ca/pull/6) targets `chore/foundation-recovery`, open and unmerged.
+- Canonical authority: Coast V2 spec `1_HdsA6wtFwstnXINd3TlgAQbUP2ZJaLS`, reference `12H9pn6yHvAVxLkcCTm2AFcRZYqWC9uRD`, fixtures `1jZJ3tIixlqRhakynLRomi-8hMAa_9bgJ`; closeout `1AzMCIjI-Spgq3yXFELpabDX9l6ATPSTg`.
+- Validation: 34/34 canonical +16 invariants +11 repository/download tests =61 passed; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS; npm audit 0 vulnerabilities. PR-triggered CI quality + browser PASS, run `34518800172`.
+- Independent review: Sol PASS; independent high-precision calculations and resolved numerical-range, helper-validation, and tolerance findings; engine-specific review committed.
+- Download preparation: `public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx`, 257,107 bytes, SHA-256 `469df9f9c589f57f17c4de52652abeca295223fbe90fe004268354958da6cf6a`; exact approved Drive file `1iAvfZiNr4MSH2904x_swFck06rVgvSjs`; no visible link.
+- Blockers: None for headless engine. Later UI must handle typed NUMERIC_RANGE_EXCEEDED when results cannot be represented.
+- Current continuation: Proceed to Compound Growth headless data/explorer work from the exact foundation candidate. Smith remains unstarted until Compound completes.
+- **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
+- No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
+
+
+## 2026-09-10 — Headless prep: Compound Growth complete
+
+Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQGZE7v-2TBku`), fresh durable-state continuation.
+
+- Branch: `prep/compound-growth-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
+- Head: `bab5a26c6b4ce76cfa9ccf155284910c9116e19c`; [draft PR #7](https://github.com/PHamilton8/parkerhamilton-ca/pull/7) targets `chore/foundation-recovery`, open and unmerged.
+- Canonical authority: Thesis interaction V2 `1y6HU1MCgP_eyM6a1nSIVuRFaz4v0-yf4`; closeout `160nPmSjQyNFRk9ria_gooyMaOU8BihLM`; fixed projection, five-study summary, and Experiment 4 JSON identities/hashes in `COMPOUND-GROWTH-DATA-PROVENANCE.md`.
+- Validation: 13 Compound +8 baseline =21 tests passed; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS. PR-triggered CI quality + browser PASS, run `34520118857`.
+- Independent review: Sol PASS; fixed-study/explorer separation, randomized-presentation/measured-mediator boundaries, planned contributions, independent annual FV/EGR and input validation verified.
+- Download preparation: None; no thesis manuscript or download link included. Three approved aggregate JSON files are stored byte-identically.
+- Blockers: None for headless engine. Future UI controls/copy/layout remain held for final specialist decisions.
+- Current continuation: Coast and Compound headless engines complete. Proceed to Smith V2 only as a complete tested/adversarially reviewed engine slice from the exact foundation candidate.
+- **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
+- No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
+
+
+## 2026-09-10 — Headless prep: Smith Manoeuvre complete
+
+Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQGZE7v-2TBku`), fresh durable-state continuation.
+
+- Branch: `prep/smith-manoeuvre-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
+- Head: `95dab36128fe436bc5ba62b7157b1c9fe72ba523`; [draft PR #8](https://github.com/PHamilton8/parkerhamilton-ca/pull/8) targets `chore/foundation-recovery`, open and unmerged.
+- Canonical authority: Smith V2 spec `1e1TSzHDU58ecYR6aQSizmE5TDplFzKKS`, reference `1JDURkIrLSmDji2BSnwSAs0OabjMEHQ6s`, fixtures `1IKinurUs6nIqPr92cWT_ES7IHGXU1-yc`, closeout `1vPtIi3hrJkwZi75caOtZcvyONKftJ5u_`.
+- Validation: 21/21 canonical cases plus period/helper invariants; 11/11 foundation/download tests =32 named cases/tests; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS. PR-triggered CI quality + browser PASS, run `34521253242`.
+- Independent review: Sol PASS; independent first/year-end/65%-limit/payoff/post-payoff cash-flow traces matched within $5.19e-9; no accounting contradiction.
+- Download preparation: `public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx`, 170,917 bytes, SHA-256 `3eb26f8f76c6dbc16ca42ec10debbb7d8b9f5b56fe9169fc55c49618a98c6ef9`; exact approved Drive file `1OWhf0LuPxXO64zBwxJY5UcK7dA2bHPnR`; no visible link; legacy/private originals excluded.
+- Blockers: None for headless engine. Explicit 12,000-month computation limit protects resources; it changes no accounting rule.
+- Current continuation: All three requested headless engines complete. Only a brief mechanical AskWill asset/provenance readiness check remains optional; user-facing production awaits final editorial/visual decisions.
+- **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
+- No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
+
+
+## 2026-09-10 — Current final headless handoff
+
+All three requested engines are complete as draft PRs #6, #7, and #8. Their quality and browser CI jobs pass. Exact branch heads, canonical identities, test counts, independent reviews, approved workbook hashes, integration notes, and the continuing editorial/visual hold are recorded in `docs/HEADLESS-PREP-HANDOFF.md`. No merge or deployment. **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.**

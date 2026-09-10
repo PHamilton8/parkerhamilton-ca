@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Parker Hamilton monogram">
+  <rect width="64" height="64" rx="14" fill="#0A3F3D"/>
+  <path d="M17 44V19h10.8c6.2 0 10 3.2 10 8.6 0 5.5-3.8 8.8-10.2 8.8h-4.7V44H17Zm5.9-12.5h4.4c3 0 4.6-1.2 4.6-3.8 0-2.5-1.6-3.7-4.6-3.7h-4.4v7.5Z" fill="#F7FBFA"/>
+  <path d="M41 19h5.8v25H41V19Z" fill="#9BD7D0"/>
+</svg>

@@ -1,0 +1,8 @@
+---
+import type { ProjectTag } from '../../data/projects';
+interface Props { tags: ProjectTag[] }
+const { tags } = Astro.props;
+---
+<ul class="project-metadata" aria-label="Project categories">
+  {tags.map((tag) => <li>{tag}</li>)}
+</ul>

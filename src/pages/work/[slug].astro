@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseStudyHeader from '../../components/project/CaseStudyHeader.astro';
+import ContactBand from '../../components/layout/ContactBand.astro';
+import { projects } from '../../data/projects';
+
+// Dedicated pages opt out in their project record before adding a matching static route.
+// This prevents the dynamic shell from generating a duplicate output path.
+
+export function getStaticPaths() {
+  return projects.filter((project) => project.usesSharedShell).map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props;
+---
+<BaseLayout title={project.title} description={project.premise} canonicalPath={project.route}>
+  <section class="case-shell">
+    <CaseStudyHeader project={project} />
+    <div class="case-placeholder">
+      <p class="eyebrow">Production shell</p>
+      <p>This case-study route is intentionally reserved for the project-specific production workstream. The shared design system, metadata, navigation, and responsive shell are in place; full project evidence is not being built in this phase.</p>
+    </div>
+  </section>
+  <ContactBand />
+</BaseLayout>
