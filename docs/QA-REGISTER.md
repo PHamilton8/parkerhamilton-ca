@@ -11,3 +11,10 @@
 | F07 | Foundation | Draft PR and CI | PASS | Draft PR #1 open; CI run 34444348179 quality and browser success |
 
 Foundation continuation condition passed at the recorded candidate. Downstream pages now require their own Definition of Done and independent review.
+
+## Reporting Workflow Automation
+
+- Branch `feat/reporting-workflow`, head `a4b60e6722ea04eb4724d424afea041741591418`, [draft PR #2](https://github.com/PHamilton8/parkerhamilton-ca/pull/2).
+- npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; GitHub CI pending.
+- Evidence: feature branch `docs/REPORTING-WORKFLOW-QA.md` and `docs/qa/reporting-workflow/`.
+- No outstanding implementation blocker.

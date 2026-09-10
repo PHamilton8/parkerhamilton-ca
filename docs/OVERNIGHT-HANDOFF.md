@@ -9,7 +9,13 @@
 - Screenshots: `docs/qa/foundation/homepage-{1440,820,390}.png`, actual built Astro app.
 - CI: corrected candidate quality and browser jobs PASS in run `34444348179`. Earlier missing-types failure is resolved.
 - Security correction: Astro raised from 7.2.4 to patched 7.2.8; no remaining audit findings.
-- Completed feature pages: none. Seven canonical handoffs read; Reporting/Grocery approved packages retrieved. See backlog table in `ORCHESTRATION-STATUS.md`.
-- Next action: implement and finish `feat/reporting-workflow` from the exact foundation candidate, then Grocery. Maintain independent feature branches and draft PRs targeting recovery.
+- Completed feature pages are recorded below; all seven canonical handoffs have been read. See `ORCHESTRATION-STATUS.md` for source authorities.
+- Next action: Start Grocery Automation from the foundation candidate. Create the next isolated feature branch from `acfeba769bea3d47672c0f200b6b85bfd40cde4f`; complete tests, independent review, draft PR, and ledger update before starting another slice.
 - User intervention: none currently required.
 - No merges, deployments, DNS or visibility changes. Hero deferred; global integration future.
+
+## Reporting Workflow Automation
+- Branch `feat/reporting-workflow`; head `a4b60e6722ea04eb4724d424afea041741591418`; [draft PR #2](https://github.com/PHamilton8/parkerhamilton-ca/pull/2), open and unmerged.
+- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI pending.
+- Screenshots: feature branch `docs/qa/reporting-workflow/`; details in `docs/REPORTING-WORKFLOW-QA.md`.
+- Outstanding: No implementation blocker.

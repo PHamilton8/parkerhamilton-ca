@@ -25,3 +25,9 @@
 - npm audit reported a critical AVIF-processing advisory in Astro 7.2.4. Upgraded to the smallest patched Astro release, 7.2.8 (same Node compatibility). The current dependency audit reports zero vulnerabilities. Source: https://github.com/advisories/GHSA-26w7-cxv4-gfx2 . The portfolio uses trusted static assets; this correction hardens the build dependency without adding runtime services.
 - The constrained environment's automatic detached Astro CLI preview conflicted with the test runner's process lifecycle. The browser harness now calls Astro's public preview API and retains the real built application's server in the runner lifecycle. It does not recreate page HTML.
 - Draft PR #1 was opened early to expose CI while browser infrastructure was repaired. No foundation candidate or downstream clearance was declared from that early draft.
+
+## Reporting Workflow Automation completed slice
+
+- Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
+- Use four byte-identical approved synthetic dashboard images and local illustration controls; preserve Parker-reported preparation-time scope and human review/submission.
+- Completed local Definition of Done and independent review; opened draft PR #2 against recovery. No merge or deploy.
