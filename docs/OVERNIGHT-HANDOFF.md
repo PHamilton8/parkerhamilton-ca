@@ -22,6 +22,6 @@
 
 ## Grocery Automation
 - Branch `feat/grocery-automation`; head `672818569d66764cc5892aa55fc32b8670294716`; [draft PR #3](https://github.com/PHamilton8/parkerhamilton-ca/pull/3), open and unmerged.
-- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI pending.
+- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI PASS (quality + browser, run 34446359420).
 - Screenshots: feature branch `docs/qa/grocery-automation/`; details in `docs/GROCERY-AUTOMATION-QA.md`.
 - Outstanding: No page blocker. Source audit asks owner to confirm historical credential rotation; no credential was accessed or published.

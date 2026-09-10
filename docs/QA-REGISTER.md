@@ -22,6 +22,6 @@ Foundation continuation condition passed at the recorded candidate. Downstream p
 ## Grocery Automation
 
 - Branch `feat/grocery-automation`, head `672818569d66764cc5892aa55fc32b8670294716`, [draft PR #3](https://github.com/PHamilton8/parkerhamilton-ca/pull/3).
-- npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; GitHub CI pending.
+- npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; GitHub CI PASS (quality + browser, run 34446359420).
 - Evidence: feature branch `docs/GROCERY-AUTOMATION-QA.md` and `docs/qa/grocery-automation/`.
 - No page blocker. Source audit asks owner to confirm historical credential rotation; no credential was accessed or published.
