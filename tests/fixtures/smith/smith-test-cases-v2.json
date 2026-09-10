@@ -1,0 +1,138 @@
+{
+  "version": 2,
+  "description": "Release-blocking and edge-case regression suite for the Smith Manoeuvre public calculator V2 formula contract.",
+  "numericTolerance": 0.000001,
+  "cases": [
+    {
+      "id": "standard-25y-golden",
+      "description": "Primary hypothetical reference scenario; exercises readvancement, annual tax offsets, early Smith mortgage payoff, equal-cash baseline, and full horizon.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeBalances","drawNeverExceedsActualPrincipalReduction","newDrawNeverBreaches65","cashBudgetEqual","mortgagePaidEarly","taxOffsetPositive","golden"],
+      "expected": {"scheduledMonthlyMortgageBudget":2324.586407999052,"endingMortgageBalance":0,"endingHelocBalance":419999.99999999994,"endingSmithTaxablePortfolio":1060806.6594520542,"endingBaselineMortgageBalance":0,"endingBaselinePortfolio":529827.1272850146,"cumulativeHelocInterestPaid":326860.9504583407,"estimatedCumulativeTaxOffset":114401.33266041924,"illustrativeNetPositionDifference":110979.5321670447,"smithMortgagePayoffMonth":253,"baselineMortgagePayoffMonth":300}
+    },
+    {
+      "id": "no-readvancement-convergence",
+      "description": "Starting LTV remains well above 65% through a one-year horizon, so no revolving room is created and Smith must converge to baseline.",
+      "inputs": {"homeValue":500000,"mortgageBalance":400000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":1,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeBalances","noDrawEntireHorizon","converges","cashBudgetEqual","newDrawNeverBreaches65"]
+    },
+    {
+      "id": "payoff-boundary-small-mortgage",
+      "description": "Short mortgage with tax offset pressure; validates that readvancement never exceeds actual principal reduction and mortgage cannot go negative.",
+      "inputs": {"homeValue":500000,"mortgageBalance":50000,"quotedMortgageRate":0.045,"remainingAmortizationYears":2,"annualHelocRate":0.08,"expectedAnnualInvestmentReturn":0.05,"horizonYears":3,"marginalTaxRateProxy":0.5,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeBalances","drawNeverExceedsActualPrincipalReduction","cashBudgetEqual","mortgagePaid"]
+    },
+    {
+      "id": "exact-65-start",
+      "description": "Starts exactly at the public revolving ceiling; each eligible draw must keep total secured LTV at or below 65%.",
+      "inputs": {"homeValue":600000,"mortgageBalance":390000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":5,"marginalTaxRateProxy":0,"deductibleInterestAssumption":0},
+      "checks": ["finite","newDrawPositive","newDrawNeverBreaches65","endingLtvAtMost65","cashBudgetEqual"]
+    },
+    {
+      "id": "above-65-no-room",
+      "description": "Begins at 80% LTV; no new revolving draw is permitted while secured debt remains above the 65% envelope.",
+      "inputs": {"homeValue":500000,"mortgageBalance":400000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":5,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","firstMonthDrawZero","drawOnlyAtOrBelow65","cashBudgetEqual"]
+    },
+    {
+      "id": "zero-investment-return-golden",
+      "description": "Zero-return stress test; outputs must remain finite and the comparison should mechanically reflect financing costs and tax proxy only.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeBalances","cashBudgetEqual","golden"],
+      "expected": {"endingHelocBalance":419999.99999999994,"endingSmithTaxablePortfolio":567842.5986303567,"endingBaselinePortfolio":326860.9504583407,"estimatedCumulativeTaxOffset":114401.33266041924,"illustrativeNetPositionDifference":-179018.35182797874}
+    },
+    {
+      "id": "return-below-heloc-rate",
+      "description": "Expected investment return is below borrowing cost; mathematics must run unchanged with no recommendation logic.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.08,"expectedAnnualInvestmentReturn":0.03,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","cashBudgetEqual","noNegativeBalances"]
+    },
+    {
+      "id": "zero-deductibility-golden",
+      "description": "No interest is assumed deductible; estimated tax offset must be exactly zero.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":0},
+      "checks": ["finite","taxOffsetZero","cashBudgetEqual","golden"],
+      "expected": {"endingSmithTaxablePortfolio":828875.4554046297,"endingBaselinePortfolio":455001.3441827196,"cumulativeHelocInterestPaid":278106.00838046556,"estimatedCumulativeTaxOffset":0,"illustrativeNetPositionDifference":-46125.88877808489,"smithMortgagePayoffMonth":300,"baselineMortgagePayoffMonth":300}
+    },
+    {
+      "id": "full-deductibility",
+      "description": "100% deductible-interest assumption; all eligible modeled interest enters the tax-offset proxy.",
+      "inputs": {"homeValue":650000,"mortgageBalance":390000,"quotedMortgageRate":0.05,"remainingAmortizationYears":25,"annualHelocRate":0.07,"expectedAnnualInvestmentReturn":0.06,"horizonYears":20,"marginalTaxRateProxy":0.4,"deductibleInterestAssumption":1},
+      "checks": ["finite","taxOffsetPositive","taxOffsetIdentity","cashBudgetEqual"]
+    },
+    {
+      "id": "early-smith-payoff",
+      "description": "Tax-offset accelerators should be able to make the Smith mortgage finish before the non-Smith baseline without creating negative balances.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":25,"marginalTaxRateProxy":0.45,"deductibleInterestAssumption":1},
+      "checks": ["finite","mortgagePaidEarly","noNegativeBalances","cashBudgetEqual"]
+    },
+    {
+      "id": "negative-investment-return-golden",
+      "description": "Large negative deterministic investment return; output must stay finite and logically consistent.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":-0.2,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeDebtBalances","cashBudgetEqual","golden"],
+      "expected": {"endingSmithTaxablePortfolio":156536.32338518175,"endingBaselinePortfolio":107415.23290557384,"illustrativeNetPositionDifference":-370878.90952038683}
+    },
+    {
+      "id": "zero-mortgage-rate",
+      "description": "Zero-rate mortgage uses principal divided by remaining months instead of a divide-by-zero PMT formula.",
+      "inputs": {"homeValue":500000,"mortgageBalance":300000,"quotedMortgageRate":0,"remainingAmortizationYears":20,"annualHelocRate":0.06,"expectedAnnualInvestmentReturn":0.05,"horizonYears":20,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","mortgagePaid","noNegativeBalances","cashBudgetEqual"]
+    },
+    {
+      "id": "zero-heloc-rate-golden",
+      "description": "Zero HELOC rate produces no HELOC interest and no interest-driven tax offset.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0,"expectedAnnualInvestmentReturn":0.06,"horizonYears":25,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","helocInterestZero","taxOffsetZero","cashBudgetEqual","golden"],
+      "expected": {"endingSmithTaxablePortfolio":828875.4554046297,"endingBaselinePortfolio":0,"cumulativeHelocInterestPaid":0,"estimatedCumulativeTaxOffset":0,"illustrativeNetPositionDifference":408875.4554046347}
+    },
+    {
+      "id": "zero-starting-mortgage",
+      "description": "No mortgage means no payment budget, no readvancement, no HELOC, and no portfolio in this V2 input contract.",
+      "inputs": {"homeValue":500000,"mortgageBalance":0,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":10,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","allZeroScenario","cashBudgetEqual"]
+    },
+    {
+      "id": "one-year-amortization-long-horizon",
+      "description": "Very short amortization followed by a longer horizon; former mortgage-payment budget must be invested after payoff in both scenarios.",
+      "inputs": {"homeValue":500000,"mortgageBalance":200000,"quotedMortgageRate":0.04,"remainingAmortizationYears":1,"annualHelocRate":0.06,"expectedAnnualInvestmentReturn":0.05,"horizonYears":3,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","mortgagePaid","postPayoffInvestmentPositive","cashBudgetEqual","noNegativeBalances"]
+    },
+    {
+      "id": "horizon-beyond-amortization",
+      "description": "35-year horizon on a 25-year amortization; post-payoff external budget must continue to be handled symmetrically.",
+      "inputs": {"homeValue":700000,"mortgageBalance":420000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":35,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "checks": ["finite","mortgagePaid","cashBudgetEqual","postPayoffInvestmentPositive"]
+    },
+    {
+      "id": "tax-offset-after-mortgage-payoff",
+      "description": "Once Smith mortgage is gone, annual modeled tax offset must flow to Smith portfolio rather than disappear.",
+      "inputs": {"homeValue":500000,"mortgageBalance":100000,"quotedMortgageRate":0.04,"remainingAmortizationYears":1,"annualHelocRate":0.1,"expectedAnnualInvestmentReturn":0,"horizonYears":3,"marginalTaxRateProxy":0.5,"deductibleInterestAssumption":1},
+      "checks": ["finite","taxOffsetToPortfolioPositive","cashBudgetEqual","mortgagePaid"]
+    },
+    {
+      "id": "zero-marginal-tax-proxy",
+      "description": "Zero marginal-rate proxy also forces estimated tax offset to zero even with 100% deductible-interest assumption.",
+      "inputs": {"homeValue":650000,"mortgageBalance":390000,"quotedMortgageRate":0.05,"remainingAmortizationYears":25,"annualHelocRate":0.07,"expectedAnnualInvestmentReturn":0.06,"horizonYears":20,"marginalTaxRateProxy":0,"deductibleInterestAssumption":1},
+      "checks": ["finite","taxOffsetZero","cashBudgetEqual"]
+    },
+    {
+      "id": "starting-ltv-over-80-invalid",
+      "description": "Public uninsured model rejects a starting mortgage above the stated 80% starting LTV boundary.",
+      "inputs": {"homeValue":500000,"mortgageBalance":410000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":0.06,"horizonYears":10,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "expectErrorIncludes": "80% starting LTV boundary"
+    },
+    {
+      "id": "minus-100-return-invalid",
+      "description": "An effective annual return of -100% cannot be converted to a real monthly multiplicative return and is rejected.",
+      "inputs": {"homeValue":500000,"mortgageBalance":300000,"quotedMortgageRate":0.045,"remainingAmortizationYears":25,"annualHelocRate":0.065,"expectedAnnualInvestmentReturn":-1,"horizonYears":10,"marginalTaxRateProxy":0.35,"deductibleInterestAssumption":1},
+      "expectErrorIncludes": "greater than -100%"
+    },
+    {
+      "id": "extreme-tax-proxy-boundary",
+      "description": "Boundary values of 100% marginal-rate proxy and 100% deductible assumption must remain finite and cannot overpay the mortgage.",
+      "inputs": {"homeValue":600000,"mortgageBalance":360000,"quotedMortgageRate":0.05,"remainingAmortizationYears":25,"annualHelocRate":0.09,"expectedAnnualInvestmentReturn":0.04,"horizonYears":25,"marginalTaxRateProxy":1,"deductibleInterestAssumption":1},
+      "checks": ["finite","noNegativeBalances","drawNeverExceedsActualPrincipalReduction","taxOffsetPositive","cashBudgetEqual"]
+    }
+  ]
+}
