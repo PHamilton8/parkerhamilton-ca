@@ -31,3 +31,9 @@
 - Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
 - Use four byte-identical approved synthetic dashboard images and local illustration controls; preserve Parker-reported preparation-time scope and human review/submission.
 - Completed local Definition of Done and independent review; opened draft PR #2 against recovery. No merge or deploy.
+
+## Grocery Automation completed slice
+
+- Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
+- Use approved synthetic two-store sample and curated sanitized code excerpts; preserve AI-assisted authorship, price-estimate limits, human review and the historical/public-cleanup distinction.
+- Completed local Definition of Done and independent review; opened draft PR #3 against recovery. No merge or deploy.

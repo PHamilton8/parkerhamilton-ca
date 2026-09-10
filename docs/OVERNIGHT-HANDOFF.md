@@ -10,7 +10,7 @@
 - CI: corrected candidate quality and browser jobs PASS in run `34444348179`. Earlier missing-types failure is resolved.
 - Security correction: Astro raised from 7.2.4 to patched 7.2.8; no remaining audit findings.
 - Completed feature pages are recorded below; all seven canonical handoffs have been read. See `ORCHESTRATION-STATUS.md` for source authorities.
-- Next action: Start Grocery Automation from the foundation candidate. Create the next isolated feature branch from `acfeba769bea3d47672c0f200b6b85bfd40cde4f`; complete tests, independent review, draft PR, and ledger update before starting another slice.
+- Next action: Start Design Day from the foundation candidate. Create the next isolated feature branch from `acfeba769bea3d47672c0f200b6b85bfd40cde4f`; complete tests, independent review, draft PR, and ledger update before starting another slice.
 - User intervention: none currently required.
 - No merges, deployments, DNS or visibility changes. Hero deferred; global integration future.
 
@@ -19,3 +19,9 @@
 - Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI PASS (quality + browser, run 34445631143).
 - Screenshots: feature branch `docs/qa/reporting-workflow/`; details in `docs/REPORTING-WORKFLOW-QA.md`.
 - Outstanding: No implementation blocker.
+
+## Grocery Automation
+- Branch `feat/grocery-automation`; head `672818569d66764cc5892aa55fc32b8670294716`; [draft PR #3](https://github.com/PHamilton8/parkerhamilton-ca/pull/3), open and unmerged.
+- Tests: npm ci/check/test (9/9)/build/browser (5/5)/safety PASS; independent review PASS; CI pending.
+- Screenshots: feature branch `docs/qa/grocery-automation/`; details in `docs/GROCERY-AUTOMATION-QA.md`.
+- Outstanding: No page blocker. Source audit asks owner to confirm historical credential rotation; no credential was accessed or published.
