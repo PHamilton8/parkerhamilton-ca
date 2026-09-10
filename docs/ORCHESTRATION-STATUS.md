@@ -87,10 +87,15 @@ Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQG
 - Branch: `prep/smith-manoeuvre-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
 - Head: `95dab36128fe436bc5ba62b7157b1c9fe72ba523`; [draft PR #8](https://github.com/PHamilton8/parkerhamilton-ca/pull/8) targets `chore/foundation-recovery`, open and unmerged.
 - Canonical authority: Smith V2 spec `1e1TSzHDU58ecYR6aQSizmE5TDplFzKKS`, reference `1JDURkIrLSmDji2BSnwSAs0OabjMEHQ6s`, fixtures `1IKinurUs6nIqPr92cWT_ES7IHGXU1-yc`, closeout `1vPtIi3hrJkwZi75caOtZcvyONKftJ5u_`.
-- Validation: 21/21 canonical cases plus period/helper invariants; 11/11 foundation/download tests =32 named cases/tests; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS. PR-triggered CI pending initial run.
+- Validation: 21/21 canonical cases plus period/helper invariants; 11/11 foundation/download tests =32 named cases/tests; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS. PR-triggered CI quality + browser PASS, run `34521253242`.
 - Independent review: Sol PASS; independent first/year-end/65%-limit/payoff/post-payoff cash-flow traces matched within $5.19e-9; no accounting contradiction.
 - Download preparation: `public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx`, 170,917 bytes, SHA-256 `3eb26f8f76c6dbc16ca42ec10debbb7d8b9f5b56fe9169fc55c49618a98c6ef9`; exact approved Drive file `1OWhf0LuPxXO64zBwxJY5UcK7dA2bHPnR`; no visible link; legacy/private originals excluded.
 - Blockers: None for headless engine. Explicit 12,000-month computation limit protects resources; it changes no accounting rule.
 - Current continuation: All three requested headless engines complete. Only a brief mechanical AskWill asset/provenance readiness check remains optional; user-facing production awaits final editorial/visual decisions.
 - **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
 - No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
+
+
+## 2026-09-10 — Current final headless handoff
+
+All three requested engines are complete as draft PRs #6, #7, and #8. Their quality and browser CI jobs pass. Exact branch heads, canonical identities, test counts, independent reviews, approved workbook hashes, integration notes, and the continuing editorial/visual hold are recorded in `docs/HEADLESS-PREP-HANDOFF.md`. No merge or deployment. **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.**
