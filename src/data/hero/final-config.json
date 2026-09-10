@@ -1,0 +1,109 @@
+{
+  "selection": {
+    "concept": "Cathedral Monument",
+    "colourway": "Violet + Coral",
+    "steepness": "HIGHEST",
+    "status": "FINAL SELECTED DIRECTION"
+  },
+  "colour": {
+    "dominant_violet": "#7655DC",
+    "deep_structural_violet": "#49318F",
+    "interior_coral": "#F26D57",
+    "optional_light_violet_edge": "#A58AF0",
+    "ribbon_layer_colors": [
+      "#7655DC",
+      "#49318F",
+      "#F26D57",
+      "#7655DC",
+      "#F26D57",
+      "#F26D57",
+      "#F26D57",
+      "#49318F",
+      "#7655DC"
+    ]
+  },
+  "trajectory": {
+    "family": "normalized exponential",
+    "formula": "screenY(t) = y0 - A * ((exp(k*t)-1)/(exp(k)-1))",
+    "x_formula": "screenX(t) = x0 + (x1-x0)*t",
+    "t_domain": [
+      0,
+      1
+    ],
+    "k": 2.0,
+    "A": 324.1696,
+    "amplitude_relationship": "A_HIGHEST = A_CURRENT * 1.36",
+    "x0": 64.34,
+    "x1": 505.66,
+    "y0": 405.56,
+    "render_samples": 320,
+    "no_spline_smoothing": true,
+    "screen_projection": "direct 2D SVG; no perspective transform on the centreline"
+  },
+  "cathedral_architecture": {
+    "ribbon_count": 9,
+    "ribbon_widths": [
+      13.4,
+      12.0,
+      11.2,
+      10.4,
+      9.8,
+      9.0,
+      8.5,
+      11.3,
+      13.8
+    ],
+    "ribbon_opacities": [
+      0.92,
+      0.36,
+      0.28,
+      0.42,
+      0.24,
+      0.18,
+      0.2,
+      0.34,
+      0.92
+    ],
+    "spreadBase": 1.6,
+    "spreadGain": 9.6,
+    "visibleBase": 0.2,
+    "proxFactor": 0.72,
+    "shadowOpacity": 0.03,
+    "shadowWidth": 20,
+    "shadowDx": 6,
+    "shadowDy": 14,
+    "pointerDistance": 135,
+    "neutral_pointer": {
+      "x": 0.58,
+      "y": 0.55
+    },
+    "localLift": {
+      "base": 3,
+      "gain": 16
+    },
+    "parallax": {
+      "base": 1.3,
+      "gain": 4.8,
+      "x": 1.0,
+      "y": 0.3
+    },
+    "response_function": "response(t) = 0.18 + 0.82*t^2"
+  },
+  "motion": {
+    "pointer_mapping": "continuous position/proximity",
+    "damping_time_constant_ms": 96,
+    "velocity_decay_per_frame": 0.91,
+    "idle_animation": "none",
+    "reduced_motion": "snap/interpolate directly to target states; static hero remains coherent"
+  },
+  "website_shell": {
+    "background": "#F4F5F2",
+    "text": "#17191B",
+    "secondary_text": "#686E72",
+    "rule": "#DDE1DE",
+    "headline": "Researcher who builds things.",
+    "supporting_copy": "I investigate problems, figure out what matters, and build useful things around what I learn.",
+    "credential": "MSc · Marketing Research & Behavioural Science · University of Ottawa",
+    "cta": "Explore my work →"
+  }
+}

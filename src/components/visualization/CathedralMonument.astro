@@ -1,0 +1,168 @@
+---
+import {
+  CATHEDRAL,
+  createCore,
+  neutralPointer,
+  renderCathedral,
+} from '../../lib/cathedralMonument';
+
+const core = createCore();
+const rest = renderCathedral(neutralPointer(), core);
+---
+<div class="cathedral-monument" data-cathedral-stage aria-hidden="true">
+  <svg viewBox="0 0 580 580" focusable="false" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id="cathedral-shadow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="7"></feGaussianBlur>
+      </filter>
+    </defs>
+    {rest.shadowPaths.map((path) => (
+      <path
+        data-cathedral-shadow
+        d={path}
+        fill="none"
+        stroke="#17191B"
+        stroke-width={CATHEDRAL.shadowWidth}
+        stroke-linecap="round"
+        opacity={CATHEDRAL.shadowOpacity}
+        filter="url(#cathedral-shadow)"
+      />
+    ))}
+    {rest.ribbonPaths.map((path, index) => (
+      <path
+        data-cathedral-ribbon={index + 1}
+        d={path}
+        fill="none"
+        stroke={CATHEDRAL.layers[index].color}
+        stroke-width={CATHEDRAL.layers[index].width}
+        stroke-linecap="round"
+        opacity={CATHEDRAL.layers[index].opacity}
+      />
+    ))}
+  </svg>
+</div>
+
+<script>
+  import {
+    CATHEDRAL,
+    createCore,
+    neutralPointer,
+    pointerFromClientPoint,
+    renderCathedral,
+  } from '../../lib/cathedralMonument';
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  for (const stage of document.querySelectorAll<HTMLElement>('[data-cathedral-stage]')) {
+    const ribbons = Array.from(stage.querySelectorAll<SVGPathElement>('[data-cathedral-ribbon]'));
+    const shadows = Array.from(stage.querySelectorAll<SVGPathElement>('[data-cathedral-shadow]'));
+    const core = createCore();
+
+    if (reducedMotion) {
+      stage.dataset.motion = 'reduced';
+      continue;
+    }
+
+    const neutral = neutralPointer();
+    const state = {
+      x: neutral.x,
+      y: neutral.y,
+      tx: neutral.x,
+      ty: neutral.y,
+      active: false,
+      touchActive: false,
+      raf: 0,
+      last: performance.now(),
+    };
+
+    const draw = () => {
+      const rendered = renderCathedral({
+        x: state.x,
+        y: state.y,
+        px: state.x * CATHEDRAL.viewBoxSize,
+        py: state.y * CATHEDRAL.viewBoxSize,
+        active: state.active,
+      }, core);
+      ribbons.forEach((path, index) => path.setAttribute('d', rendered.ribbonPaths[index]));
+      shadows.forEach((path, index) => path.setAttribute('d', rendered.shadowPaths[index]));
+    };
+
+    const frame = (now: number) => {
+      const dt = Math.min(34, now - state.last);
+      state.last = now;
+      const damping = 1 - Math.exp(-dt / CATHEDRAL.dampingMs);
+      state.x += (state.tx - state.x) * damping;
+      state.y += (state.ty - state.y) * damping;
+
+      const remaining = Math.max(Math.abs(state.tx - state.x), Math.abs(state.ty - state.y));
+      if (remaining < 0.00005) {
+        state.x = state.tx;
+        state.y = state.ty;
+      }
+      draw();
+
+      if (remaining >= 0.00005) {
+        state.raf = requestAnimationFrame(frame);
+      } else {
+        state.raf = 0;
+      }
+    };
+
+    const startAnimation = () => {
+      if (state.raf) return;
+      state.last = performance.now();
+      state.raf = requestAnimationFrame(frame);
+    };
+
+    const setPointer = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' && !state.touchActive) return;
+      const point = pointerFromClientPoint(event.clientX, event.clientY, stage.getBoundingClientRect());
+      state.tx = point.x;
+      state.ty = point.y;
+      state.active = true;
+      startAnimation();
+    };
+
+    const settle = () => {
+      state.tx = neutral.x;
+      state.ty = neutral.y;
+      state.active = false;
+      state.touchActive = false;
+      startAnimation();
+    };
+
+    stage.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'touch') setPointer(event);
+    });
+    stage.addEventListener('pointermove', setPointer);
+    stage.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'touch') state.touchActive = true;
+      setPointer(event);
+    });
+    stage.addEventListener('pointerleave', settle);
+    stage.addEventListener('pointerup', settle);
+    stage.addEventListener('pointercancel', settle);
+  }
+</script>
+
+<style>
+  .cathedral-monument {
+    width: min(100%, 36rem);
+    aspect-ratio: 1;
+    margin: auto;
+    touch-action: pan-y;
+    user-select: none;
+    cursor: crosshair;
+  }
+
+  .cathedral-monument svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  @media (pointer: coarse) {
+    .cathedral-monument { cursor: default; }
+  }
+</style>
