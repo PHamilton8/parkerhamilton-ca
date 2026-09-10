@@ -6,14 +6,18 @@ No merges, deployments, DNS changes, infrastructure changes, or repository visib
 
 Current main: `ab35cba4647afec3ebf94365865fac49d34e049e` (verified live).
 
-FOUNDATION_CANDIDATE_SHA: pending all foundation gates.
+FOUNDATION_CANDIDATE_SHA: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
+
+Foundation gate PASS: local gates, independent Sol review, and GitHub quality/browser jobs all pass. [Draft PR #1](https://github.com/PHamilton8/parkerhamilton-ca/pull/1) is open and unmerged. [CI evidence](https://github.com/PHamilton8/parkerhamilton-ca/actions/runs/34444348179).
 
 | Phase/task | Branch | Status | Head SHA | PR | Tests run | Blockers | Next action |
 |---|---|---|---|---|---|---|---|
-| A: Foundation recovery | chore/foundation-recovery | In progress | ab35cba4647afec3ebf94365865fac49d34e049e | None | Live repository inspection | Missing implementation and lockfile | Retrieve and reconcile canonical source ZIP |
-| Foundation release gate | chore/foundation-recovery | Pending | — | — | None | Recovery required | Check, build, real-app browser QA, privacy scan, independent review |
-| B: Canonical backlog | chore/foundation-recovery | Retrieval in progress | — | — | None | Foundation gate must pass before coding pages | Read approved closeouts only |
-| C: Feature production | Not started | Blocked by foundation gate | — | — | None | Foundation PR and all local gates required | Reporting Workflow Automation first |
+| A: Foundation recovery | chore/foundation-recovery | COMPLETE / unmerged | acfeba769bea3d47672c0f200b6b85bfd40cde4f | [#1](https://github.com/PHamilton8/parkerhamilton-ca/pull/1) | ci/check/test/build/browser/safety/audit/contrast PASS | None | Preserve candidate |
+| Foundation release gate | chore/foundation-recovery | PASS | acfeba769bea3d47672c0f200b6b85bfd40cde4f | #1 | Independent review PASS; GitHub quality + browser PASS | Hero intentionally deferred | Begin isolated slices |
+| B: Canonical backlog | chore/foundation-recovery | COMPLETE | Same candidate | #1 | Seven approved handoffs read | None | Use authorities below |
+| C1: Reporting Workflow Automation | feat/reporting-workflow | Starting | Based on candidate | Pending | Not yet run | None | Complete page, test, independent review, draft PR |
+| C2–C7: Remaining case studies | Not started | Pending priority order | — | — | None | Earlier slice must finish | Grocery next |
+
 
 Feature branches must start at the recorded foundation candidate, remain independent, and target `chore/foundation-recovery` as draft PRs.
 

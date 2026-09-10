@@ -21,9 +21,9 @@ Keyboard/focus test covers first-tab skip link, visible outline, primary home li
 
 Screenshots captured from that same real built application:
 
-- `qa/foundation/homepage-1440.png`
-- `qa/foundation/homepage-820.png`
-- `qa/foundation/homepage-390.png`
+- `docs/qa/foundation/homepage-1440.png`
+- `docs/qa/foundation/homepage-820.png`
+- `docs/qa/foundation/homepage-390.png`
 
 Local suite used Chromium 152.0.7977.0 supplied by a scratch-only packaged binary because the standard browser CDN timed out. Standard browser security options were retained; only normal headless/container launch options were supplied. CI uses the browser paired with pinned Playwright 1.63.0. No separate HTML preview was used.
 
@@ -36,4 +36,4 @@ Local suite used Chromium 152.0.7977.0 supplied by a scratch-only packaged binar
 
 ## Remaining gates
 
-Independent adversarial review and corrected-head GitHub CI verification are pending. Foundation release is not inferred from the early draft PR. Hero integration, full case-study pages, and launch/live AskWill recapture remain separate work.
+Independent adversarial review PASS at candidate `acfeba769bea3d47672c0f200b6b85bfd40cde4f`. GitHub CI run `34444348179`: quality PASS and browser PASS. Foundation continuation condition is satisfied. Hero integration, full case-study pages, and launch/live AskWill recapture remain separate work.
