@@ -1,17 +1,15 @@
 # Overnight handoff
 
-Run initialized 2026-09-10. Source of authority: `08-overnight-production-orchestrator.md` in the canonical Drive prompts folder.
-
-- Current main: `ab35cba4647afec3ebf94365865fac49d34e049e`.
-- Active branch: `chore/foundation-recovery`, created from current main.
-- Foundation candidate: not yet established; no foundation PR yet.
-- CI: not yet replaced or run; existing bootstrap workflow is a placeholder.
-- Completed features: none. All seven case-study pages remain unstarted.
-- Screenshots: none from this run yet.
-- Current blocker: missing foundation implementation must be recovered from canonical Drive ZIP.
-- Next action: reconcile ZIP with current package/config; apply the five required copy corrections; pin dependencies, generate lockfile, replace placeholder CI, and run all gates.
+- Main remains `ab35cba4647afec3ebf94365865fac49d34e049e`.
+- Recovery branch: `chore/foundation-recovery`.
+- Foundation draft PR: [#1](https://github.com/PHamilton8/parkerhamilton-ca/pull/1), open and unmerged.
+- Published implementation before gate corrections: `6f15ecd29f2efc2e864297521f022262bf73019d`.
+- Corrected candidate: local gate fixes being published; FOUNDATION_CANDIDATE_SHA is pending independent review.
+- Local checks: clean npm ci; Astro/TypeScript 0 errors/warnings/hints; source tests 8/8; build 9 pages; Playwright 3/3 covering 8 widths; public scan PASS; npm audit 0 vulnerabilities; contrast PASS.
+- Screenshots: `docs/qa/foundation/homepage-{1440,820,390}.png`, actual built Astro app.
+- CI: initial run failed missing Node types; fixed with exact @types/node 24.10.1. Corrected-head run pending.
+- Security correction: Astro raised from 7.2.4 to patched 7.2.8; no remaining audit findings.
+- Completed feature pages: none. Seven canonical handoffs read; Reporting/Grocery approved packages retrieved. See backlog table in `ORCHESTRATION-STATUS.md`.
+- Next action: complete independent foundation review, publish fixes if any, verify CI, record candidate, then create `feat/reporting-workflow` at that exact candidate.
 - User intervention: none currently required.
-- Hero work remains deferred. Global site integration is a later phase.
-- Do not merge any PR, deploy, alter infrastructure, or publish private source documents.
-
-Consult `ORCHESTRATION-STATUS.md`, `QA-REGISTER.md`, and `DECISION-LOG.md` for continuing updates.
+- No merges, deployments, DNS or visibility changes. Hero deferred; global integration future.

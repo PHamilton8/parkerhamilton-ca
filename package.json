@@ -18,11 +18,12 @@
     "qa:contrast": "python tests/contrast_check.py"
   },
   "dependencies": {
-    "astro": "7.2.4"
+    "astro": "7.2.8"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.63.0",
+    "@types/node": "24.10.1",
     "typescript": "5.9.3"
   }
 }

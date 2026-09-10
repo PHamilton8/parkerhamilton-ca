@@ -18,3 +18,10 @@
 - Replaced historical environment-specific closeout/QA claims with current evidence records. Original historical reports remain in canonical Drive.
 - Git CLI read access works, but direct push has no authenticated credential. Use the connected GitHub Git Database operations with verified file hashes and non-forced reference updates. No credential is copied into the checkout.
 - The standard Chromium CDN download timed out. A scratch-only packaged Chromium is being prepared for the same repository test suite; it is not a production dependency. Managed browser preview access is blocked in this runtime.
+
+## Release-gate corrections
+
+- The first GitHub CI check identified a missing direct Node type dependency introduced by environment-based Playwright configuration. Pinned @types/node 24.10.1; the clean npm ci and full check now pass.
+- npm audit reported a critical AVIF-processing advisory in Astro 7.2.4. Upgraded to the smallest patched Astro release, 7.2.8 (same Node compatibility). The current dependency audit reports zero vulnerabilities. Source: https://github.com/advisories/GHSA-26w7-cxv4-gfx2 . The portfolio uses trusted static assets; this correction hardens the build dependency without adding runtime services.
+- The constrained environment's automatic detached Astro CLI preview conflicted with the test runner's process lifecycle. The browser harness now calls Astro's public preview API and retains the real built application's server in the runner lifecycle. It does not recreate page HTML.
+- Draft PR #1 was opened early to expose CI while browser infrastructure was repaired. No foundation candidate or downstream clearance was declared from that early draft.

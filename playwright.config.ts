@@ -14,7 +14,8 @@ export default defineConfig({
     } : {},
   },
   webServer: {
-    command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4321',
+    env: { ASTRO_TELEMETRY_DISABLED: '1' },
+    command: 'npm run build && node scripts/preview-for-tests.mjs',
     url: 'http://127.0.0.1:4321',
     reuseExistingServer: false,
     timeout: 120_000,

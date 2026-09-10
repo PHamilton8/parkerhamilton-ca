@@ -29,6 +29,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: node scripts/public-safety-scan.mjs
+      - run: npm audit --audit-level=high
 
   browser:
     runs-on: ubuntu-latest
