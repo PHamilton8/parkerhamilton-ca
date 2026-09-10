@@ -62,10 +62,26 @@ Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQG
 - Branch: `prep/coast-fi-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
 - Head: `3e29b184bd1ee6935b5f9ff0c2761f256a36a894`; [draft PR #6](https://github.com/PHamilton8/parkerhamilton-ca/pull/6) targets `chore/foundation-recovery`, open and unmerged.
 - Canonical authority: Coast V2 spec `1_HdsA6wtFwstnXINd3TlgAQbUP2ZJaLS`, reference `12H9pn6yHvAVxLkcCTm2AFcRZYqWC9uRD`, fixtures `1jZJ3tIixlqRhakynLRomi-8hMAa_9bgJ`; closeout `1AzMCIjI-Spgq3yXFELpabDX9l6ATPSTg`.
-- Validation: 34/34 canonical +16 invariants +11 repository/download tests =61 passed; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS; npm audit 0 vulnerabilities. PR-triggered CI pending initial run.
+- Validation: 34/34 canonical +16 invariants +11 repository/download tests =61 passed; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS; npm audit 0 vulnerabilities. PR-triggered CI quality + browser PASS, run `34518800172`.
 - Independent review: Sol PASS; independent high-precision calculations and resolved numerical-range, helper-validation, and tolerance findings; engine-specific review committed.
 - Download preparation: `public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx`, 257,107 bytes, SHA-256 `469df9f9c589f57f17c4de52652abeca295223fbe90fe004268354958da6cf6a`; exact approved Drive file `1iAvfZiNr4MSH2904x_swFck06rVgvSjs`; no visible link.
 - Blockers: None for headless engine. Later UI must handle typed NUMERIC_RANGE_EXCEEDED when results cannot be represented.
 - Current continuation: Proceed to Compound Growth headless data/explorer work from the exact foundation candidate. Smith remains unstarted until Compound completes.
+- **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
+- No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
+
+
+## 2026-09-10 — Headless prep: Compound Growth complete
+
+Authority: `13-headless-production-prep-work.md` (Drive `10VQwMoLuQvYGdvJgZxKDQGZE7v-2TBku`), fresh durable-state continuation.
+
+- Branch: `prep/compound-growth-engine`; exact base: `acfeba769bea3d47672c0f200b6b85bfd40cde4f`.
+- Head: `bab5a26c6b4ce76cfa9ccf155284910c9116e19c`; [draft PR #7](https://github.com/PHamilton8/parkerhamilton-ca/pull/7) targets `chore/foundation-recovery`, open and unmerged.
+- Canonical authority: Thesis interaction V2 `1y6HU1MCgP_eyM6a1nSIVuRFaz4v0-yf4`; closeout `160nPmSjQyNFRk9ria_gooyMaOU8BihLM`; fixed projection, five-study summary, and Experiment 4 JSON identities/hashes in `COMPOUND-GROWTH-DATA-PROVENANCE.md`.
+- Validation: 13 Compound +8 baseline =21 tests passed; Astro/TypeScript 0 diagnostics; build 9 pages; public-safety PASS. PR-triggered CI pending initial run.
+- Independent review: Sol PASS; fixed-study/explorer separation, randomized-presentation/measured-mediator boundaries, planned contributions, independent annual FV/EGR and input validation verified.
+- Download preparation: None; no thesis manuscript or download link included. Three approved aggregate JSON files are stored byte-identically.
+- Blockers: None for headless engine. Future UI controls/copy/layout remain held for final specialist decisions.
+- Current continuation: Coast and Compound headless engines complete. Proceed to Smith V2 only as a complete tested/adversarially reviewed engine slice from the exact foundation candidate.
 - **NO USER-FACING UI/COPY/STYLING IMPLEMENTED.** Editorial and visual specialist reviews remain active. Any next user-facing production pass must wait for their final decision documents.
 - No PR merged; no site deployed; no visibility, DNS, or AskWill repository changes.
