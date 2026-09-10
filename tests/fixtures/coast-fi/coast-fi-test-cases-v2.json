@@ -1,0 +1,881 @@
+{
+  "schemaVersion": "2.0",
+  "calculator": "Coast FI V2 \u2014 Multi-Mode Planning Calculator",
+  "conventions": {
+    "moneyBasis": "today_dollars",
+    "returnBasis": "effective_real_annual_return",
+    "monthlyRateFormula": "m = (1 + r)^(1/12) - 1",
+    "contributionTiming": "end_of_month",
+    "monthlyContributionBasis": "constant_real_today_dollars",
+    "taxes": "excluded",
+    "accountTypes": "excluded",
+    "ageGrid": "whole_months",
+    "publicReturnRange": "(-100%, 20%]",
+    "warningAboveRealReturn": 0.1
+  },
+  "independentVerification": "Expected outputs were generated with an independent Python implementation of the documented formulas, then compared against the TypeScript reference model.",
+  "cases": [
+    {
+      "id": "A01_below_threshold",
+      "mode": "A",
+      "description": "Typical user below Coast threshold.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "yearsToRetirement": 35.0,
+        "requiredCoastThresholdToday": 181290.285352577,
+        "coastGapSurplus": -81290.28535257699,
+        "isAboveCoastThreshold": false,
+        "projectedRetirementValueZeroContributions": 551601.5367592367,
+        "warnings": []
+      }
+    },
+    {
+      "id": "A02_already_above_threshold",
+      "mode": "A",
+      "description": "Current portfolio already exceeds the Coast threshold.",
+      "inputs": {
+        "currentAge": 40,
+        "currentPortfolio": 350000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "yearsToRetirement": 25.0,
+        "requiredCoastThresholdToday": 295302.77169776184,
+        "coastGapSurplus": 54697.22830223816,
+        "isAboveCoastThreshold": true,
+        "projectedRetirementValueZeroContributions": 1185224.2293148031,
+        "warnings": []
+      }
+    },
+    {
+      "id": "A03_zero_return",
+      "mode": "A",
+      "description": "Zero real return edge case.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 800000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.0
+      },
+      "expected": {
+        "yearsToRetirement": 35.0,
+        "requiredCoastThresholdToday": 1000000.0,
+        "coastGapSurplus": -200000.0,
+        "isAboveCoastThreshold": false,
+        "projectedRetirementValueZeroContributions": 800000.0,
+        "warnings": []
+      }
+    },
+    {
+      "id": "A04_negative_return",
+      "mode": "A",
+      "description": "Negative real return remains mathematically supported.",
+      "inputs": {
+        "currentAge": 40,
+        "currentPortfolio": 900000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": -0.01
+      },
+      "expected": {
+        "yearsToRetirement": 25.0,
+        "requiredCoastThresholdToday": 1285642.2466625015,
+        "coastGapSurplus": -385642.2466625015,
+        "isAboveCoastThreshold": false,
+        "projectedRetirementValueZeroContributions": 700039.2234592258,
+        "warnings": []
+      }
+    },
+    {
+      "id": "A05_at_retirement_age",
+      "mode": "A",
+      "description": "Mode A permits current age equal to retirement age.",
+      "inputs": {
+        "currentAge": 65,
+        "currentPortfolio": 1100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "yearsToRetirement": 0.0,
+        "requiredCoastThresholdToday": 1000000.0,
+        "coastGapSurplus": 100000.0,
+        "isAboveCoastThreshold": true,
+        "projectedRetirementValueZeroContributions": 1100000.0,
+        "warnings": []
+      }
+    },
+    {
+      "id": "A06_high_return_warning",
+      "mode": "A",
+      "description": "Return above 10% real is allowed but warning is emitted.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 50000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.12
+      },
+      "expected": {
+        "yearsToRetirement": 35.0,
+        "requiredCoastThresholdToday": 18939.53039759578,
+        "coastGapSurplus": 31060.46960240422,
+        "isAboveCoastThreshold": true,
+        "projectedRetirementValueZeroContributions": 2639980.9789554453,
+        "warnings": [
+          "HIGH_REAL_RETURN"
+        ]
+      }
+    },
+    {
+      "id": "B01_typical_coast_by_45",
+      "mode": "B",
+      "description": "Required monthly contribution to reach Coast threshold by age 45.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "targetCoastAge": 45
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 45,
+          "months": 0,
+          "decimalYears": 45.0,
+          "label": "age 45"
+        },
+        "contributionMonths": 180,
+        "contributionDuration": {
+          "years": 15,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 376889.48287300044,
+        "requiredMonthlyContribution": 638.1456570462094,
+        "projectedBalanceAtCoastAge": 376889.48287300044,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 114866.2182683177,
+        "projectedRetirementValueIfStopAtCoast": 1000000.0000000001,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B02_zero_current_portfolio",
+      "mode": "B",
+      "description": "Starts from zero portfolio.",
+      "inputs": {
+        "currentAge": 25,
+        "currentPortfolio": 0,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.04,
+        "targetCoastAge": 45
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 45,
+          "months": 0,
+          "decimalYears": 45.0,
+          "label": "age 45"
+        },
+        "contributionMonths": 240,
+        "contributionDuration": {
+          "years": 20,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 456386.94620129216,
+        "requiredMonthlyContribution": 1254.3556983121207,
+        "projectedBalanceAtCoastAge": 456386.9462012921,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 301045.367594909,
+        "projectedRetirementValueIfStopAtCoast": 999999.9999999999,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B03_zero_required_contribution",
+      "mode": "B",
+      "description": "Current portfolio is already projected above target-age Coast threshold.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 250000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "targetCoastAge": 45
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 45,
+          "months": 0,
+          "decimalYears": 45.0,
+          "label": "age 45"
+        },
+        "contributionMonths": 180,
+        "contributionDuration": {
+          "years": 15,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 376889.48287300044,
+        "requiredMonthlyContribution": 0.0,
+        "projectedBalanceAtCoastAge": 519732.04485284665,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 0.0,
+        "projectedRetirementValueIfStopAtCoast": 1379003.841898076,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B04_zero_return",
+      "mode": "B",
+      "description": "Zero return uses linear contribution accumulation.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 200000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.0,
+        "targetCoastAge": 45
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 45,
+          "months": 0,
+          "decimalYears": 45.0,
+          "label": "age 45"
+        },
+        "contributionMonths": 180,
+        "contributionDuration": {
+          "years": 15,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 1000000.0,
+        "requiredMonthlyContribution": 4444.444444444444,
+        "projectedBalanceAtCoastAge": 1000000.0,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 800000.0,
+        "projectedRetirementValueIfStopAtCoast": 1000000.0,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B05_target_age_now_already_coast",
+      "mode": "B",
+      "description": "Target Coast age equals current age and current portfolio already qualifies.",
+      "inputs": {
+        "currentAge": 40,
+        "currentPortfolio": 350000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "targetCoastAge": 40
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 40,
+          "months": 0,
+          "decimalYears": 40.0,
+          "label": "age 40"
+        },
+        "contributionMonths": 0,
+        "contributionDuration": {
+          "years": 0,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 295302.77169776184,
+        "requiredMonthlyContribution": 0.0,
+        "projectedBalanceAtCoastAge": 350000.0,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 0.0,
+        "projectedRetirementValueIfStopAtCoast": 1185224.229314786,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B06_target_age_now_infeasible",
+      "mode": "B",
+      "description": "Target Coast age equals current age with no months available and portfolio below threshold.",
+      "inputs": {
+        "currentAge": 40,
+        "currentPortfolio": 250000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "targetCoastAge": 40
+      },
+      "expected": {
+        "feasible": false,
+        "reason": "NO_TIME_TO_CONTRIBUTE",
+        "targetCoastAge": {
+          "years": 40,
+          "months": 0,
+          "decimalYears": 40.0,
+          "label": "age 40"
+        },
+        "contributionMonths": 0,
+        "contributionDuration": {
+          "years": 0,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 295302.77169776184,
+        "requiredMonthlyContribution": null,
+        "projectedBalanceAtCoastAge": 250000,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": null,
+        "projectedRetirementValueIfStopAtCoast": null,
+        "warnings": []
+      }
+    },
+    {
+      "id": "B07_negative_return",
+      "mode": "B",
+      "description": "Negative real return requires larger contributions and a larger Coast threshold.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": -0.01,
+        "targetCoastAge": 45
+      },
+      "expected": {
+        "feasible": true,
+        "reason": null,
+        "targetCoastAge": {
+          "years": 45,
+          "months": 0,
+          "decimalYears": 45.0,
+          "label": "age 45"
+        },
+        "contributionMonths": 180,
+        "contributionDuration": {
+          "years": 15,
+          "months": 0
+        },
+        "coastThresholdAtTargetAge": 1222632.9843071206,
+        "requiredMonthlyContribution": 6799.680769323431,
+        "projectedBalanceAtCoastAge": 1222632.9843071208,
+        "targetRetirementValue": 1000000,
+        "totalContributedUntilCoast": 1223942.5384782176,
+        "projectedRetirementValueIfStopAtCoast": 1000000.0000000002,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C01_typical_crossing",
+      "mode": "C",
+      "description": "Monthly contribution produces a month-level Coast crossing.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "monthlyContribution": 500
+      },
+      "expected": {
+        "reached": true,
+        "monthsUntilCoast": 268,
+        "durationUntilCoast": {
+          "years": 22,
+          "months": 4
+        },
+        "estimatedCoastAge": {
+          "years": 52,
+          "months": 4,
+          "decimalYears": 52.333333333333336,
+          "label": "age 52 years 4 months"
+        },
+        "projectedPortfolioAtCoast": 539487.9206168458,
+        "coastThresholdAtCoast": 539016.6887370098,
+        "totalContributedUntilCoast": 134000,
+        "projectedRetirementValueIfStopAtCoast": 1000874.2435803615,
+        "projectedRetirementValueIfContributeToRetirement": 1105833.0239955306,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C02_already_coast",
+      "mode": "C",
+      "description": "Already above threshold returns current age and zero months.",
+      "inputs": {
+        "currentAge": 40,
+        "currentPortfolio": 350000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "monthlyContribution": 500
+      },
+      "expected": {
+        "reached": true,
+        "monthsUntilCoast": 0,
+        "durationUntilCoast": {
+          "years": 0,
+          "months": 0
+        },
+        "estimatedCoastAge": {
+          "years": 40,
+          "months": 0,
+          "decimalYears": 40.0,
+          "label": "age 40"
+        },
+        "projectedPortfolioAtCoast": 350000.0,
+        "coastThresholdAtCoast": 295302.77169776184,
+        "totalContributedUntilCoast": 0,
+        "projectedRetirementValueIfStopAtCoast": 1185224.229314786,
+        "projectedRetirementValueIfContributeToRetirement": 1478091.4895680582,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C03_zero_contribution_unreachable",
+      "mode": "C",
+      "description": "Zero contributions never reach threshold by retirement.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "monthlyContribution": 0
+      },
+      "expected": {
+        "reached": false,
+        "monthsUntilCoast": null,
+        "durationUntilCoast": null,
+        "estimatedCoastAge": null,
+        "projectedPortfolioAtCoast": null,
+        "coastThresholdAtCoast": null,
+        "totalContributedUntilCoast": null,
+        "projectedRetirementValueIfStopAtCoast": null,
+        "projectedRetirementValueIfContributeToRetirement": 551601.5367592367,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C04_zero_return_crossing",
+      "mode": "C",
+      "description": "Zero return crossing occurs when contributions exactly build to target.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.0,
+        "monthlyContribution": 2500
+      },
+      "expected": {
+        "reached": true,
+        "monthsUntilCoast": 360,
+        "durationUntilCoast": {
+          "years": 30,
+          "months": 0
+        },
+        "estimatedCoastAge": {
+          "years": 60,
+          "months": 0,
+          "decimalYears": 60.0,
+          "label": "age 60"
+        },
+        "projectedPortfolioAtCoast": 1000000.0,
+        "coastThresholdAtCoast": 1000000.0,
+        "totalContributedUntilCoast": 900000,
+        "projectedRetirementValueIfStopAtCoast": 1000000.0,
+        "projectedRetirementValueIfContributeToRetirement": 1150000.0,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C05_negative_return_unreachable",
+      "mode": "C",
+      "description": "Negative return plus modest contributions remains below threshold through retirement.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": -0.01,
+        "monthlyContribution": 1000
+      },
+      "expected": {
+        "reached": false,
+        "monthsUntilCoast": null,
+        "durationUntilCoast": null,
+        "estimatedCoastAge": null,
+        "projectedPortfolioAtCoast": null,
+        "coastThresholdAtCoast": null,
+        "totalContributedUntilCoast": null,
+        "projectedRetirementValueIfStopAtCoast": null,
+        "projectedRetirementValueIfContributeToRetirement": 424573.53807529353,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "C06_high_contribution_early_crossing",
+      "mode": "C",
+      "description": "High monthly contribution reaches Coast threshold early.",
+      "inputs": {
+        "currentAge": 25,
+        "currentPortfolio": 0,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05,
+        "monthlyContribution": 2000
+      },
+      "expected": {
+        "reached": true,
+        "monthsUntilCoast": 85,
+        "durationUntilCoast": {
+          "years": 7,
+          "months": 1
+        },
+        "estimatedCoastAge": {
+          "years": 32,
+          "months": 1,
+          "decimalYears": 32.083333333333336,
+          "label": "age 32 years 1 months"
+        },
+        "projectedPortfolioAtCoast": 202661.06082053896,
+        "coastThresholdAtCoast": 200686.8450685037,
+        "totalContributedUntilCoast": 170000,
+        "projectedRetirementValueIfStopAtCoast": 1009837.2952714533,
+        "projectedRetirementValueIfContributeToRetirement": 2965049.1898977337,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "D01_typical_retirement_target",
+      "mode": "D",
+      "description": "Required real monthly contribution to the full retirement target.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "contributionMonths": 420,
+        "contributionDuration": {
+          "years": 35,
+          "months": 0
+        },
+        "requiredMonthlyContribution": 404.5227252214839,
+        "projectedCurrentPortfolioGrowth": 551601.5367592367,
+        "futureValueOfContributions": 448398.46324076335,
+        "projectedRetirementValue": 1000000.0,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "D02_zero_return",
+      "mode": "D",
+      "description": "Zero return reduces to target gap divided by months.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.0
+      },
+      "expected": {
+        "contributionMonths": 420,
+        "contributionDuration": {
+          "years": 35,
+          "months": 0
+        },
+        "requiredMonthlyContribution": 2142.8571428571427,
+        "projectedCurrentPortfolioGrowth": 100000.0,
+        "futureValueOfContributions": 899999.9999999999,
+        "projectedRetirementValue": 999999.9999999999,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "D03_already_funded",
+      "mode": "D",
+      "description": "Current portfolio alone is projected beyond the target so required contribution is zero.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 200000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "contributionMonths": 420,
+        "contributionDuration": {
+          "years": 35,
+          "months": 0
+        },
+        "requiredMonthlyContribution": 0.0,
+        "projectedCurrentPortfolioGrowth": 1103203.0735184734,
+        "futureValueOfContributions": 0.0,
+        "projectedRetirementValue": 1103203.0735184734,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "D04_zero_portfolio",
+      "mode": "D",
+      "description": "Starts at zero and funds full target through monthly contributions.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 0,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": 0.05
+      },
+      "expected": {
+        "contributionMonths": 420,
+        "contributionDuration": {
+          "years": 35,
+          "months": 0
+        },
+        "requiredMonthlyContribution": 902.1501150959101,
+        "projectedCurrentPortfolioGrowth": 0.0,
+        "futureValueOfContributions": 1000000.0,
+        "projectedRetirementValue": 1000000.0,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "D05_negative_return",
+      "mode": "D",
+      "description": "Negative real return is supported.",
+      "inputs": {
+        "currentAge": 30,
+        "currentPortfolio": 100000,
+        "retirementAge": 65,
+        "retirementTarget": 1000000,
+        "annualRealReturn": -0.01
+      },
+      "expected": {
+        "contributionMonths": 420,
+        "contributionDuration": {
+          "years": 35,
+          "months": 0
+        },
+        "requiredMonthlyContribution": 2624.44869805182,
+        "projectedCurrentPortfolioGrowth": 70344.76949995608,
+        "futureValueOfContributions": 929655.230500044,
+        "projectedRetirementValue": 1000000.0,
+        "retirementTarget": 1000000,
+        "warnings": []
+      }
+    },
+    {
+      "id": "V01_return_minus_100",
+      "mode": "VALIDATION",
+      "description": "Validation error: RETURN_OUT_OF_RANGE_LOW.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": -1.0
+        }
+      },
+      "expectedError": {
+        "code": "RETURN_OUT_OF_RANGE_LOW"
+      }
+    },
+    {
+      "id": "V02_return_above_cap",
+      "mode": "VALIDATION",
+      "description": "Validation error: RETURN_OUT_OF_RANGE_HIGH.",
+      "inputs": {
+        "function": "D",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.2001
+        }
+      },
+      "expectedError": {
+        "code": "RETURN_OUT_OF_RANGE_HIGH"
+      }
+    },
+    {
+      "id": "V03_retirement_before_current",
+      "mode": "VALIDATION",
+      "description": "Validation error: RETIREMENT_AGE_BEFORE_CURRENT_AGE.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 60,
+          "currentPortfolio": 500000,
+          "retirementAge": 55,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "RETIREMENT_AGE_BEFORE_CURRENT_AGE"
+      }
+    },
+    {
+      "id": "V04_contribution_mode_same_age",
+      "mode": "VALIDATION",
+      "description": "Validation error: RETIREMENT_AGE_NOT_AFTER_CURRENT_AGE.",
+      "inputs": {
+        "function": "D",
+        "payload": {
+          "currentAge": 65,
+          "currentPortfolio": 500000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "RETIREMENT_AGE_NOT_AFTER_CURRENT_AGE"
+      }
+    },
+    {
+      "id": "V05_target_coast_after_retirement",
+      "mode": "VALIDATION",
+      "description": "Validation error: TARGET_COAST_AGE_OUT_OF_RANGE.",
+      "inputs": {
+        "function": "B",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05,
+          "targetCoastAge": 66
+        }
+      },
+      "expectedError": {
+        "code": "TARGET_COAST_AGE_OUT_OF_RANGE"
+      }
+    },
+    {
+      "id": "V06_negative_monthly_contribution",
+      "mode": "VALIDATION",
+      "description": "Validation error: NEGATIVE_MONTHLY_CONTRIBUTION.",
+      "inputs": {
+        "function": "C",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05,
+          "monthlyContribution": -1
+        }
+      },
+      "expectedError": {
+        "code": "NEGATIVE_MONTHLY_CONTRIBUTION"
+      }
+    },
+    {
+      "id": "V07_negative_portfolio",
+      "mode": "VALIDATION",
+      "description": "Validation error: NEGATIVE_PORTFOLIO.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": -1,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "NEGATIVE_PORTFOLIO"
+      }
+    },
+    {
+      "id": "V08_non_positive_target",
+      "mode": "VALIDATION",
+      "description": "Validation error: NON_POSITIVE_TARGET.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 30,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 0,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "NON_POSITIVE_TARGET"
+      }
+    },
+    {
+      "id": "V09_age_out_of_range",
+      "mode": "VALIDATION",
+      "description": "Validation error: AGE_OUT_OF_RANGE.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 17,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "AGE_OUT_OF_RANGE"
+      }
+    },
+    {
+      "id": "V10_fractional_age_not_month_boundary",
+      "mode": "VALIDATION",
+      "description": "Validation error: AGE_NOT_ON_MONTH_BOUNDARY.",
+      "inputs": {
+        "function": "A",
+        "payload": {
+          "currentAge": 30.1,
+          "currentPortfolio": 100000,
+          "retirementAge": 65,
+          "retirementTarget": 1000000,
+          "annualRealReturn": 0.05
+        }
+      },
+      "expectedError": {
+        "code": "AGE_NOT_ON_MONTH_BOUNDARY"
+      }
+    }
+  ]
+}
