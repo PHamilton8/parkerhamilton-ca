@@ -6,6 +6,7 @@ const homepage = fs.readFileSync(new URL('../src/pages/index.astro', import.meta
 const featured = fs.readFileSync(new URL('../src/components/project/ProjectCardFeatured.astro', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../src/styles/global.css', import.meta.url), 'utf8');
 const projects = fs.readFileSync(new URL('../src/data/projects.ts', import.meta.url), 'utf8');
+const designDayCase = fs.readFileSync(new URL('../src/pages/work/design-day.astro', import.meta.url), 'utf8');
 
 const forbiddenPublicCopy = [
   'Smaller in the homepage hierarchy, not smaller in substance.',
@@ -55,4 +56,18 @@ test('the dynamic work shell can be safely replaced by dedicated pages', () => {
   const routeShell = fs.readFileSync(new URL('../src/pages/work/[slug].astro', import.meta.url), 'utf8');
   assert.match(routeShell, /project\.usesSharedShell/);
   assert.match(projects, /usesSharedShell: true/);
+});
+
+
+test('Design Day has a dedicated public-safe route with the approved evidence', () => {
+  assert.match(projects, /slug: 'design-day'[\s\S]*usesSharedShell: false/);
+  assert.match(designDayCase, /Open 1 winner, uOttawa Design Day Winter 2023/);
+  assert.match(designDayCase, /Museum inspiration \/ reference — not our prototype\./);
+  assert.match(designDayCase, /<video[^>]*controls[^>]*preload="metadata"/);
+  assert.match(designDayCase, /actual sound from the functioning instrument/);
+  assert.match(designDayCase, /roughly five people, including about three musicians/);
+  assert.match(designDayCase, /illuminated interaction points[\s\S]*electronic control logic[\s\S]*synthesized sound/);
+  for (const phrase of ['laser-powered', 'laser-controlled', 'testing validated accessibility', 'testing drove a redesign', 'Arduino', 'Raspberry Pi', 'MIDI']) {
+    assert.equal(designDayCase.includes(phrase), false, phrase);
+  }
 });

@@ -53,7 +53,7 @@ export const projects: Project[] = [
     premise: 'An accessibility-oriented physical prototype built through interdisciplinary collaboration and informally tested with users.',
     tags: ['Research & Behaviour', 'Design & Experience', 'Build & Systems'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'design-day',
   },
   {
