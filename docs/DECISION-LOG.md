@@ -37,3 +37,22 @@
 - Independent branch from the exact foundation candidate; dedicated route opts out of the shared shell.
 - Use approved synthetic two-store sample and curated sanitized code excerpts; preserve AI-assisted authorship, price-estimate limits, human review and the historical/public-cleanup distinction.
 - Completed local Definition of Done and independent review; opened draft PR #3 against recovery. No merge or deploy.
+
+## Design Day completed slice and release-control repair
+
+- `feat/design-day` was completed at `c74dc41e31c0eea4e1e035aa1403d2658ae1cc91` from the exact foundation candidate, using approved final-prototype media, museum-reference framing, process media, real demo video/audio, bounded role wording, and evidence-limited accessibility/testing claims.
+- Original push CI run `34447214957` passed quality and browser jobs. The independent morning audit found no content/privacy/visual blocker; it identified only a missing draft PR and stale central ledger.
+- Central orchestration opened draft PR #5 against `chore/foundation-recovery`. The PR-triggered CI run `34503836496` also passed both quality and browser jobs. No merge or deployment.
+
+## Homepage hero implementation
+
+- The scheduled hero workstream independently implemented the selected Cathedral Monument geometry/interaction on `feat/homepage-hero`, head `5bdecc19496611a3cccc6c1608d02786b7a84124`, draft PR #4.
+- Production implementation uses deterministic server-rendered SVG plus a small TypeScript enhancement, with trajectory, responsive, reduced-motion, browser, safety and build gates green in run `34470520493`.
+- This records implementation state only. Parker has subsequently reopened the literal hero H1/eyebrow wording and the surrounding homepage visual composition for specialist review. Do not infer that current copy/layout treatment is final merely because the implementation passes QA.
+
+## Editorial and visual review hold
+
+- Parker has intentionally opened two interactive specialist review loops before more user-facing production work: final copy/editorial review and visual-design audit.
+- Current completed routes/hero should be preserved as audited starting points, not treated as immutable final copy or final composition.
+- Known owner concerns include AI/cliche-sounding homepage H1/eyebrow wording, a weak Design Day title, inconsistent alignment of the lower model/system/automation card visuals, and excessive height in those cards.
+- Until the specialist decision documents are available, do not spend Work allowance implementing new user-facing page copy or final layout for AskWill, Coast FI, Thesis, or Smith. Headless model/data/test preparation that cannot prejudice those decisions may proceed on isolated branches.
