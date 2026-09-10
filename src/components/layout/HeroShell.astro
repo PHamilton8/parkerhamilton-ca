@@ -1,5 +1,6 @@
 ---
 import { site } from '../../data/site';
+import CathedralMonument from '../visualization/CathedralMonument.astro';
 ---
 <section class="hero page-shell" aria-labelledby="hero-title">
   <div class="hero-copy">
@@ -7,9 +8,20 @@ import { site } from '../../data/site';
     <h1 id="hero-title">Researcher who <span>builds things.</span></h1>
     <p class="hero-lede">I investigate problems, figure out what matters, and build useful things around what I learn.</p>
     <p class="credential">{site.credential}</p>
-    <a class="hero-link" href="#work">Explore selected work <span aria-hidden="true">↓</span></a>
+    <a class="hero-link" href="#work">Explore my work <span aria-hidden="true">→</span></a>
   </div>
-  <div class="hero-visual-zone" aria-label="Reserved integration zone for the independently developed homepage hero visual.">
-    <div><strong>Hero visual in development</strong><span>Reserved integration zone</span></div>
+  <div class="hero-visual-zone hero-monument-zone">
+    <CathedralMonument />
   </div>
 </section>
+
+<style>
+  .hero-monument-zone {
+    padding: clamp(0.35rem, 1.2vw, 1rem);
+    background: #f4f5f2;
+  }
+
+  .hero-monument-zone::before {
+    content: none;
+  }
+</style>
