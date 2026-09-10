@@ -13,7 +13,8 @@
     "check": "npm run check:astro && npm run check:ts",
     "check:astro": "astro check",
     "check:ts": "tsc --noEmit --project tsconfig.json",
-    "test": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs",
+    "test": "npm run test:smith && node --test tests/source-contract.test.mjs tests/route-contract.test.mjs tests/smith-download-safety.test.mjs",
+    "test:smith": "node tests/run-smith-manoeuvre-tests.cjs",
     "test:browser": "playwright test",
     "qa:contrast": "python tests/contrast_check.py"
   },

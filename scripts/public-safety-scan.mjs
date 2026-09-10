@@ -1,5 +1,11 @@
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+
+// Exact approved bytes only. Authority and archive inspection: docs/SMITH-DOWNLOAD-PROVENANCE.md.
+const approvedDownloadHashes = new Map([
+  ['public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx', '3eb26f8f76c6dbc16ca42ec10debbb7d8b9f5b56fe9169fc55c49618a98c6ef9'],
+]);
 
 // Report categories and filenames only; never echo a suspected secret.
 const files = [...new Set(execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], { encoding: 'utf8' }).split('\0').filter(Boolean))];
@@ -15,8 +21,13 @@ const textRules = [
 ];
 for (const file of files) {
   if (!fs.existsSync(file) || !fs.statSync(file).isFile()) continue;
-  if (/\.(?:xlsx?|xlsm|docx?|zip|env|pem|key|sqlite|db)$/i.test(file)) failures.push([file, 'Private-source or credential file type']);
   const bytes = fs.readFileSync(file);
+  if (/\.(?:xlsx?|xlsm|docx?|zip|env|pem|key|sqlite|db)$/i.test(file)) {
+    const expectedHash = approvedDownloadHashes.get(file);
+    if (!expectedHash || createHash('sha256').update(bytes).digest('hex') !== expectedHash) {
+      failures.push([file, 'Private-source or credential file type (no exact approved download match)']);
+    }
+  }
   if (bytes.includes(0)) continue;
   const text = bytes.toString('utf8');
   for (const [reason, pattern] of textRules) if (pattern.test(text)) failures.push([file, reason]);
