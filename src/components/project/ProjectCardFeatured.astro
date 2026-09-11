@@ -7,7 +7,6 @@ const { project } = Astro.props;
 <article class="project-card featured-card" data-kind={project.mediaKind}>
   <div class="project-meta">
     <span class="project-number">{project.number}</span>
-    <span class="project-kicker">{project.kicker}</span>
   </div>
   <h3>{project.title}</h3>
   <p class="project-premise">{project.premise}</p>
@@ -17,27 +16,23 @@ const { project } = Astro.props;
       <div class="thesis-layered" aria-label="The same compound-growth projection shown as a numerical table and a line graph.">
         <figure class="table-figure">
           <img src="/assets/projects/compound-growth/table.webp" alt="Numerical table showing a 40-year compound-growth projection." loading="lazy" />
-          <figcaption>Same values · table</figcaption>
         </figure>
         <figure class="graph-figure">
           <img src="/assets/projects/compound-growth/graph.webp" alt="Line graph showing the same 40-year compound-growth projection." loading="lazy" />
-          <figcaption>Same values · graph</figcaption>
         </figure>
       </div>
     )}
     {project.mediaKind === 'design-day' && (
       <figure class="photo-frame">
         <img src="/assets/projects/design-day/final-circular-instrument.webp" alt="Circular light-based electronic musical instrument prototype on a workbench." loading="lazy" />
-        <figcaption>Final competition prototype · real project photograph</figcaption>
       </figure>
     )}
     {project.mediaKind === 'askwill' && (
-      <div class="askwill-composition" aria-label="AskWill mobile screenshot beside a concise rebuild architecture note.">
+      <div class="askwill-composition" aria-label="AskWill mobile screenshot.">
         <div class="browser-frame">
           <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>askwill.ca</span></div>
           <img src="/assets/projects/askwill/home-mobile.webp" alt="AskWill mobile homepage screenshot." loading="lazy" />
         </div>
-        <div class="architecture-note" aria-hidden="true"><strong>WIX</strong><b>→</b><strong>STATIC<br />REBUILD</strong><span>strategy · IA · copy · SEO · QA</span></div>
       </div>
     )}
   </div>
