@@ -4,54 +4,53 @@ import ContactBand from '../../components/layout/ContactBand.astro';
 import { projects } from '../../data/projects';
 
 const project = projects.find((item) => item.slug === 'reporting-workflow');
-if (!project) throw new Error('Reporting Workflow Automation project data is unavailable.');
+if (!project) throw new Error('Reporting Workflow project data is unavailable.');
 
 const stages = [
   {
     label: '1. Select',
     image: '/assets/projects/reporting-workflow/reporting-dashboard-initial.png',
     alt: 'Synthetic reporting dashboard in its initial state, with empty fields ready for a fictional demo record.',
-    summary: 'Choose a fictional record and staff member once. The public demo does not connect to a production system.',
+    summary: 'Choose a fictional record and staff member.',
   },
   {
     label: '2. Populate',
     image: '/assets/projects/reporting-workflow/reporting-dashboard-populated.png',
     alt: 'Synthetic reporting dashboard with a fictional demo record selected and repeated fields populated.',
-    summary: 'Repeated details populate from structured demo information so the user does not reconstruct them at each step.',
+    summary: 'Demographic and situational details populate automatically.',
   },
   {
     label: '3. Generate',
     image: '/assets/projects/reporting-workflow/reporting-dashboard-generated.png',
     alt: 'Synthetic reporting dashboard showing generated structured text and a fictional communication preview.',
-    summary: 'The workflow assembles standardized text and prepares a draft for the user to review.',
+    summary: 'The workflow autofills the standard reporting text, which can then be pasted into the portal.',
   },
   {
-    label: '4. Prepare transfer',
+    label: '4. Transfer',
     image: '/assets/projects/reporting-workflow/reporting-dashboard-transfer.png',
     alt: 'Synthetic reporting dashboard showing a simulated copy action ready for a user-controlled transfer.',
-    summary: 'The visual action is simulated. The user still completes the external handoff, adds any reference, and sends the final communication.',
+    summary: 'The program also fills in the relevant recipients, subject line, and body text. The user clicks the email button, which automatically creates a prefilled draft. The user reviews it and sends.',
   },
 ];
 ---
-<BaseLayout title={project.title} description={project.premise} canonicalPath={project.route}>
+<BaseLayout title="Automating a Reporting Workflow" description="An Excel/VBA workflow redesign that reduced a recurring reporting process from 45+ minutes to < 10." canonicalPath={project.route}>
   <article class="reporting-case">
     <header class="reporting-hero">
-      <p class="eyebrow">05 · Workflow redesign</p>
       <p class="reporting-label">Excel/VBA · Internal reporting</p>
-      <h1>Reporting Workflow Automation</h1>
-      <div class="reporting-result" aria-label="Report preparation reduced from 45 plus minutes to under 10 minutes">
-        <strong>45+ min <span aria-hidden="true">→</span> under 10 min</strong>
-        <p>Recurring report preparation time, Parker-reported.</p>
+      <h1>Automating a Reporting Workflow</h1>
+      <div class="reporting-result" aria-label="Report preparation reduced from 45 plus minutes to less than 10 minutes">
+        <strong>45+ min <span aria-hidden="true">→</span> &lt; 10 min</strong>
+        <div class="reporting-result-copy"><p>Recurring report preparation time.</p><p>Built for and used by a 12-person team.</p></div>
       </div>
       <p class="reporting-lede">I redesigned a repetitive internal reporting process around structured lookup, auto-populated fields, reusable text, and user-triggered preparation actions.</p>
     </header>
 
     <section class="reporting-section reporting-demo" aria-labelledby="demo-title">
       <div class="reporting-heading">
-        <p class="eyebrow">Synthetic demonstration</p>
-        <h2 id="demo-title">The repeated steps, shown safely</h2>
+        <p class="eyebrow">Demo</p>
+        <h2 id="demo-title">How the workflow worked</h2>
       </div>
-      <p class="reporting-intro">This public recreation uses fictional records and reserved example.com addresses. It shows the workflow sequence, not the private source file.</p>
+      <p class="reporting-intro">The real workbook contains confidential workplace information, so I rebuilt this demo from scratch with fictional data.</p>
       <div class="reporting-demo-layout">
         <figure class="reporting-figure">
           <img id="reporting-demo-image" src={stages[0].image} alt={stages[0].alt} width="1404" height="1645" />
@@ -62,40 +61,31 @@ const stages = [
           {stages.map((stage, index) => (
             <button class="reporting-demo-button" type="button" data-demo-stage={index} data-image={stage.image} data-alt={stage.alt} data-summary={stage.summary} aria-pressed={index === 0 ? 'true' : 'false'}>{stage.label}</button>
           ))}
-          <p class="reporting-control-note">Controls change the illustration only. They do not copy data, submit a report, or send a message.</p>
         </div>
       </div>
-      <ol class="reporting-stage-notes">
-        {stages.map((stage) => <li><strong>{stage.label}</strong><span>{stage.summary}</span></li>)}
-      </ol>
       <div class="sr-only" aria-live="polite" id="reporting-demo-live">{stages[0].summary}</div>
     </section>
 
     <section class="reporting-section reporting-problem" aria-labelledby="problem-title">
-      <div class="reporting-heading"><p class="eyebrow">The problem</p><h2 id="problem-title">Repetition took longer than judgment</h2></div>
+      <div class="reporting-heading reporting-heading--single"><h2 id="problem-title">Too much repeated work</h2></div>
       <div class="reporting-reading">
-        <p>The recurring workflow required the same information to be found, re-entered, reformatted, and rewritten each time. Much of the preparation effort came from moving known details between steps rather than making a new decision.</p>
+        <p>Each report required the same information to be found, re-entered, reformatted, and rewritten. A lot of the time was spent moving information between steps rather than doing anything new with it.</p>
         <p>I started by mapping that repetition, then structured the lookup data and made the predictable parts available from one guided dashboard.</p>
       </div>
     </section>
 
     <section class="reporting-section" aria-labelledby="flow-title">
-      <div class="reporting-heading"><p class="eyebrow">Process design</p><h2 id="flow-title">Make the handoff visible</h2></div>
+      <div class="reporting-heading"><p class="eyebrow">Process design</p><h2 id="flow-title">Simplifying the workflow</h2></div>
       <div class="reporting-flow-grid">
-        <div class="reporting-flow reporting-before"><h3>Before</h3><ol><li>Lookup</li><li>Copy or retype</li><li>Format</li><li>Write</li><li>Prepare communication</li><li>Submit</li></ol></div>
-        <div class="reporting-flow reporting-after"><h3>After</h3><ol><li>Select</li><li>Auto-populate</li><li>Review</li><li>Transfer</li></ol></div>
+        <div class="reporting-flow reporting-before"><h3>Before</h3><p class="reporting-flow-sequence">Retrieve from paper files → type → format → fill in paragraph templates → submit report → fill in email templates → find relevant recipients in files → prepare email → submit</p></div>
+        <div class="reporting-flow reporting-after"><h3>After</h3><p class="reporting-flow-sequence">Select → auto-populate → review → submit to portal → create prefilled email → send</p></div>
       </div>
-      <div class="reporting-reading"><p>The finished Excel/VBA workflow combined structured lookups, formula-driven field population, standardized text assembly, and user-triggered copy and draft-preparation actions. It reduced rebuilding work without pretending the full process could run unattended.</p></div>
+      <div class="reporting-reading"><p>The workbook used Excel formulas and lookups to populate repeated fields and generate the reporting text. VBA handled the user-triggered actions, including copying information to the clipboard and automatically creating the prefilled email draft.</p></div>
     </section>
 
     <section class="reporting-section reporting-human" aria-labelledby="human-title">
-      <div class="reporting-heading"><p class="eyebrow">Human in the loop</p><h2 id="human-title">Automation prepared; people decided</h2></div>
-      <div class="reporting-reading"><p>The user still confirmed the correct record, reviewed the populated details and generated text, completed the external submission, captured the external reference, and reviewed and sent the final communication. The tool handled repetition; judgment and final accountability stayed with the user.</p></div>
-    </section>
-
-    <section class="reporting-section reporting-close" aria-labelledby="lesson-title">
-      <div class="reporting-heading"><p class="eyebrow">What I learned</p><h2 id="lesson-title">Structure once, then automate the repeatable work</h2></div>
-      <div class="reporting-reading"><p>The largest opportunity was not a complex algorithm. It was recognizing that repeated lookup and repeated text could be structured once and reused consistently. The private source file handled confidential workplace information, so it is not published; this demo was rebuilt from scratch with fictional data and no production links or macros.</p></div>
+      <div class="reporting-heading reporting-heading--single"><h2 id="human-title">What stayed manual</h2></div>
+      <div class="reporting-reading"><p>The tool prepared the repetitive parts so that the user could simply review the information, submit the report, and send the final email.</p></div>
     </section>
   </article>
   <ContactBand />
@@ -127,10 +117,12 @@ const stages = [
   .reporting-hero h1 { margin: 0; max-width: 52rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
   .reporting-result { display: grid; grid-template-columns: auto minmax(0, 20rem); align-items: end; gap: 1.2rem 2rem; margin-top: clamp(2rem, 4vw, 3.25rem); padding: 1.25rem 0; border-block: 1px solid var(--color-line-strong); }
   .reporting-result strong { color: var(--color-teal); font-size: clamp(2rem, 4.7vw, 4rem); line-height: 1; letter-spacing: -.055em; white-space: nowrap; }
+  .reporting-result-copy { display: grid; gap: .35rem; }
   .reporting-result p { margin: 0; color: var(--color-muted); font-size: .86rem; font-weight: 650; }
   .reporting-lede { max-width: 45rem; margin: 1.7rem 0 0; color: var(--color-text); font-size: clamp(1.08rem, 1.6vw, 1.3rem); line-height: 1.55; }
   .reporting-section { padding-top: clamp(4rem, 8vw, 7rem); }
   .reporting-heading { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 2rem; align-items: start; }
+  .reporting-heading--single { grid-template-columns: 1fr; }
   .reporting-heading .eyebrow { margin: .5rem 0 0; }
   .reporting-heading h2 { max-width: 42rem; margin: 0; font-size: clamp(2.25rem, 4.6vw, 4.35rem); line-height: 1; letter-spacing: -.052em; }
   .reporting-intro, .reporting-reading { max-width: var(--content-reading); margin: 1.75rem 0 0 auto; color: var(--color-text); }
@@ -145,37 +137,29 @@ const stages = [
   .reporting-demo-button { width: 100%; min-height: 2.75rem; padding: .65rem .75rem; border: 1px solid var(--color-line-strong); border-radius: .55rem; background: var(--color-surface); color: var(--color-ink); cursor: pointer; font: inherit; font-size: .87rem; font-weight: 760; text-align: left; }
   .reporting-demo-button[aria-pressed='true'] { border-color: var(--color-teal); background: var(--color-deep-teal); color: white; }
   .reporting-demo-button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
-  .reporting-control-note { margin: .7rem 0 0; color: var(--color-muted); font-size: .76rem; line-height: 1.42; }
-  .reporting-stage-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem 1.5rem; margin: 1.2rem 0 0; padding: 0; list-style: none; }
-  .reporting-stage-notes li { display: grid; gap: .15rem; color: var(--color-muted); font-size: .8rem; line-height: 1.42; }
-  .reporting-stage-notes strong { color: var(--color-ink); font-size: .82rem; }
   .reporting-flow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.8rem; }
   .reporting-flow { padding: clamp(1.25rem, 2.5vw, 2rem); border: 1px solid var(--color-line); }
   .reporting-flow h3 { margin: 0; font-size: 1.45rem; letter-spacing: -.035em; }
-  .reporting-flow ol { display: flex; flex-wrap: wrap; gap: .6rem .85rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
-  .reporting-flow li { display: inline-flex; align-items: center; gap: .85rem; color: var(--color-text); font-size: .88rem; font-weight: 700; }
-  .reporting-flow li:not(:last-child)::after { content: '→'; color: var(--color-muted); }
+  .reporting-flow-sequence { margin: 1.25rem 0 0; color: var(--color-text); font-size: .88rem; font-weight: 700; line-height: 1.65; }
   .reporting-before { background: var(--color-surface); }
   .reporting-after { background: var(--color-pale-teal); }
   .reporting-after h3 { color: var(--color-teal); }
   .reporting-human { padding: clamp(3rem, 6vw, 5rem); background: var(--color-deep-teal); color: white; }
-  .reporting-human .eyebrow { color: #9bd7d0; }
   .reporting-human .reporting-heading h2 { color: white; }
   .reporting-human .reporting-reading { color: #dbe9e7; }
-  .reporting-close { padding-bottom: 0; }
   @media (max-width: 51.25rem) {
     .reporting-heading, .reporting-result { grid-template-columns: 1fr; }
     .reporting-heading .eyebrow { margin: 0; }
     .reporting-intro, .reporting-reading { margin-left: 0; }
     .reporting-demo-layout { grid-template-columns: 1fr; }
-    .reporting-demo-controls, .reporting-stage-notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .reporting-control-label, .reporting-control-note { grid-column: 1 / -1; }
+    .reporting-demo-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .reporting-control-label { grid-column: 1 / -1; }
   }
   @media (max-width: 35rem) {
     .reporting-case { padding-inline: 1.125rem; }
     .reporting-hero h1 { font-size: clamp(3.1rem, 15vw, 4.3rem); }
     .reporting-result strong { white-space: normal; }
-    .reporting-demo-controls, .reporting-stage-notes, .reporting-flow-grid { grid-template-columns: 1fr; }
+    .reporting-demo-controls, .reporting-flow-grid { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { .reporting-demo-button { transition: none; } }
 </style>
