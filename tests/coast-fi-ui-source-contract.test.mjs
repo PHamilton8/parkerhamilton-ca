@@ -20,7 +20,14 @@ test('Coast FI UI contains no financial-input persistence, networking, analytics
   for (const pattern of forbidden) assert.doesNotMatch(client, pattern);
 });
 
-test('Coast FI route remains a calculator-only harness with no workbook link', () => {
+test('Coast FI route integrates the preserved calculator into a full case study and exposes only the approved sanitized workbook', () => {
   assert.match(route, /<CoastFiCalculator\s*\/>/);
-  assert.doesNotMatch(route, /downloads\/|\.xlsx|ContactBand/);
+  assert.match(route, /The public calculator started as a much bigger spreadsheet problem\./);
+  assert.match(route, /The main scenario worked\. The audit still found real defects\./);
+  assert.match(route, /href="\/downloads\/Coast_FI_Calculator_Public_Sanitized\.xlsx"/);
+  assert.match(route, /download>/);
+  assert.match(route, /sanitized demonstration workbook/i);
+  assert.match(route, /<ContactBand\s*\/>/);
+  const workbookLinks = route.match(/\/downloads\/[^"']+\.xlsx/g) ?? [];
+  assert.deepEqual(workbookLinks, ['/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx']);
 });
