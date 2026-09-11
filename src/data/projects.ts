@@ -113,7 +113,7 @@ export const projects: Project[] = [
     premise: 'A planning model connecting contributions, account allocation, investment growth, Coast FI, and retirement projections.',
     tags: ['Financial Decision-Making', 'Modelling & Analysis', 'Build & Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'coast',
   },
 ];
