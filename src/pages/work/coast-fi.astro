@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CoastFiCalculator from '../../components/calculators/CoastFiCalculator.astro';
+---
+<BaseLayout
+  title="Coast FI / Net Worth Calculator"
+  description="A four-mode Coast FI planning calculator for comparing a portfolio with the Coast threshold, estimating Coast timing, and solving contribution targets."
+  canonicalPath="/work/coast-fi"
+>
+  <section class="coast-tool-page">
+    <header class="coast-tool-page__header">
+      <p class="eyebrow">Financial decision-making · Modelling</p>
+      <h1>Coast FI / Net Worth Calculator</h1>
+      <p>What would it take to reach your Coast threshold—and when might you get there? This calculator keeps the model deliberately small: one retirement target, one expected real return, and four related planning questions.</p>
+    </header>
+    <CoastFiCalculator />
+  </section>
+</BaseLayout>
+
+<style>
+  .coast-tool-page { max-width: var(--content-wide); margin-inline: auto; padding: clamp(3rem, 6vw, 5.5rem) clamp(1.125rem, 3vw, 2.25rem) clamp(5rem, 8vw, 7rem); }
+  .coast-tool-page__header { max-width: var(--content-main); margin-inline: auto; }
+  .coast-tool-page__header h1 { max-width: 58rem; margin: 0; font-size: clamp(2.9rem, 6vw, 5.35rem); line-height: 0.98; letter-spacing: -0.055em; }
+  .coast-tool-page__header > p:last-child { max-width: 52rem; margin: 1.1rem 0 0; color: var(--color-text); font-size: clamp(1rem, 1.5vw, 1.12rem); }
+  @media (max-width: 35rem) {
+    .coast-tool-page { padding-top: 2.5rem; padding-inline: 0.75rem; }
+    .coast-tool-page__header { padding-inline: 0.35rem; }
+    .coast-tool-page__header h1 { font-size: clamp(2.65rem, 14vw, 3.45rem); }
+  }
+</style>
