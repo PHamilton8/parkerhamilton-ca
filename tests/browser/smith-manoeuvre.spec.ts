@@ -228,8 +228,8 @@ test('full Smith page clears the required responsive containment matrix and capt
     await page.setViewportSize({ width, height: width >= 768 ? 1000 : 844 });
     await page.goto('/work/smith-manoeuvre');
     await expect(page.locator('[data-smith-calculator]')).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Assumptions' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Results' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Assumptions', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Results', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { level: 2, name: 'The harder problem was making the comparison itself fair.' })).toBeVisible();
     await expectNoDocumentOverflow(page);
     if ([1440, 820, 390].includes(width)) {
