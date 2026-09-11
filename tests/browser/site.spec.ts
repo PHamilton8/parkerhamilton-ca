@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 const widths = [1440, 1280, 1024, 820, 768, 430, 390, 360];
 const routes = [
-  ['compound-growth', 'Line Graphs, Compound Growth & Retirement Judgments'],
+  ['compound-growth', 'Compound Growth & Retirement Investing'],
   ['design-day', 'Interactive light-based musical instrument'],
   ['askwill', "Rebuilding AskWill's digital presence"],
   ['grocery-automation', 'Grocery Automation'],
