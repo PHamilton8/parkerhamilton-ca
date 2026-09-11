@@ -40,7 +40,7 @@ export const projects: Project[] = [
     premise: 'Can identical financial projections produce different judgments depending on how they are shown?',
     tags: ['Behavioural Research', 'Financial Decision-Making', 'Modelling'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'thesis',
   },
   {
@@ -52,7 +52,7 @@ export const projects: Project[] = [
     premise: "Our team built a laser-powered musical instrument that won 1st place at uOttawa's Design Day 2023",
     tags: ['Behavioural Research', 'Product Design', 'Builds and Systems'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'design-day',
   },
   {
@@ -64,7 +64,7 @@ export const projects: Project[] = [
     premise: 'A full website rethink for a family-run water-service business, covering structure, content, SEO, privacy, and QA.',
     tags: ['Product Design', 'Builds and Systems'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'askwill',
   },
   {
@@ -76,7 +76,7 @@ export const projects: Project[] = [
     premise: 'To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists.',
     tags: ['Automation', 'Builds and Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'grocery',
   },
   {
@@ -88,7 +88,7 @@ export const projects: Project[] = [
     premise: 'An Excel/VBA workflow redesign that reduced a recurring reporting process from 45+ minutes to < 10.',
     tags: ['Automation', 'Builds and Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'reporting',
   },
   {
@@ -100,7 +100,7 @@ export const projects: Project[] = [
     premise: 'A calculator for comparing leveraged and non-leveraged investing outcomes under different debt, investment, and tax assumptions.',
     tags: ['Financial Decision-Making', 'Modelling', 'Builds and Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'smith',
   },
   {
@@ -112,7 +112,7 @@ export const projects: Project[] = [
     premise: 'A planning model that connects today’s savings, future contributions, and investment growth to retirement targets.',
     tags: ['Financial Decision-Making', 'Modelling', 'Builds and Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'coast',
   },
 ];
