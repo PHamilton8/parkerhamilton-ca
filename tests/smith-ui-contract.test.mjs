@@ -54,7 +54,7 @@ test('Smith UI contains presentation transforms but no second financing engine',
   assert.match(view, /baselineClosingPortfolio\s*-\s*period\.baselineClosingMortgage/);
 });
 
-test('Smith calculator keeps visitor values local and does not expose a workbook download', () => {
+test('Smith calculator keeps visitor values local and does not expose a workbook download inside the tool', () => {
   for (const pattern of [
     /\bfetch\s*\(/,
     /XMLHttpRequest/,
@@ -70,9 +70,17 @@ test('Smith calculator keeps visitor values local and does not expose a workbook
   assert.match(component, /All entered values stay in this browser session\./);
 });
 
-test('Smith dedicated route is calculator-only and replaces the shared placeholder shell', () => {
+test('Smith dedicated route is a complete case study around the preserved calculator', () => {
   assert.match(route, /SmithManoeuvreCalculator/);
   assert.match(route, /canonicalPath="\/work\/smith-manoeuvre"/);
-  assert.doesNotMatch(route, /ContactBand/);
+  assert.match(route, /The harder problem was making the comparison itself fair\./);
+  assert.match(route, /Equal-cash baseline/);
+  assert.match(route, /21 \/ 21/);
+  assert.match(route, /Estimated tax offset/);
+  assert.match(route, /Smith_Manoeuvre_Public_Sanitized_V2\.xlsx/);
+  assert.doesNotMatch(route, /Smith_Manoeuvre_Public_Sanitized\.xlsx/);
+  assert.doesNotMatch(route, /\bprofit\b/i);
+  assert.doesNotMatch(route, /you should/i);
+  assert.doesNotMatch(route, /worth it/i);
   assert.match(projects, /slug:\s*'smith-manoeuvre'[\s\S]*?usesSharedShell:\s*false/);
 });
