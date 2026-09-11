@@ -59,14 +59,13 @@
     };
 
     const modeHelpers: Record<Mode, string> = {
-      A: 'Compare your current invested portfolio with the Coast threshold implied by your retirement target, age, and real-return assumption.',
-      B: 'Choose a target Coast age and estimate the constant real monthly contribution required to reach the Coast threshold by then.',
-      C: 'Enter a monthly contribution and estimate the first month when your projected portfolio reaches the Coast threshold.',
-      D: 'Estimate the constant real monthly contribution required to reach the full portfolio target by retirement.',
+      A: "See how your current portfolio compares with today's Coast threshold.",
+      B: 'Estimate the monthly contribution needed to reach Coast FI by a chosen age.',
+      C: 'Enter a monthly contribution and estimate when the portfolio first reaches the Coast threshold.',
+      D: 'Estimate the monthly contribution needed to reach the full target by retirement.',
     };
 
     const currencyWhole = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
-    const currencyCents = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const currencyInput = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 2 });
 
     function selectedMode(): Mode {
@@ -187,7 +186,7 @@
     }
 
     function contributionPrimary(exact: number): string {
-      return `About ${currencyWhole.format(Math.ceil(exact))} / month`;
+      return `${currencyWhole.format(Math.ceil(exact))} / month`;
     }
 
     function renderModeResult(mode: Mode, result: AnyResult, shared: SharedInputs): void {
@@ -195,9 +194,9 @@
         const data = result as ModeAResult;
         const gap = Math.abs(data.coastGapSurplus);
         answer.textContent = data.isAboveCoastThreshold
-          ? 'Your current portfolio is above the Coast threshold under these assumptions.'
-          : `Your current portfolio is currently about ${currencyWhole.format(gap)} below the Coast threshold under these assumptions.`;
-        setPrimary('Required Coast threshold today', currencyWhole.format(data.requiredCoastThresholdToday));
+          ? 'Your current portfolio is above the modeled Coast threshold.'
+          : `Your current portfolio is about ${currencyWhole.format(gap)} below the modeled Coast threshold.`;
+        setPrimary('Coast threshold today', currencyWhole.format(data.requiredCoastThresholdToday));
         renderMetrics([
           { label: 'Current invested portfolio', value: currencyWhole.format(shared.currentPortfolio) },
           { label: data.coastGapSurplus >= 0 ? 'Surplus above threshold' : 'Gap to threshold', value: currencyWhole.format(gap) },
@@ -210,7 +209,7 @@
         const data = result as ModeBResult;
         if (!data.feasible || data.requiredMonthlyContribution === null) {
           answer.textContent = 'That Coast age is your current age, so there are no future contribution months available. Your current portfolio is below the Coast threshold under these assumptions.';
-          setPrimary('Required monthly contribution', 'No contribution window', 'Choose a later Coast age to create contribution months.');
+          setPrimary('Monthly contribution to Coast by age', 'No contribution window', 'Choose a later Coast age to create contribution months.');
           renderMetrics([
             { label: 'Coast threshold at target age', value: currencyWhole.format(data.coastThresholdAtTargetAge) },
             { label: 'Current invested portfolio', value: currencyWhole.format(shared.currentPortfolio) },
@@ -218,8 +217,8 @@
           ]);
         } else {
           const age = data.targetCoastAge.years;
-          answer.textContent = `About ${currencyWhole.format(Math.ceil(data.requiredMonthlyContribution))} per month is the projected constant real contribution required to reach the Coast threshold by age ${age} under these assumptions.`;
-          setPrimary(`Required monthly contribution to Coast by age ${age}`, contributionPrimary(data.requiredMonthlyContribution), `Exact model value: ${currencyCents.format(data.requiredMonthlyContribution)} per month`);
+          answer.textContent = `The model estimates a monthly contribution of about ${currencyWhole.format(Math.ceil(data.requiredMonthlyContribution))} to reach the Coast threshold by age ${age}.`;
+          setPrimary(`Monthly contribution to Coast by age ${age}`, contributionPrimary(data.requiredMonthlyContribution));
           renderMetrics([
             { label: 'Coast threshold at target age', value: currencyWhole.format(data.coastThresholdAtTargetAge) },
             { label: 'Contribution duration', value: durationLabel(data.contributionDuration.years, data.contributionDuration.months) },
@@ -234,8 +233,8 @@
         const data = result as ModeCResult;
         const contribution = value(inputs.monthlyContribution);
         if (data.reached && data.estimatedCoastAge && data.durationUntilCoast) {
-          answer.textContent = `At ${currencyInput.format(contribution)} per month, your projected portfolio first reaches the Coast threshold at about ${data.estimatedCoastAge.label} under these assumptions.`;
-          setPrimary('Estimated Coast threshold', data.estimatedCoastAge.label);
+          answer.textContent = `At ${currencyInput.format(contribution)} per month, the modeled portfolio reaches the Coast threshold at about age ${data.estimatedCoastAge.years}.`;
+          setPrimary('Estimated Coast age', data.estimatedCoastAge.label);
           renderMetrics([
             { label: 'Time until Coast threshold', value: durationLabel(data.durationUntilCoast.years, data.durationUntilCoast.months) },
             { label: 'Projected portfolio at crossing', value: currencyWhole.format(data.projectedPortfolioAtCoast ?? 0) },
@@ -244,8 +243,8 @@
             { label: 'Projected at retirement if contributions continue', value: currencyWhole.format(data.projectedRetirementValueIfContributeToRetirement) },
           ]);
         } else {
-          answer.textContent = 'At this contribution, the projected portfolio does not reach the Coast threshold before retirement under these assumptions.';
-          setPrimary('Coast threshold status', 'Not reached by retirement');
+          answer.textContent = 'At this contribution, the modeled portfolio does not reach the Coast threshold before retirement.';
+          setPrimary('Estimated Coast age', 'Not reached by retirement');
           renderMetrics([
             { label: 'Monthly contribution', value: `${currencyInput.format(contribution)} / month` },
             { label: 'Projected at retirement if contributions continue', value: currencyWhole.format(data.projectedRetirementValueIfContributeToRetirement) },
@@ -256,8 +255,8 @@
 
       if (mode === 'D') {
         const data = result as ModeDResult;
-        answer.textContent = `About ${currencyWhole.format(Math.ceil(data.requiredMonthlyContribution))} per month is the projected constant real contribution required to reach the full retirement portfolio target by age ${shared.retirementAge} under these assumptions.`;
-        setPrimary('Retirement-target contribution', contributionPrimary(data.requiredMonthlyContribution), `Exact model value: ${currencyCents.format(data.requiredMonthlyContribution)} per month`);
+        answer.textContent = `The model estimates a monthly contribution of about ${currencyWhole.format(Math.ceil(data.requiredMonthlyContribution))} to reach the full retirement target by age ${shared.retirementAge}.`;
+        setPrimary('Monthly contribution to retirement target', contributionPrimary(data.requiredMonthlyContribution));
         renderMetrics([
           { label: 'Projected current portfolio at retirement', value: currencyWhole.format(data.projectedCurrentPortfolioGrowth) },
           { label: 'Future value from solved contributions', value: currencyWhole.format(data.futureValueOfContributions) },
@@ -266,9 +265,8 @@
         ]);
       }
 
-      const returnPercent = value(inputs.realReturn);
       warning.hidden = !(result.warnings ?? []).includes('HIGH_REAL_RETURN');
-      assumptions.textContent = `Today's dollars · ${returnPercent}% expected real annual return · ${shared.currentAge} to ${shared.retirementAge} · month-end contributions where applicable`;
+      assumptions.textContent = 'Today’s dollars · real annual return · month-end contributions · month-level Coast search.';
     }
 
     function calculate(mode: Mode, shared: SharedInputs): AnyResult {
