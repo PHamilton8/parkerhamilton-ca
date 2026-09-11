@@ -1,14 +1,14 @@
 export const site = {
   name: 'Parker Hamilton',
   origin: 'https://parkerhamilton.ca',
-  defaultTitle: 'Parker Hamilton — Researcher who builds things',
+  defaultTitle: 'Parker Hamilton',
   titleTemplate: '%s — Parker Hamilton',
   description:
-    'A project-focused portfolio spanning behavioural research, digital strategy, automation, modelling, and practical problem solving.',
+    'Most of my projects start with a research question or something I think could work better.',
   email: 'parkerhamilton5324@gmail.com',
   linkedinUrl: undefined as string | undefined,
   location: 'Ottawa, Canada',
-  credential: 'MSc · Marketing Research & Behavioural Science · University of Ottawa',
+  credential: 'MSc · Marketing Research & Behavioural Science',
   ogImage: '/assets/site/og-default.png',
 } as const;
 
