@@ -4,62 +4,54 @@ import ContactBand from '../../components/layout/ContactBand.astro';
 import { groceryOptions } from '../../data/grocery-demo';
 import { projects } from '../../data/projects';
 
-const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Walmart Grocery\"],\n  \"Independent\": [\"Your Independent Grocer\"],\n}\n\nresponse = requests.get(\n  FLIPP_SEARCH_URL, params=params,\n  headers=headers, timeout=timeout_seconds\n)", "response = client.models.generate_content(\n  model=model_name,\n  contents=prompt,\n  config=types.GenerateContentConfig(\n    response_mime_type=\"application/json\"\n  ),\n)\npayload = json.loads(response.text)", "df = df.drop_duplicates(\n  subset=[\"Store\", \"Product\", \"Sale Price\"]\n).reset_index(drop=True)"];
+const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Walmart Grocery\"],\n  \"Independent\": [\"Your Independent Grocer\"],\n}\n\nresponse = requests.get(\n  FLIPP_SEARCH_URL, params=params,\n  headers=headers, timeout=timeout_seconds\n)", "response = client.models.generate_content(\n  model=model_name,\n  contents=prompt,\n  config=types.GenerateContentConfig(\n    response_mime_type=\"application/json\"\n  ),\n)\npayload = json.loads(response.text)"];
 
 const project = projects.find((item) => item.slug === 'grocery-automation');
 if (!project) throw new Error('Grocery Automation project data is unavailable.');
 ---
-<BaseLayout title={project.title} description={project.premise} canonicalPath={project.route}>
+<BaseLayout title="Grocery Automation" description="To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists." canonicalPath={project.route}>
   <article class="grocery-case">
     <header class="grocery-hero">
-      <p class="eyebrow">04 · Automation</p>
-      <p class="grocery-meta">Python · structured flyer data · Gemini · JSON · Excel</p>
+      <p class="grocery-meta">Python · Flipp/Wishabi · Gemini API · JSON · Excel</p>
       <h1>Grocery Automation</h1>
-      <p class="grocery-lede">A recurring planning task became a repeatable pipeline: flyer data in, rule-constrained menu options and a reviewable Excel output out.</p>
-      <p class="grocery-authorship">I designed and implemented the workflow with AI-assisted coding support, defining the rules, testing each version, and changing the architecture when the real workflow exposed a weak point.</p>
+      <p class="grocery-lede">I built this to automate a recurring meal-planning task at work. It used weekly grocery sales and client preferences to build cost-conscious menus with more variety, so tacos and burgers did not have to carry the whole week. The workflow then planned the dinners and produced a grocery list for ordering.</p>
     </header>
 
     <section class="grocery-section grocery-pipeline" aria-labelledby="pipeline-title">
-      <div class="grocery-heading"><p class="eyebrow">At a glance</p><h2 id="pipeline-title">A practical pipeline, not a one-step prompt</h2></div>
+      <div class="grocery-heading"><p class="eyebrow">At a glance</p><h2 id="pipeline-title">How the workflow works</h2></div>
       <ol class="grocery-pipeline-list">
-        <li>Flyer data</li><li>Python extraction</li><li>Product records</li><li>Gemini + rules</li><li>JSON</li><li>Excel</li><li>Human review</li>
+        <li>Flyer data</li><li>Python extraction</li><li>structured product data</li><li>Gemini API + rules</li><li>JSON</li><li>Excel</li><li>human review</li>
       </ol>
-      <div class="grocery-reading"><p>The system was built for a recurring group meal-planning job: review sale information, plan varied dinners for a group, respect restrictions and pantry assumptions, and produce an orderable comparison another person could read. Gemini was one stage in a wider workflow, not the whole product.</p></div>
+      <div class="grocery-reading"><p>The task was to plan six dinners for nine people using that week's grocery sales, while accounting for food restrictions, preferences, and what was already in the pantry. The final Excel file gave my supervisor two store-based options to review for ordering.</p></div>
     </section>
 
     <section class="grocery-section" aria-labelledby="pivot-title">
-      <div class="grocery-heading"><p class="eyebrow">Decision one</p><h2 id="pivot-title">When browser automation became brittle, change the representation</h2></div>
-      <div class="grocery-reading"><p>I began with browser automation. It could reach the retailer site, but bot protection made the visible frontend a poor dependency. Rather than trying to force that route, I moved to Flipp and then to the structured Wishabi/Flipp JSON data used behind the flyer experience.</p><p>That pivot turned a screen-reading problem into a product-and-price record problem. Python could request the structured results, keep only the fields needed downstream, and pass a compact product table to the planning stage.</p></div>
+      <div class="grocery-heading"><p class="eyebrow">Data source</p><h2 id="pivot-title">The bot detector won. I changed tactics.</h2></div>
+      <div class="grocery-reading"><p>I started with browser automation, but retailer bot protection quickly made it unreliable. Instead of fighting the websites, I switched to the structured flyer data available through Flipp/Wishabi.</p><p>That gave Python structured product and price records to work with instead of trying to read information from a webpage.</p></div>
       <pre class="grocery-code" aria-label="Approved code excerpt showing the final store query groups"><code>{codeExcerpts[0]}</code></pre>
     </section>
 
     <section class="grocery-section" aria-labelledby="rules-title">
-      <div class="grocery-heading"><p class="eyebrow">Decision two</p><h2 id="rules-title">Put the human rules in the system</h2></div>
+      <div class="grocery-heading"><p class="eyebrow">Planning rules</p><h2 id="rules-title">Giving the model some house rules</h2></div>
       <div class="grocery-rule-grid">
         <div><h3>Scale</h3><p>Exactly 6 dinners for 9 adult portions.</p></div>
         <div><h3>Preferences</h3><p>Chicken thighs, ground beef, tacos, smash burgers, Greek and Mexican flavours.</p></div>
-        <div><h3>Constraints</h3><p>Pork-free and shellfish-free; avoid premium proteins chosen only because they are on sale.</p></div>
+        <div><h3>Constraints</h3><p>Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale. Sorry beef tenderloin, $2 off per kilo still does not make you a budget protein.</p></div>
         <div><h3>Pantry</h3><p>Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.</p></div>
       </div>
-      <div class="grocery-reading"><p>The useful behaviour did not come from asking a model to “make a menu.” The script made portions, exclusions, preferred meals, available pantry items, and protein-reuse logic explicit. The model could interpret the product data within those bounds, while a person still reviewed the result.</p></div>
+      <div class="grocery-reading"><p>The Gemini API was given the actual planning rules we used at work: serving size, restrictions, preferred meals, pantry assumptions, and opportunities to reuse ingredients across dinners.</p></div>
     </section>
 
     <section class="grocery-section" aria-labelledby="json-title">
-      <div class="grocery-heading"><p class="eyebrow">Decision three</p><h2 id="json-title">Prose was readable. JSON was usable.</h2></div>
-      <div class="grocery-reading"><p>The first model integration returned a long block of prose. A person could read it, but Python could not reliably turn it into a spreadsheet. I updated the SDK integration after it changed, then required a nested JSON response with separate store options, days, meals, ingredients, instructions, and costs.</p><p>That made the AI output a component in a larger system: Python could validate the expected shape before generating the workbook, instead of treating a fluent paragraph as the endpoint.</p></div>
+      <div class="grocery-heading"><p class="eyebrow">Structured output</p><h2 id="json-title">Switching the output to JSON</h2></div>
+      <div class="grocery-reading"><p>The first Gemini version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.</p><p>Python could then check that the expected fields were present before using the response to generate the Excel workbook.</p></div>
       <pre class="grocery-code" aria-label="Approved code excerpt showing structured JSON output"><code>{codeExcerpts[1]}</code></pre>
-    </section>
-
-    <section class="grocery-section" aria-labelledby="store-title">
-      <div class="grocery-heading"><p class="eyebrow">Decision four</p><h2 id="store-title">Retailer quirks belonged in the data layer</h2></div>
-      <div class="grocery-reading"><p>A single Walmart search sometimes surfaced general merchandise while missing useful grocery sale items. I added a second Walmart Grocery query, normalized both searches under Walmart, and removed overlapping rows. The public version also includes the store in its deduplication key so identical items at different stores remain separate. This was a small change with a practical effect: the comparison better reflected what someone could actually see in the flyer.</p></div>
-      <pre class="grocery-code" aria-label="Approved code excerpt showing store-aware deduplication"><code>{codeExcerpts[2]}</code></pre>
     </section>
 
     <section class="grocery-section grocery-sample" aria-labelledby="sample-title">
       <div class="grocery-heading"><p class="eyebrow">Sample output</p><h2 id="sample-title">Two six-dinner options, ready for review</h2></div>
-      <p class="grocery-sample-label">SAMPLE / DEMONSTRATION DATA — NOT LIVE PRICES</p>
-      <div class="grocery-reading"><p>These two options come from the approved deterministic demonstration response. Every option is scaled for 9 portions and lists six dinners. The totals are meal-level demo totals; they are comparison aids, not current baskets or an optimization result.</p></div>
+      <p class="grocery-sample-label">Sample data</p>
+      <div class="grocery-reading"><p>This is a sample version of the final output, with six dinners for nine people and two store options to compare.</p></div>
       <div class="grocery-table-wrap" tabindex="0" aria-label="Sample six-dinner options by store. Scroll horizontally if needed.">
         <table>
           <thead><tr><th scope="col">Dinner</th>{groceryOptions.map((option) => <th scope="col">{option.store}</th>)}</tr></thead>
@@ -78,12 +70,6 @@ if (!project) throw new Error('Grocery Automation project data is unavailable.')
           </details>
         ))}
       </div>
-      <p class="grocery-caveat">Some components are marked <em>estimate</em> when they were not present in the flyer data. Those are model estimates, not live shelf prices.</p>
-    </section>
-
-    <section class="grocery-section grocery-close" aria-labelledby="limits-title">
-      <div class="grocery-heading"><p class="eyebrow">Limits and next steps</p><h2 id="limits-title">Useful automation still needs a person</h2></div>
-      <div class="grocery-reading"><p>I used and refined the workflow in practice, especially as retailer behaviour and workbook readability surfaced edge cases. It is not a procurement platform: Flipp/Wishabi is a third-party dependency, the data shape can change, and a human should review the final plan. Missing non-sale prices may be estimated, so the system does not claim a single best basket or place an order.</p><p>Next, I would add a current source for non-sale prices, separate configuration from implementation more cleanly, and keep the deterministic demo mode so the workflow remains explainable even when outside services are unavailable.</p></div>
     </section>
   </article>
   <ContactBand />
@@ -95,7 +81,6 @@ if (!project) throw new Error('Grocery Automation project data is unavailable.')
   .grocery-meta { margin: 0 0 1.1rem; color: var(--color-muted); font-size: .8rem; font-weight: 760; letter-spacing: .08em; text-transform: uppercase; }
   .grocery-hero h1 { margin: 0; max-width: 51rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
   .grocery-lede { max-width: 46rem; margin: 1.65rem 0 0; color: var(--color-text); font-size: clamp(1.08rem, 1.65vw, 1.3rem); line-height: 1.55; }
-  .grocery-authorship { max-width: 45rem; margin: 1.1rem 0 0; color: var(--color-muted); font-size: .92rem; }
   .grocery-section { padding-top: clamp(4rem, 8vw, 7rem); }
   .grocery-heading { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 2rem; align-items: start; }
   .grocery-heading .eyebrow { margin: .5rem 0 0; }
@@ -127,11 +112,8 @@ if (!project) throw new Error('Grocery Automation project data is unavailable.')
   .grocery-details summary { min-height: 2.75rem; padding: .9rem 1rem; cursor: pointer; color: var(--color-ink); font-size: .92rem; font-weight: 800; }
   .grocery-details summary:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
   .grocery-details p { margin: 0; padding: 0 1rem; color: var(--color-text); font-size: .86rem; line-height: 1.5; }
-  .grocery-details .grocery-table-wrap { margin: 1rem; max-width: calc(100% - 2rem); }
-  .grocery-details .grocery-table-wrap table { min-width: 29rem; }
-  .grocery-caveat { max-width: var(--content-reading); margin: 1.1rem 0 0 auto; color: var(--color-muted); font-size: .83rem; }
-  .grocery-close { padding-bottom: 0; }
-  @media (max-width: 51.25rem) { .grocery-heading { grid-template-columns: 1fr; } .grocery-heading .eyebrow { margin: 0; } .grocery-reading { margin-left: 0; } }
-  @media (max-width: 35rem) { .grocery-case { padding-inline: 1.125rem; } .grocery-hero h1 { font-size: clamp(3.1rem, 15vw, 4.3rem); } .grocery-rule-grid, .grocery-details-grid { grid-template-columns: 1fr; } }
-  @media (prefers-reduced-motion: reduce) { .grocery-details, .grocery-details * { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
+  .grocery-details .grocery-table-wrap { margin: 1rem; }
+  @media (max-width: 51.25rem) { .grocery-heading { grid-template-columns: 1fr; } .grocery-heading .eyebrow { margin: 0; } .grocery-reading, .grocery-code { margin-left: 0; } }
+  @media (max-width: 40rem) { .grocery-rule-grid, .grocery-details-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 35rem) { .grocery-case { padding-inline: 1.125rem; } .grocery-hero h1 { font-size: clamp(3rem, 15vw, 4.25rem); } .grocery-pipeline-list { display: grid; gap: .6rem; } .grocery-pipeline-list li:not(:last-child)::after { content: none; } .grocery-code { max-width: 100%; } }
 </style>
