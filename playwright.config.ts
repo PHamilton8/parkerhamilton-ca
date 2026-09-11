@@ -3,15 +3,13 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/browser',
   fullyParallel: false,
-  forbidOnly: false,
+  forbidOnly: true,
   reporter: 'list',
+  timeout: 120_000,
+  expect: { timeout: 10_000 },
   use: {
     baseURL: 'http://127.0.0.1:4321',
     trace: 'retain-on-failure',
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? {
-      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
-      args: JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS || '[]'),
-    } : {},
   },
   webServer: {
     env: { ASTRO_TELEMETRY_DISABLED: '1' },
@@ -20,5 +18,9 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
 });

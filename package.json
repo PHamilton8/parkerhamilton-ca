@@ -13,9 +13,12 @@
     "check": "npm run check:astro && npm run check:ts",
     "check:astro": "astro check",
     "check:ts": "tsc --noEmit --project tsconfig.json",
-    "test": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs",
+    "test": "npm run test:source && npm run test:engines",
+    "test:source": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs tests/coast-download-safety.test.mjs tests/smith-download-safety.test.mjs",
+    "test:engines": "node --experimental-strip-types --test tests/compound-growth.test.ts tests/coast-fi-invariants.test.ts && node --experimental-strip-types tests/coast-fi-v2-runner.ts tests/fixtures/coast-fi/coast-fi-test-cases-v2.json && node tests/run-smith-manoeuvre-tests.cjs",
     "test:browser": "playwright test",
-    "qa:contrast": "python tests/contrast_check.py"
+    "qa:contrast": "python tests/contrast_check.py",
+    "public-safety": "node scripts/public-safety-scan.mjs"
   },
   "dependencies": {
     "astro": "7.2.8"

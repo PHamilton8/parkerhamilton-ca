@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main, 'chore/**', 'feat/**']
+    branches: [main, 'chore/**', 'feat/**', 'integration/**']
   pull_request:
 
 permissions:
@@ -28,7 +28,8 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
-      - run: node scripts/public-safety-scan.mjs
+      - run: npm run public-safety
+      - run: npm run qa:contrast
       - run: npm audit --audit-level=high
 
   browser:
@@ -40,11 +41,14 @@ jobs:
           node-version: 24.19.0
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-qa
-          path: test-results/
+          name: copy-locked-visual-review-baseline-${{ github.sha }}
+          path: |
+            artifacts/baseline/
+            test-results/
+          if-no-files-found: warn
           retention-days: 14
