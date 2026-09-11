@@ -2,13 +2,13 @@ import { test, expect, type Page } from '@playwright/test';
 
 const widths = [1440, 1280, 1024, 820, 768, 430, 390, 360];
 const routes = [
-  ['compound-growth', 'Compound Growth & Retirement Investing'],
-  ['design-day', 'Interactive light-based musical instrument'],
-  ['askwill', "Rebuilding AskWill's digital presence"],
-  ['grocery-automation', 'Grocery Automation'],
-  ['reporting-workflow', 'Reporting Workflow Automation'],
-  ['smith-manoeuvre', 'Smith Manoeuvre Model'],
-  ['coast-fi', 'Coast FI / Net Worth Calculator'],
+  ['compound-growth', 'Compound Growth & Retirement Investing', 'Same numbers. Different judgments.'],
+  ['design-day', 'Interactive light-based musical instrument', 'Interactive light-based musical instrument'],
+  ['askwill', "Rebuilding AskWill's digital presence", "Rebuilding AskWill's digital presence"],
+  ['grocery-automation', 'Grocery Automation', 'Grocery Automation'],
+  ['reporting-workflow', 'Reporting Workflow Automation', 'Reporting Workflow Automation'],
+  ['smith-manoeuvre', 'Smith Manoeuvre Model', 'Smith Manoeuvre Model'],
+  ['coast-fi', 'Coast FI / Net Worth Calculator', 'Coast FI / Net Worth Calculator'],
 ] as const;
 
 async function visitHome(page: Page, width: number) {
@@ -68,10 +68,10 @@ test('the production app provides keyboard, focus, and reduced-motion support', 
   await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');
 });
 
-test('all project routes render the expected document titles', async ({ page }) => {
-  for (const [slug, title] of routes) {
+test('all project routes render the expected document and hero titles', async ({ page }) => {
+  for (const [slug, documentTitle, heroTitle] of routes) {
     await page.goto(`/work/${slug}`);
-    await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
-    await expect(page).toHaveTitle(`${title} — Parker Hamilton`);
+    await expect(page.getByRole('heading', { level: 1, name: heroTitle })).toBeVisible();
+    await expect(page).toHaveTitle(`${documentTitle} — Parker Hamilton`);
   }
 });
