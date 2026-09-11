@@ -1,0 +1,859 @@
+---
+import {
+  runSmithScenario,
+} from '../../lib/calculators/smithManoeuvre';
+import {
+  SMITH_DEFAULT_INPUTS,
+  buildSmithAnnualSeries,
+  buildSmithChartGeometry,
+  formatSmithAxisCurrency,
+  formatSmithCurrency,
+  formatSmithCurrencyDetailed,
+  formatSmithPayoffMonth,
+  formatSmithPercent,
+} from '../../lib/calculators/smithManoeuvreView';
+
+const defaultResult = runSmithScenario({ ...SMITH_DEFAULT_INPUTS });
+const defaultSeries = buildSmithAnnualSeries(defaultResult);
+const defaultChart = buildSmithChartGeometry(defaultSeries);
+const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
+---
+
+<section class="smith-calculator" data-smith-calculator aria-labelledby="smith-calculator-title">
+  <div class="smith-boundary">
+    <div>
+      <p class="smith-boundary-label" id="smith-calculator-title">Educational scenario model</p>
+      <p>This calculator compares a simplified Smith Manoeuvre scenario with an equal-cash non-Smith baseline. It does not determine tax deductibility or whether the strategy is suitable for you.</p>
+    </div>
+    <span>All entered values stay in this browser session.</span>
+  </div>
+
+  <div class="smith-tool-grid">
+    <section class="smith-input-panel" aria-labelledby="smith-input-heading">
+      <div class="smith-panel-heading">
+        <div>
+          <p class="smith-section-label">Scenario</p>
+          <h2 id="smith-input-heading">Assumptions</h2>
+        </div>
+        <button class="smith-reset" type="button" data-reset-defaults>Reset defaults</button>
+      </div>
+
+      <fieldset class="smith-fieldset">
+        <legend>Property & mortgage</legend>
+        <div class="smith-field-grid">
+          <div class="smith-field">
+            <label for="smith-home-value">Home value <span>(CAD)</span></label>
+            <input id="smith-home-value" data-smith-field="homeValue" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.homeValue} aria-describedby="hint-homeValue error-homeValue warning-homeValue" />
+            <p class="smith-hint" id="hint-homeValue">Held constant throughout the model.</p>
+            <p class="smith-warning" id="warning-homeValue" data-warning-for="homeValue" hidden></p>
+            <p class="smith-error" id="error-homeValue" data-error-for="homeValue" hidden></p>
+          </div>
+
+          <div class="smith-field">
+            <label for="smith-mortgage-balance">Mortgage balance <span>(CAD)</span></label>
+            <input id="smith-mortgage-balance" data-smith-field="mortgageBalance" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.mortgageBalance} aria-describedby="hint-mortgageBalance error-mortgageBalance warning-mortgageBalance" />
+            <p class="smith-hint" id="hint-mortgageBalance">Public model boundary: at most 80% of home value.</p>
+            <p class="smith-warning" id="warning-mortgageBalance" data-warning-for="mortgageBalance" hidden></p>
+            <p class="smith-error" id="error-mortgageBalance" data-error-for="mortgageBalance" hidden></p>
+          </div>
+
+          <div class="smith-field">
+            <label for="smith-amortization">Remaining amortization <span>(years)</span></label>
+            <input id="smith-amortization" data-smith-field="remainingAmortizationYears" type="number" inputmode="numeric" step="1" value={SMITH_DEFAULT_INPUTS.remainingAmortizationYears} aria-describedby="hint-remainingAmortizationYears error-remainingAmortizationYears warning-remainingAmortizationYears" />
+            <p class="smith-hint" id="hint-remainingAmortizationYears">Whole years. Usual calculator range: 1–30.</p>
+            <p class="smith-warning" id="warning-remainingAmortizationYears" data-warning-for="remainingAmortizationYears" hidden></p>
+            <p class="smith-error" id="error-remainingAmortizationYears" data-error-for="remainingAmortizationYears" hidden></p>
+          </div>
+
+          <div class="smith-field">
+            <label for="smith-horizon">Scenario horizon <span>(years)</span></label>
+            <input id="smith-horizon" data-smith-field="horizonYears" type="number" inputmode="numeric" step="1" value={SMITH_DEFAULT_INPUTS.horizonYears} aria-describedby="hint-horizonYears error-horizonYears warning-horizonYears" />
+            <p class="smith-hint" id="hint-horizonYears">Whole years. Usual calculator range: 1–40.</p>
+            <p class="smith-warning" id="warning-horizonYears" data-warning-for="horizonYears" hidden></p>
+            <p class="smith-error" id="error-horizonYears" data-error-for="horizonYears" hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="smith-fieldset">
+        <legend>Rates & return</legend>
+        <div class="smith-field-grid">
+          <div class="smith-field">
+            <label for="smith-mortgage-rate">Quoted annual mortgage rate <span>(%)</span></label>
+            <input id="smith-mortgage-rate" data-smith-field="quotedMortgageRate" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.quotedMortgageRate * 100} aria-describedby="hint-quotedMortgageRate error-quotedMortgageRate warning-quotedMortgageRate" />
+            <p class="smith-hint" id="hint-quotedMortgageRate">Canadian nominal rate with semi-annual compounding.</p>
+            <p class="smith-warning" id="warning-quotedMortgageRate" data-warning-for="quotedMortgageRate" hidden></p>
+            <p class="smith-error" id="error-quotedMortgageRate" data-error-for="quotedMortgageRate" hidden></p>
+          </div>
+
+          <div class="smith-field">
+            <label for="smith-heloc-rate">Annual HELOC rate <span>(%)</span></label>
+            <input id="smith-heloc-rate" data-smith-field="annualHelocRate" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.annualHelocRate * 100} aria-describedby="hint-annualHelocRate error-annualHelocRate warning-annualHelocRate" />
+            <p class="smith-hint" id="hint-annualHelocRate">Modelled as a simplified monthly approximation.</p>
+            <p class="smith-warning" id="warning-annualHelocRate" data-warning-for="annualHelocRate" hidden></p>
+            <p class="smith-error" id="error-annualHelocRate" data-error-for="annualHelocRate" hidden></p>
+          </div>
+
+          <div class="smith-field smith-field-wide">
+            <label for="smith-investment-return">Expected annual investment return <span>(%)</span></label>
+            <input id="smith-investment-return" data-smith-field="expectedAnnualInvestmentReturn" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.expectedAnnualInvestmentReturn * 100} aria-describedby="hint-expectedAnnualInvestmentReturn error-expectedAnnualInvestmentReturn warning-expectedAnnualInvestmentReturn" />
+            <p class="smith-hint" id="hint-expectedAnnualInvestmentReturn">Effective annual assumption. The model uses a constant deterministic return.</p>
+            <p class="smith-warning" id="warning-expectedAnnualInvestmentReturn" data-warning-for="expectedAnnualInvestmentReturn" hidden></p>
+            <p class="smith-error" id="error-expectedAnnualInvestmentReturn" data-error-for="expectedAnnualInvestmentReturn" hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="smith-fieldset smith-tax-group">
+        <legend>Tax assumptions</legend>
+        <p class="smith-group-note">These are illustrative assumptions, not tax determinations.</p>
+        <div class="smith-field-grid">
+          <div class="smith-field">
+            <label for="smith-tax-rate">Marginal tax-rate proxy <span>(%)</span></label>
+            <input id="smith-tax-rate" data-smith-field="marginalTaxRateProxy" type="number" inputmode="decimal" step="1" value={SMITH_DEFAULT_INPUTS.marginalTaxRateProxy * 100} aria-describedby="hint-marginalTaxRateProxy error-marginalTaxRateProxy warning-marginalTaxRateProxy" />
+            <p class="smith-hint" id="hint-marginalTaxRateProxy">Used only for the estimated tax-offset proxy.</p>
+            <p class="smith-warning" id="warning-marginalTaxRateProxy" data-warning-for="marginalTaxRateProxy" hidden></p>
+            <p class="smith-error" id="error-marginalTaxRateProxy" data-error-for="marginalTaxRateProxy" hidden></p>
+          </div>
+
+          <div class="smith-field">
+            <label for="smith-deductible-share">Deductible-interest assumption <span>(%)</span></label>
+            <input id="smith-deductible-share" data-smith-field="deductibleInterestAssumption" type="number" inputmode="decimal" step="1" value={SMITH_DEFAULT_INPUTS.deductibleInterestAssumption * 100} aria-describedby="hint-deductibleInterestAssumption error-deductibleInterestAssumption warning-deductibleInterestAssumption" />
+            <p class="smith-hint" id="hint-deductibleInterestAssumption">Share of modelled HELOC interest assumed eligible for the proxy.</p>
+            <p class="smith-warning" id="warning-deductibleInterestAssumption" data-warning-for="deductibleInterestAssumption" hidden></p>
+            <p class="smith-error" id="error-deductibleInterestAssumption" data-error-for="deductibleInterestAssumption" hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="smith-actions">
+        <button class="smith-update" type="button" data-update-scenario>Update scenario</button>
+        <p class="smith-status" data-smith-status aria-live="polite"></p>
+      </div>
+      <noscript><p class="smith-noscript">Interactive recalculation requires JavaScript. The default scenario remains visible.</p></noscript>
+    </section>
+
+    <section class="smith-results" aria-labelledby="smith-results-heading">
+      <header class="smith-results-header">
+        <div>
+          <p class="smith-section-label">Comparison</p>
+          <h2 id="smith-results-heading">Results</h2>
+        </div>
+        <p data-horizon-label>{defaultHorizon}-year scenario</p>
+      </header>
+
+      <div class="smith-difference">
+        <span>Illustrative net-position difference</span>
+        <strong data-output="netDifference">{formatSmithCurrency(defaultResult.illustrativeNetPositionDifference)}</strong>
+        <p>Smith scenario minus the equal-cash baseline at the end of the selected horizon.</p>
+      </div>
+
+      <div class="smith-scenario-grid">
+        <section class="smith-scenario" aria-labelledby="smith-scenario-heading">
+          <h3 id="smith-scenario-heading">Smith scenario</h3>
+          <dl>
+            <div><dt>Mortgage</dt><dd data-output="smithMortgage">{formatSmithCurrency(defaultResult.endingMortgageBalance)}</dd></div>
+            <div><dt>HELOC</dt><dd data-output="smithHeloc">{formatSmithCurrency(defaultResult.endingHelocBalance)}</dd></div>
+            <div><dt>Taxable portfolio</dt><dd data-output="smithPortfolio">{formatSmithCurrency(defaultResult.endingSmithTaxablePortfolio)}</dd></div>
+            <div class="smith-net-row"><dt>Net financial position</dt><dd data-output="smithNet">{formatSmithCurrency(defaultResult.smithNetFinancialPosition)}</dd></div>
+          </dl>
+        </section>
+
+        <section class="smith-scenario" aria-labelledby="baseline-scenario-heading">
+          <h3 id="baseline-scenario-heading">Equal-cash baseline</h3>
+          <dl>
+            <div><dt>Mortgage</dt><dd data-output="baselineMortgage">{formatSmithCurrency(defaultResult.endingBaselineMortgageBalance)}</dd></div>
+            <div><dt>HELOC</dt><dd>$0</dd></div>
+            <div><dt>Investment portfolio</dt><dd data-output="baselinePortfolio">{formatSmithCurrency(defaultResult.endingBaselinePortfolio)}</dd></div>
+            <div class="smith-net-row"><dt>Net financial position</dt><dd data-output="baselineNet">{formatSmithCurrency(defaultResult.baselineNetFinancialPosition)}</dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <p class="smith-baseline-note">The baseline uses the same mortgage cash budget and invests an amount equal to the Smith scenario's HELOC-interest cash outflow each month.</p>
+
+      <dl class="smith-detail-grid" aria-label="Scenario details">
+        <div><dt>Monthly mortgage budget</dt><dd data-output="mortgageBudget">{formatSmithCurrencyDetailed(defaultResult.scheduledMonthlyMortgageBudget)}</dd></div>
+        <div><dt>Cumulative HELOC interest paid</dt><dd data-output="helocInterest">{formatSmithCurrency(defaultResult.cumulativeHelocInterestPaid)}</dd></div>
+        <div><dt>Estimated cumulative tax offset</dt><dd data-output="taxOffset">{formatSmithCurrency(defaultResult.estimatedCumulativeTaxOffset)}</dd></div>
+        <div><dt>Maximum secured LTV</dt><dd data-output="maxLtv">{formatSmithPercent(defaultResult.maxSecuredLtv)}</dd></div>
+        <div><dt>Ending secured LTV</dt><dd data-output="endingLtv">{formatSmithPercent(defaultResult.endingSecuredLtv)}</dd></div>
+        <div><dt>Smith mortgage payoff</dt><dd data-output="smithPayoff">{formatSmithPayoffMonth(defaultResult.smithMortgagePayoffMonth)}</dd></div>
+        <div><dt>Baseline mortgage payoff</dt><dd data-output="baselinePayoff">{formatSmithPayoffMonth(defaultResult.baselineMortgagePayoffMonth)}</dd></div>
+      </dl>
+
+      <section class="smith-chart-section" aria-labelledby="smith-chart-title-text">
+        <div class="smith-chart-heading">
+          <div>
+            <h3 id="smith-chart-title-text">Net position over time</h3>
+            <p>Year-end model points plus the selected horizon endpoint.</p>
+          </div>
+          <ul class="smith-legend" aria-label="Chart series">
+            <li><span class="smith-key"></span>Smith scenario</li>
+            <li><span class="baseline-key"></span>Equal-cash baseline</li>
+          </ul>
+        </div>
+
+        <div class="smith-chart-frame">
+          <svg data-smith-chart viewBox={`0 0 ${defaultChart.width} ${defaultChart.height}`} role="img" aria-labelledby="smith-svg-title smith-svg-desc">
+            <title id="smith-svg-title">Smith scenario and equal-cash baseline net position over time</title>
+            <desc id="smith-svg-desc">A line chart using the same yearly values available in the data table below.</desc>
+            <g data-chart-grid aria-hidden="true">
+              {defaultChart.ticks.map((tick) => (
+                <g>
+                  <line x1={defaultChart.left} y1={tick.y} x2={defaultChart.width - defaultChart.right} y2={tick.y}></line>
+                  <text x={defaultChart.left - 10} y={tick.y + 4} text-anchor="end">{formatSmithAxisCurrency(tick.value)}</text>
+                </g>
+              ))}
+              <line class="smith-zero-line" x1={defaultChart.left} y1={defaultChart.zeroY} x2={defaultChart.width - defaultChart.right} y2={defaultChart.zeroY}></line>
+              <text class="smith-x-label" x={defaultChart.left} y={defaultChart.height - 14}>0</text>
+              <text class="smith-x-label" x={defaultChart.width - defaultChart.right} y={defaultChart.height - 14} text-anchor="end">{defaultHorizon} years</text>
+            </g>
+            <path class="smith-line" data-chart-path="smith" d={defaultChart.smithPath}></path>
+            <path class="baseline-line" data-chart-path="baseline" d={defaultChart.baselinePath}></path>
+            <g data-chart-points aria-hidden="true">
+              {defaultChart.points.map((point) => (
+                <g data-chart-point data-year={point.year} data-smith={point.smithNetFinancialPosition} data-baseline={point.baselineNetFinancialPosition}></g>
+              ))}
+            </g>
+          </svg>
+        </div>
+
+        <details class="smith-data-details">
+          <summary>View yearly comparison data</summary>
+          <div class="smith-table-region" role="region" tabindex="0" aria-label="Yearly Smith and baseline net-position comparison">
+            <table>
+              <caption>Values used in the net-position chart</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Year</th>
+                  <th scope="col">Smith scenario</th>
+                  <th scope="col">Equal-cash baseline</th>
+                </tr>
+              </thead>
+              <tbody data-comparison-table>
+                {defaultSeries.map((point) => (
+                  <tr data-comparison-row data-year={point.year} data-smith={point.smithNetFinancialPosition} data-baseline={point.baselineNetFinancialPosition}>
+                    <th scope="row">{Number.isInteger(point.year) ? point.year : point.year.toFixed(1)}</th>
+                    <td>{formatSmithCurrency(point.smithNetFinancialPosition)}</td>
+                    <td>{formatSmithCurrency(point.baselineNetFinancialPosition)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+    </section>
+  </div>
+</section>
+
+<script>
+  import {
+    SmithComputationLimitError,
+    runSmithScenario,
+    validateSmithInputs,
+    type SmithInputs,
+    type SmithResult,
+  } from '../../lib/calculators/smithManoeuvre';
+  import {
+    SMITH_DEFAULT_INPUTS,
+    SMITH_SOFT_RANGES,
+    buildSmithAnnualSeries,
+    buildSmithChartGeometry,
+    formatSmithAxisCurrency,
+    formatSmithCurrency,
+    formatSmithCurrencyDetailed,
+    formatSmithPayoffMonth,
+    formatSmithPercent,
+  } from '../../lib/calculators/smithManoeuvreView';
+
+  const root = document.querySelector<HTMLElement>('[data-smith-calculator]')!;
+
+  if (root) {
+    type FieldName = keyof SmithInputs;
+    const fieldNames: FieldName[] = [
+      'homeValue',
+      'mortgageBalance',
+      'quotedMortgageRate',
+      'remainingAmortizationYears',
+      'annualHelocRate',
+      'expectedAnnualInvestmentReturn',
+      'horizonYears',
+      'marginalTaxRateProxy',
+      'deductibleInterestAssumption',
+    ];
+    const percentageFields = new Set<FieldName>([
+      'quotedMortgageRate',
+      'annualHelocRate',
+      'expectedAnnualInvestmentReturn',
+      'marginalTaxRateProxy',
+      'deductibleInterestAssumption',
+    ]);
+    const wholeYearFields = new Set<FieldName>(['remainingAmortizationYears', 'horizonYears']);
+
+    const inputFor = (field: FieldName) => root.querySelector<HTMLInputElement>(`[data-smith-field="${field}"]`)!;
+    const errorFor = (field: FieldName) => root.querySelector<HTMLElement>(`[data-error-for="${field}"]`)!;
+    const warningFor = (field: FieldName) => root.querySelector<HTMLElement>(`[data-warning-for="${field}"]`)!;
+    const status = root.querySelector<HTMLElement>('[data-smith-status]')!;
+
+    const friendlyErrors: Record<FieldName, string> = {
+      homeValue: 'Enter a home value greater than $0.',
+      mortgageBalance: 'Enter a non-negative mortgage balance no greater than 80% of home value.',
+      quotedMortgageRate: 'Enter a non-negative quoted annual mortgage rate.',
+      remainingAmortizationYears: 'Enter a positive whole number of remaining amortization years.',
+      annualHelocRate: 'Enter a non-negative annual HELOC rate.',
+      expectedAnnualInvestmentReturn: 'Expected annual return must be greater than -100%.',
+      horizonYears: 'Enter a positive whole number of scenario years.',
+      marginalTaxRateProxy: 'Enter a marginal tax-rate proxy from 0% to 100%.',
+      deductibleInterestAssumption: 'Enter a deductible-interest assumption from 0% to 100%.',
+    };
+
+    function clearFeedback() {
+      for (const field of fieldNames) {
+        const input = inputFor(field);
+        const error = errorFor(field);
+        const warning = warningFor(field);
+        input.removeAttribute('aria-invalid');
+        error.hidden = true;
+        error.textContent = '';
+        warning.hidden = true;
+        warning.textContent = '';
+      }
+      status.textContent = '';
+    }
+
+    function showError(field: FieldName, message = friendlyErrors[field]) {
+      const input = inputFor(field);
+      const error = errorFor(field);
+      input.setAttribute('aria-invalid', 'true');
+      error.textContent = message;
+      error.hidden = false;
+    }
+
+    function fieldFromEngineError(message: string): FieldName | null {
+      if (message.includes('homeValue')) return 'homeValue';
+      if (message.includes('mortgageBalance')) return 'mortgageBalance';
+      if (message.includes('quotedMortgageRate')) return 'quotedMortgageRate';
+      if (message.includes('remainingAmortizationYears')) return 'remainingAmortizationYears';
+      if (message.includes('annualHelocRate')) return 'annualHelocRate';
+      if (message.includes('expectedAnnualInvestmentReturn')) return 'expectedAnnualInvestmentReturn';
+      if (message.includes('horizonYears')) return 'horizonYears';
+      if (message.includes('marginalTaxRateProxy')) return 'marginalTaxRateProxy';
+      if (message.includes('deductibleInterestAssumption')) return 'deductibleInterestAssumption';
+      return null;
+    }
+
+    function readInputs(): SmithInputs | null {
+      const raw = {} as Record<FieldName, number>;
+      let hasError = false;
+      for (const field of fieldNames) {
+        const value = inputFor(field).valueAsNumber;
+        if (!Number.isFinite(value)) {
+          showError(field, 'Enter a numeric value.');
+          hasError = true;
+          continue;
+        }
+        if (wholeYearFields.has(field) && !Number.isInteger(value)) {
+          showError(field);
+          hasError = true;
+        }
+        raw[field] = percentageFields.has(field) ? value / 100 : value;
+      }
+      if (hasError) return null;
+
+      const inputs = raw as SmithInputs;
+      const engineErrors = validateSmithInputs(inputs);
+      for (const engineError of engineErrors) {
+        const field = fieldFromEngineError(engineError);
+        if (field) showError(field);
+      }
+      if (engineErrors.length > 0) return null;
+
+      for (const [field, range] of Object.entries(SMITH_SOFT_RANGES) as [keyof typeof SMITH_SOFT_RANGES, { min: number; max: number }][]) {
+        const value = inputs[field];
+        if (value < range.min || value > range.max) {
+          const warning = warningFor(field);
+          warning.textContent = 'Outside the usual calculator range; the mathematical model still accepts this value.';
+          warning.hidden = false;
+        }
+      }
+      return inputs;
+    }
+
+    function setOutput(name: string, value: string) {
+      const node = root.querySelector<HTMLElement>(`[data-output="${name}"]`);
+      if (node) node.textContent = value;
+    }
+
+    function createSvgElement<K extends keyof SVGElementTagNameMap>(name: K) {
+      return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+
+    function renderChart(result: SmithResult) {
+      const series = buildSmithAnnualSeries(result);
+      const geometry = buildSmithChartGeometry(series);
+      const svg = root.querySelector<SVGSVGElement>('[data-smith-chart]')!;
+      svg.setAttribute('viewBox', `0 0 ${geometry.width} ${geometry.height}`);
+
+      const grid = root.querySelector<SVGGElement>('[data-chart-grid]')!;
+      grid.replaceChildren();
+      for (const tick of geometry.ticks) {
+        const group = createSvgElement('g');
+        const line = createSvgElement('line');
+        line.setAttribute('x1', String(geometry.left));
+        line.setAttribute('y1', String(tick.y));
+        line.setAttribute('x2', String(geometry.width - geometry.right));
+        line.setAttribute('y2', String(tick.y));
+        const label = createSvgElement('text');
+        label.setAttribute('x', String(geometry.left - 10));
+        label.setAttribute('y', String(tick.y + 4));
+        label.setAttribute('text-anchor', 'end');
+        label.textContent = formatSmithAxisCurrency(tick.value);
+        group.append(line, label);
+        grid.append(group);
+      }
+      const zeroLine = createSvgElement('line');
+      zeroLine.setAttribute('class', 'smith-zero-line');
+      zeroLine.setAttribute('x1', String(geometry.left));
+      zeroLine.setAttribute('y1', String(geometry.zeroY));
+      zeroLine.setAttribute('x2', String(geometry.width - geometry.right));
+      zeroLine.setAttribute('y2', String(geometry.zeroY));
+      grid.append(zeroLine);
+
+      const startLabel = createSvgElement('text');
+      startLabel.setAttribute('class', 'smith-x-label');
+      startLabel.setAttribute('x', String(geometry.left));
+      startLabel.setAttribute('y', String(geometry.height - 14));
+      startLabel.textContent = '0';
+      const endLabel = createSvgElement('text');
+      endLabel.setAttribute('class', 'smith-x-label');
+      endLabel.setAttribute('x', String(geometry.width - geometry.right));
+      endLabel.setAttribute('y', String(geometry.height - 14));
+      endLabel.setAttribute('text-anchor', 'end');
+      endLabel.textContent = `${result.inputs.horizonYears} years`;
+      grid.append(startLabel, endLabel);
+
+      root.querySelector<SVGPathElement>('[data-chart-path="smith"]')!.setAttribute('d', geometry.smithPath);
+      root.querySelector<SVGPathElement>('[data-chart-path="baseline"]')!.setAttribute('d', geometry.baselinePath);
+
+      const pointGroup = root.querySelector<SVGGElement>('[data-chart-points]')!;
+      pointGroup.replaceChildren();
+      for (const point of geometry.points) {
+        const dataPoint = createSvgElement('g');
+        dataPoint.setAttribute('data-chart-point', '');
+        dataPoint.dataset.year = String(point.year);
+        dataPoint.dataset.smith = String(point.smithNetFinancialPosition);
+        dataPoint.dataset.baseline = String(point.baselineNetFinancialPosition);
+        pointGroup.append(dataPoint);
+      }
+
+      const body = root.querySelector<HTMLTableSectionElement>('[data-comparison-table]')!;
+      body.replaceChildren();
+      for (const point of series) {
+        const row = document.createElement('tr');
+        row.setAttribute('data-comparison-row', '');
+        row.dataset.year = String(point.year);
+        row.dataset.smith = String(point.smithNetFinancialPosition);
+        row.dataset.baseline = String(point.baselineNetFinancialPosition);
+        const year = document.createElement('th');
+        year.scope = 'row';
+        year.textContent = Number.isInteger(point.year) ? String(point.year) : point.year.toFixed(1);
+        const smith = document.createElement('td');
+        smith.textContent = formatSmithCurrency(point.smithNetFinancialPosition);
+        const baseline = document.createElement('td');
+        baseline.textContent = formatSmithCurrency(point.baselineNetFinancialPosition);
+        row.append(year, smith, baseline);
+        body.append(row);
+      }
+    }
+
+    function renderResult(result: SmithResult) {
+      setOutput('netDifference', formatSmithCurrency(result.illustrativeNetPositionDifference));
+      setOutput('smithMortgage', formatSmithCurrency(result.endingMortgageBalance));
+      setOutput('smithHeloc', formatSmithCurrency(result.endingHelocBalance));
+      setOutput('smithPortfolio', formatSmithCurrency(result.endingSmithTaxablePortfolio));
+      setOutput('smithNet', formatSmithCurrency(result.smithNetFinancialPosition));
+      setOutput('baselineMortgage', formatSmithCurrency(result.endingBaselineMortgageBalance));
+      setOutput('baselinePortfolio', formatSmithCurrency(result.endingBaselinePortfolio));
+      setOutput('baselineNet', formatSmithCurrency(result.baselineNetFinancialPosition));
+      setOutput('mortgageBudget', formatSmithCurrencyDetailed(result.scheduledMonthlyMortgageBudget));
+      setOutput('helocInterest', formatSmithCurrency(result.cumulativeHelocInterestPaid));
+      setOutput('taxOffset', formatSmithCurrency(result.estimatedCumulativeTaxOffset));
+      setOutput('maxLtv', formatSmithPercent(result.maxSecuredLtv));
+      setOutput('endingLtv', formatSmithPercent(result.endingSecuredLtv));
+      setOutput('smithPayoff', formatSmithPayoffMonth(result.smithMortgagePayoffMonth));
+      setOutput('baselinePayoff', formatSmithPayoffMonth(result.baselineMortgagePayoffMonth));
+      root.dataset.externalCashBudgetDifference = String(result.externalCashBudgetDifference);
+      const horizon = root.querySelector<HTMLElement>('[data-horizon-label]');
+      if (horizon) horizon.textContent = `${result.inputs.horizonYears}-year scenario`;
+      renderChart(result);
+    }
+
+    function calculate() {
+      clearFeedback();
+      const inputs = readInputs();
+      if (!inputs) {
+        status.textContent = 'Review the highlighted fields.';
+        return;
+      }
+      try {
+        const result = runSmithScenario(inputs);
+        renderResult(result);
+        status.textContent = 'Scenario updated.';
+      } catch (error) {
+        if (error instanceof SmithComputationLimitError) {
+          showError('horizonYears', 'This horizon exceeds the calculator computation limit. Choose a shorter horizon.');
+          status.textContent = 'Review the highlighted field.';
+          return;
+        }
+        status.textContent = 'This scenario could not be calculated. Review the inputs and try again.';
+      }
+    }
+
+    function resetDefaults() {
+      for (const field of fieldNames) {
+        const value = SMITH_DEFAULT_INPUTS[field];
+        inputFor(field).value = String(percentageFields.has(field) ? value * 100 : value);
+      }
+      calculate();
+    }
+
+    root.querySelector<HTMLButtonElement>('[data-update-scenario]')!.addEventListener('click', calculate);
+    root.querySelector<HTMLButtonElement>('[data-reset-defaults]')!.addEventListener('click', resetDefaults);
+    for (const field of fieldNames) {
+      inputFor(field).addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          calculate();
+        }
+      });
+    }
+  }
+</script>
+
+<style>
+  .smith-calculator {
+    max-width: var(--content-main);
+    margin: 2.25rem auto 0;
+  }
+
+  .smith-boundary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-left: 3px solid var(--color-teal);
+    background: var(--color-surface-soft);
+  }
+
+  .smith-boundary div { max-width: 52rem; }
+  .smith-boundary p { margin: 0; }
+  .smith-boundary-label {
+    margin-bottom: 0.2rem !important;
+    color: var(--color-deep-teal);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .smith-boundary div p:last-child { color: var(--color-text); font-size: 0.88rem; line-height: 1.5; }
+  .smith-boundary > span { flex: 0 0 auto; color: var(--color-muted); font-size: 0.76rem; font-weight: 680; }
+
+  .smith-tool-grid {
+    display: grid;
+    grid-template-columns: minmax(22rem, 0.78fr) minmax(0, 1.42fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin-top: 1.1rem;
+  }
+
+  .smith-input-panel,
+  .smith-results {
+    min-width: 0;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+  }
+
+  .smith-input-panel { padding: clamp(1.15rem, 2vw, 1.5rem); }
+  .smith-results { padding: clamp(1.25rem, 2.4vw, 1.8rem); }
+
+  .smith-panel-heading,
+  .smith-results-header,
+  .smith-chart-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .smith-section-label {
+    margin: 0 0 0.25rem;
+    color: var(--color-teal);
+    font-size: 0.72rem;
+    font-weight: 820;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .smith-panel-heading h2,
+  .smith-results-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
+  .smith-reset,
+  .smith-update {
+    min-height: 2.75rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 0.55rem;
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 760;
+    cursor: pointer;
+  }
+
+  .smith-reset { padding: 0.55rem 0.7rem; }
+  .smith-update {
+    min-width: 10rem;
+    padding: 0.7rem 1rem;
+    border-color: var(--color-deep-teal);
+    background: var(--color-deep-teal);
+    color: var(--color-on-deep);
+  }
+
+  .smith-fieldset {
+    margin: 1.4rem 0 0;
+    padding: 1.2rem 0 0;
+    border: 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .smith-fieldset legend {
+    padding: 0 0.55rem 0 0;
+    color: var(--color-ink);
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .smith-group-note {
+    margin: 0 0 0.85rem;
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .smith-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 0.85rem;
+  }
+  .smith-field-wide { grid-column: 1 / -1; }
+  .smith-field { min-width: 0; }
+
+  .smith-field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--color-text);
+    font-size: 0.76rem;
+    font-weight: 760;
+    line-height: 1.35;
+  }
+  .smith-field label span { color: var(--color-muted); font-weight: 650; }
+
+  .smith-field input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.62rem 0.7rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 0.45rem;
+    background: #fff;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .smith-field input[aria-invalid='true'] { border-color: #8a3d2f; }
+
+  .smith-hint,
+  .smith-warning,
+  .smith-error {
+    margin: 0.32rem 0 0;
+    font-size: 0.69rem;
+    line-height: 1.4;
+  }
+  .smith-hint { color: var(--color-muted); }
+  .smith-warning { color: #735d22; font-weight: 680; }
+  .smith-error { color: #7c2f25; font-weight: 720; }
+
+  .smith-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.35rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .smith-status { margin: 0; color: var(--color-muted); font-size: 0.75rem; }
+  .smith-noscript { margin: 0.8rem 0 0; color: var(--color-muted); font-size: 0.75rem; }
+
+  .smith-results-header { padding-bottom: 1rem; border-bottom: 1px solid var(--color-line); }
+  .smith-results-header > p { margin: 0.18rem 0 0; color: var(--color-muted); font-size: 0.78rem; font-weight: 700; }
+
+  .smith-difference {
+    padding: 1.35rem 0 1.2rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .smith-difference > span { display: block; color: var(--color-muted); font-size: 0.78rem; font-weight: 720; }
+  .smith-difference strong {
+    display: block;
+    margin-top: 0.12rem;
+    color: var(--color-deep-teal);
+    font-size: clamp(2rem, 3.6vw, 3.15rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variant-numeric: tabular-nums;
+  }
+  .smith-difference p { max-width: 42rem; margin: 0.55rem 0 0; color: var(--color-muted); font-size: 0.78rem; }
+
+  .smith-scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+  .smith-scenario { min-width: 0; padding: 1rem; background: var(--color-surface-soft); }
+  .smith-scenario:last-child { background: var(--color-surface-blue); }
+  .smith-scenario h3 { margin: 0 0 0.65rem; font-size: 0.88rem; letter-spacing: -0.01em; }
+  .smith-scenario dl { margin: 0; }
+  .smith-scenario dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.42rem 0;
+    border-top: 1px solid rgb(38 56 59 / 0.10);
+  }
+  .smith-scenario dt { color: var(--color-muted); font-size: 0.74rem; }
+  .smith-scenario dd { margin: 0; color: var(--color-ink); font-size: 0.78rem; font-weight: 760; font-variant-numeric: tabular-nums; text-align: right; }
+  .smith-scenario .smith-net-row { margin-top: 0.2rem; padding-top: 0.62rem; border-top-color: var(--color-line-strong); }
+  .smith-scenario .smith-net-row dt,
+  .smith-scenario .smith-net-row dd { color: var(--color-deep-teal); font-weight: 820; }
+
+  .smith-baseline-note {
+    margin: 0.8rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.74rem;
+    line-height: 1.5;
+  }
+
+  .smith-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin: 1.25rem 0 0;
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+  .smith-detail-grid > div {
+    min-width: 0;
+    padding: 0.8rem;
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .smith-detail-grid dt { color: var(--color-muted); font-size: 0.68rem; line-height: 1.35; }
+  .smith-detail-grid dd { margin: 0.18rem 0 0; color: var(--color-ink); font-size: 0.78rem; font-weight: 760; line-height: 1.35; font-variant-numeric: tabular-nums; }
+
+  .smith-chart-section { margin-top: 1.55rem; padding-top: 1.35rem; border-top: 1px solid var(--color-line); }
+  .smith-chart-heading h3 { margin: 0; font-size: 1.05rem; letter-spacing: -0.02em; }
+  .smith-chart-heading p { margin: 0.2rem 0 0; color: var(--color-muted); font-size: 0.72rem; }
+  .smith-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem 0.9rem; margin: 0; padding: 0; list-style: none; color: var(--color-muted); font-size: 0.68rem; font-weight: 700; }
+  .smith-legend li { display: flex; align-items: center; gap: 0.35rem; }
+  .smith-key,
+  .baseline-key { width: 1.1rem; height: 0; border-top: 2px solid var(--color-teal); }
+  .baseline-key { border-top-color: var(--color-ink); border-top-style: dashed; }
+
+  .smith-chart-frame { margin-top: 0.75rem; padding: 0.45rem 0.3rem 0; background: #fbfcfb; border: 1px solid var(--color-line); overflow: hidden; }
+  [data-smith-chart] { display: block; width: 100%; height: auto; }
+  [data-chart-grid] line { stroke: #dce4e1; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  [data-chart-grid] text { fill: #647477; font-family: var(--font-sans); font-size: 12px; font-weight: 650; }
+  [data-chart-grid] .smith-zero-line { stroke: #a9b8b5; stroke-width: 1.2; }
+  .smith-line,
+  .baseline-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .smith-line { stroke: var(--color-teal); }
+  .baseline-line { stroke: var(--color-ink); stroke-dasharray: 6 5; }
+
+  .smith-data-details { margin-top: 0.7rem; border-top: 1px solid var(--color-line); }
+  .smith-data-details summary {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    cursor: pointer;
+    color: var(--color-deep-teal);
+    font-size: 0.75rem;
+    font-weight: 760;
+  }
+  .smith-table-region { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+  .smith-table-region table { width: 100%; min-width: 31rem; border-collapse: collapse; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+  .smith-table-region caption { padding: 0.4rem 0; color: var(--color-muted); text-align: left; font-size: 0.68rem; }
+  .smith-table-region th,
+  .smith-table-region td { padding: 0.52rem 0.6rem; border-bottom: 1px solid var(--color-line); text-align: right; white-space: nowrap; }
+  .smith-table-region th:first-child { text-align: left; }
+  .smith-table-region thead th { color: var(--color-muted); font-size: 0.66rem; font-weight: 780; }
+  .smith-table-region tbody th { color: var(--color-text); font-weight: 700; }
+
+  @media (max-width: 61rem) {
+    .smith-tool-grid { grid-template-columns: 1fr; }
+    .smith-field-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .smith-field-wide { grid-column: auto; }
+    .smith-tax-group .smith-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 46rem) {
+    .smith-boundary { flex-direction: column; gap: 0.7rem; }
+    .smith-boundary > span { flex-basis: auto; }
+    .smith-field-grid,
+    .smith-tax-group .smith-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .smith-field-wide { grid-column: 1 / -1; }
+    .smith-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .smith-chart-heading { flex-direction: column; }
+    .smith-legend { justify-content: flex-start; }
+  }
+
+  @media (max-width: 35rem) {
+    .smith-calculator { margin-top: 1.5rem; }
+    .smith-boundary { padding: 0.9rem; }
+    .smith-tool-grid { gap: 0.8rem; margin-top: 0.8rem; }
+    .smith-input-panel,
+    .smith-results { padding: 1rem; }
+    .smith-panel-heading { align-items: center; }
+    .smith-panel-heading h2,
+    .smith-results-header h2 { font-size: 1.4rem; }
+    .smith-reset { min-height: 2.75rem; }
+    .smith-field-grid,
+    .smith-tax-group .smith-field-grid { grid-template-columns: 1fr; }
+    .smith-field-wide { grid-column: auto; }
+    .smith-actions { align-items: flex-start; flex-direction: column; }
+    .smith-update { width: 100%; }
+    .smith-results-header { align-items: end; }
+    .smith-difference strong { font-size: 2.25rem; }
+    .smith-scenario-grid { grid-template-columns: 1fr; gap: 0.7rem; }
+    .smith-detail-grid { grid-template-columns: 1fr 1fr; }
+    .smith-detail-grid > div { padding: 0.7rem; }
+    .smith-chart-frame { margin-inline: -0.25rem; }
+    [data-chart-grid] text { font-size: 16px; }
+  }
+
+  @media (max-width: 22rem) {
+    .smith-results-header { flex-direction: column; align-items: flex-start; }
+    .smith-detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
