@@ -33,15 +33,16 @@ async function collectPageErrors(page: Page) {
 }
 
 async function activateLazyMedia(page: Page) {
-  await page.evaluate(async () => {
-    const step = Math.max(500, Math.floor(window.innerHeight * 0.8));
-    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 12));
-    }
-    window.scrollTo(0, document.documentElement.scrollHeight);
-  });
-  await page.waitForTimeout(120);
+  const images = page.locator('img');
+  const imageCount = await images.count();
+  for (let index = 0; index < imageCount; index += 1) {
+    const image = images.nth(index);
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(async () => image.evaluate((element) => {
+      const img = element as HTMLImageElement;
+      return img.complete && img.naturalWidth > 0;
+    }), { timeout: 5000 }).toBe(true);
+  }
 }
 
 async function assertImagesHealthy(page: Page) {
