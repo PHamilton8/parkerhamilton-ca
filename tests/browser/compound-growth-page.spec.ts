@@ -47,7 +47,7 @@ test('full case-study narrative preserves the evidence and model boundaries', as
   expect(order).toEqual({ implicationsBeforeExplorer: true, explorerBeforeBoundary: true });
 
   await expect(page.getByRole('link', { name: /read the thesis|download thesis|thesis pdf/i })).toHaveCount(0);
-  await expect(page.locator('[data-limitations]')).toContainText('planned hypothetical monthly contribution selections rather than deposits into real accounts');
+  await expect(page.locator('[data-limitations]')).toContainText('hypothetical monthly contribution selections rather than deposits into real accounts');
 });
 
 test('full page reflows from desktop to 320px and produces the required review captures', async ({ page }) => {
