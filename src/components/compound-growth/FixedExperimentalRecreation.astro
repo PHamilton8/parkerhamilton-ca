@@ -19,10 +19,10 @@ const yTicks = [0, 200_000, 400_000, 600_000];
 <section class="cg-module cg-module--fixed" aria-labelledby="fixed-title" data-fixed-recreation>
   <div class="cg-module__heading">
     <div>
-      <p class="cg-kicker">Controlled comparison</p>
-      <h2 id="fixed-title">Interactive recreation of the experimental values.</h2>
+      <p class="cg-kicker">The comparison</p>
+      <h2 id="fixed-title">The same projection, shown two ways</h2>
     </div>
-    <p>Switch between a table and line graph. The underlying values are identical in both views.</p>
+    <p>Switch between the table and line graph. The projected values are identical in both.</p>
   </div>
 
   <div class="cg-switch" role="tablist" aria-label="Experimental projection display">
@@ -45,7 +45,7 @@ const yTicks = [0, 200_000, 400_000, 600_000];
   </div>
 
   <div id="fixed-panel-graph" class="cg-panel" role="tabpanel" aria-labelledby="fixed-tab-graph" data-fixed-panel="graph">
-    <p class="cg-chart-summary">The projected account balance rises from $0 to $559,461 over 40 years while cumulative contributions rise to $48,000. Both series use the same fixed values as the table view.</p>
+    <p class="cg-chart-summary">The projected account balance rises from $0 to $559,461 over 40 years while cumulative contributions rise to $48,000.</p>
     <div class="cg-chart-frame">
       <svg class="cg-chart" viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-labelledby="fixed-chart-title fixed-chart-desc">
         <title id="fixed-chart-title">Fixed experimental projection shown as a line graph</title>
@@ -83,7 +83,6 @@ const yTicks = [0, 200_000, 400_000, 600_000];
       </table>
     </div>
   </div>
-  <p class="cg-source-note">Portfolio recreation — not the original experimental interface. The historical stimulus values are stored directly; visitor controls do not recalculate them.</p>
 </section>
 
 <script>
