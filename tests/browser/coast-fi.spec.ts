@@ -51,7 +51,7 @@ test('all four modes use the audited engine outputs and required display roundin
 
   await page.locator('#coast-mode-d').check();
   await calculate(page);
-  await expect(page.getByText('Retirement-target contribution')).toBeVisible();
+  await expect(page.locator('[data-primary-label]')).toHaveText('Retirement-target contribution');
   await expect(page.locator('[data-primary-note]')).toContainText('Exact model value:');
 });
 
