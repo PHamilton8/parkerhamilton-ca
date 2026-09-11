@@ -65,7 +65,7 @@ export const projects: Project[] = [
     premise: 'Strategy, information architecture, copy, SEO, QA, and a maintainable static rebuild for a family-run service business.',
     tags: ['Digital Strategy', 'Design & Experience', 'Build & Systems'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'askwill',
   },
   {
