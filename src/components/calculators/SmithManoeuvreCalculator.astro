@@ -268,7 +268,7 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
     formatSmithPercent,
   } from '../../lib/calculators/smithManoeuvreView';
 
-  const root = document.querySelector<HTMLElement>('[data-smith-calculator]');
+  const root = document.querySelector<HTMLElement>('[data-smith-calculator]')!;
 
   if (root) {
     type FieldName = keyof SmithInputs;
