@@ -7,58 +7,49 @@ const project = projects.find((item) => item.slug === 'design-day');
 if (!project) throw new Error('Design Day project data is unavailable.');
 
 const processImages = [
-  { src: '/assets/projects/design-day/design-day-print-components.jpg', width: 1920, height: 1080, alt: 'Purple components being made on a 3D printer during fabrication.', caption: '3D-printed components during fabrication.' },
-  { src: '/assets/projects/design-day/design-day-soldering.jpg', width: 475, height: 1028, alt: 'Hands soldering electronics on a workbench during the team build.', caption: 'Soldering and electronics work during the build.' },
-  { src: '/assets/projects/design-day/design-day-bench-test.jpg', width: 1200, height: 912, alt: 'Illuminated components and wiring being tested on a workbench before final assembly.', caption: 'Testing illuminated components and wiring before final assembly.' },
+  { src: '/assets/projects/design-day/design-day-print-components.jpg', width: 1920, height: 1080, alt: 'Purple components being made on a 3D printer during fabrication.', caption: '3D-printing the mounts for the final instrument.' },
+  { src: '/assets/projects/design-day/design-day-soldering.jpg', width: 475, height: 1028, alt: 'Hands soldering electronics on a workbench during the team build.', caption: 'Soldering components onto the prototyping board.' },
+  { src: '/assets/projects/design-day/design-day-bench-test.jpg', width: 1200, height: 912, alt: 'Illuminated components and wiring being tested on a workbench before final assembly.', caption: 'A reassuring moment: the lights worked before we put everything together.' },
 ];
 ---
-<BaseLayout title={project.title} description={project.premise} canonicalPath={project.route}>
+<BaseLayout title="Design Day 2023" description="Our team built a laser-powered musical instrument that won 1st place at uOttawa's Design Day 2023." canonicalPath={project.route}>
   <article class="design-case">
     <header class="design-hero">
       <div class="design-hero-copy">
-        <p class="eyebrow">02 · Design Day · Winter 2023</p>
-        <p class="design-meta">Beam Buccaneers · Design & prototyping · accessibility-oriented interaction</p>
-        <h1>Interactive light-based musical instrument</h1>
-        <p class="design-lede">A museum interaction sparked an accessibility-oriented question: could a musical interface rely less on the precise finger actions used by keys, strings, and other conventional controls?</p>
-        <p class="design-role">I developed the concept and led the research, project management, testing, and presentation, while also contributing hands-on across the build with the rest of the team.</p>
+        <h1>Design Day 2023</h1>
+        <p class="design-lede">For Design Day 2023, we built our own take on a laser-powered musical instrument.</p>
       </div>
-      <figure class="design-hero-image"><img src="/assets/projects/design-day/design-day-hero-prototype.webp" width="1200" height="1600" alt="The final circular light-based electronic musical instrument with illuminated interaction points arranged around its rim." /><figcaption>The final circular light-based instrument built for uOttawa Design Day.</figcaption></figure>
+      <figure class="design-hero-image"><img src="/assets/projects/design-day/design-day-hero-prototype.webp" width="1200" height="1600" alt="The final circular light-based electronic musical instrument with illuminated interaction points arranged around its rim." /></figure>
     </header>
 
-    <section class="design-section design-result" aria-labelledby="result-title">
-      <div><p class="eyebrow">Result</p><h2 id="result-title">A working team build, recognized at Design Day</h2></div>
-      <p><strong>Beam Buccaneers — Open 1 winner, uOttawa Design Day Winter 2023.</strong> <a href="https://www.uottawa.ca/faculty-engineering/centre-entrepreneurship-engineering-design/past-winners">uOttawa’s past-winners listing</a> names the team and result.</p>
+    <section class="design-section design-result design-result--heading-only" aria-labelledby="result-title">
+      <div><p class="eyebrow">Result</p><h2 id="result-title"><a href="https://www.uottawa.ca/faculty-engineering/centre-entrepreneurship-engineering-design/past-winners">1st place at Design Day 2023</a></h2></div>
     </section>
 
     <section class="design-section" aria-labelledby="inspiration-title">
-      <div class="design-heading"><p class="eyebrow">Origin</p><h2 id="inspiration-title">Inspiration became a different physical instrument</h2></div>
+      <div class="design-heading"><p class="eyebrow">Origin</p><h2 id="inspiration-title">Where it started</h2></div>
       <div class="design-two-col">
-        <figure class="design-figure"><img src="/assets/projects/design-day/design-day-museum-reference.jpg" width="1480" height="1200" alt="A transparent pink laser harp on display at the Canada Science and Technology Museum." /><figcaption>Museum inspiration / reference — not our prototype.</figcaption></figure>
-        <div class="design-reading"><p>The idea began after I saw a laser harp at the Canada Science and Technology Museum. Our team did not reproduce that object. We translated the interaction prompt into a circular, light-based electronic musical instrument for the competition.</p><p>The design rationale was exploratory: could changing the input method make musical interaction less dependent on fine-motor precision? Accessibility guided the concept; it was not an experimentally validated outcome.</p></div>
+        <figure class="design-figure"><img src="/assets/projects/design-day/design-day-museum-reference.jpg" width="1480" height="1200" alt="A transparent pink laser harp on display at the Canada Science and Technology Museum." /><figcaption>Laser harp at the Canada Science and Technology Museum.</figcaption></figure>
+        <div class="design-reading"><p>The idea started after we saw a laser harp at the Canada Science and Technology Museum. We used that interaction as the starting point for our own instrument.</p><p>We wanted to explore whether we could design and produce an instrument that relies less on precise finger movements compared to traditional string instruments.</p></div>
       </div>
     </section>
 
     <section class="design-section design-demo" aria-labelledby="demo-title">
-      <div class="design-heading"><p class="eyebrow">Working demo</p><h2 id="demo-title">See the interaction and hear the real instrument</h2></div>
+      <div class="design-heading"><p class="eyebrow">Working demo</p><h2 id="demo-title">The prototype</h2></div>
       <div class="design-demo-grid">
-        <video class="design-video" controls width="480" height="848" preload="metadata" aria-describedby="design-demo-description" poster="/assets/projects/design-day/design-day-demo-poster.jpg" aria-label="Working demonstration of the final circular instrument with real instrument audio.">
+        <video class="design-video" controls width="480" height="848" preload="metadata" aria-describedby="design-demo-description" poster="/assets/projects/design-day/design-day-demo-poster.jpg" aria-label="Demo of the final instrument being played.">
           <source src="/assets/projects/design-day/design-day-working-demo.mp4" type="video/mp4" />
           Your browser does not support the working demonstration video.
         </video>
-        <div class="design-reading" id="design-demo-description"><p>The video shows a hand moving around the circular rim and engaging illuminated interaction points. Each interaction is handled by electronic control logic and produces synthesized sound. The audio is the actual sound from the functioning instrument.</p><p>Use the player’s controls to play, pause, or adjust the sound.</p></div>
+        <div class="design-reading" id="design-demo-description"><p>Here’s the prototype in action. Each laser was aimed at a sensor. Blocking the beam caused the sensor to trigger the Arduino, which sent a signal to the synthesizer to produce the note. That meant we could use the same physical interface with different instrument sounds.</p></div>
       </div>
-      <ol class="design-mechanism" aria-label="Interaction mechanism"><li>Illuminated interaction points</li><li>Electronic control logic</li><li>Synthesized sound</li></ol>
+      <ol class="design-mechanism" aria-label="Interaction mechanism"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol>
     </section>
 
     <section class="design-section" aria-labelledby="build-title">
-      <div class="design-heading"><p class="eyebrow">Build</p><h2 id="build-title">From fabrication to a playable prototype</h2></div>
-      <div class="design-reading design-reading-wide"><p>The team moved through printed components, electronics work, physical assembly, and bench testing before bringing the circular instrument together. I contributed hands-on across the build alongside teammates with different technical strengths.</p></div>
+      <div class="design-heading"><p class="eyebrow">Process</p><h2 id="build-title">Building the prototype</h2></div>
+      <div class="design-reading design-reading-wide"><p>We 3D-printed the mounts, soldered the circuitry, wired the lasers and sensors, and tested the electronics before putting everything together. I’d be giving myself far too much credit if I pretended I was an electronics expert, but I was fortunate to have teammates who were.</p></div>
       <div class="design-gallery">{processImages.map((image) => <figure><img src={image.src} width={image.width} height={image.height} alt={image.alt} loading="lazy" /><figcaption>{image.caption}</figcaption></figure>)}</div>
-    </section>
-
-    <section class="design-section design-test" aria-labelledby="test-title">
-      <div class="design-heading"><p class="eyebrow">Informal testing</p><h2 id="test-title">Put the working interaction in people’s hands</h2></div>
-      <div class="design-reading"><p>We informally put the working instrument in front of roughly five people, including about three musicians, and asked them to play notes, try a melody, and interact freely. The sessions were exploratory rather than a formal usability study and did not produce a recurring issue that drove a redesign.</p><p>Built with Beam Buccaneers teammates Stefano Heguy, Arian Shaafi, and Eric Steve Tessac Teutu.</p></div>
     </section>
   </article>
   <ContactBand />
@@ -80,6 +71,7 @@ const processImages = [
   .design-heading .eyebrow { margin: .5rem 0 0; }
   .design-heading h2, .design-result h2 { max-width: 46rem; margin: 0; font-size: clamp(2.2rem, 4.5vw, 4.2rem); line-height: 1; letter-spacing: -.052em; }
   .design-result { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, .9fr); gap: 2.5rem; padding: clamp(2rem, 5vw, 3.25rem); background: var(--color-pale-teal); }
+  .design-result--heading-only { grid-template-columns: 1fr; }
   .design-result .eyebrow { margin-bottom: .8rem; }
   .design-result p { align-self: end; margin: 0; color: var(--color-text); font-size: 1.03rem; line-height: 1.55; }
   .design-result a { color: var(--color-deep-teal); font-weight: 760; text-underline-offset: .18em; }
@@ -96,11 +88,7 @@ const processImages = [
   .design-gallery { display: grid; grid-template-columns: 1.3fr .72fr 1fr; gap: 1rem; align-items: start; margin-top: 1.8rem; }
   .design-gallery figure { padding: .45rem; border: 1px solid var(--color-line); background: var(--color-surface); }
   .design-gallery figure:nth-child(2) img { max-height: 31rem; object-fit: cover; }
-  .design-test { padding: clamp(2.5rem, 5vw, 4rem); background: var(--color-deep-teal); color: white; }
-  .design-test .eyebrow { color: #9bd7d0; }
-  .design-test .design-heading h2, .design-test .design-reading { color: white; }
-  .design-test .design-reading { color: #dbe9e7; margin: 1.5rem 0 0 auto; }
-  @media (max-width: 51.25rem) { .design-hero, .design-result, .design-heading, .design-two-col, .design-demo-grid { grid-template-columns: 1fr; } .design-heading .eyebrow { margin: 0; } .design-hero-image { max-width: 35rem; } .design-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } .design-reading-wide, .design-test .design-reading { margin-left: 0; } }
+  @media (max-width: 51.25rem) { .design-hero, .design-result, .design-heading, .design-two-col, .design-demo-grid { grid-template-columns: 1fr; } .design-heading .eyebrow { margin: 0; } .design-hero-image { max-width: 35rem; } .design-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } .design-reading-wide { margin-left: 0; } }
   @media (max-width: 35rem) { .design-case { padding-inline: 1.125rem; } .design-hero h1 { font-size: clamp(3rem, 15vw, 4.25rem); } .design-gallery { grid-template-columns: 1fr; } .design-mechanism { display: grid; gap: .6rem; } .design-mechanism li:not(:last-child)::after { content: none; } }
   @media (prefers-reduced-motion: reduce) { .design-video { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
 </style>
