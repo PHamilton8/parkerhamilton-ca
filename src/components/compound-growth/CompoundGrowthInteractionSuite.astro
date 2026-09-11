@@ -1,0 +1,23 @@
+---
+import '../../styles/compound-growth.css';
+import '../../styles/compound-growth-page.css';
+import FixedExperimentalRecreation from './FixedExperimentalRecreation.astro';
+import ResearchEvidenceInteractions from './ResearchEvidenceInteractions.astro';
+import AnnualCompoundGrowthExplorer from './AnnualCompoundGrowthExplorer.astro';
+---
+
+<div class="cg-suite" data-compound-growth-suite>
+  <slot name="before-fixed" />
+
+  <FixedExperimentalRecreation />
+
+  <slot name="after-fixed" />
+
+  <ResearchEvidenceInteractions />
+
+  <slot name="before-explorer" />
+
+  <AnnualCompoundGrowthExplorer />
+
+  <slot name="after-explorer" />
+</div>

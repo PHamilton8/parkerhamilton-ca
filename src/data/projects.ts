@@ -41,7 +41,7 @@ export const projects: Project[] = [
     premise: 'Can identical financial projections produce different judgments depending on how they are shown?',
     tags: ['Research & Behaviour', 'Financial Decision-Making', 'Modelling & Analysis'],
     featured: true,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'thesis',
   },
   {

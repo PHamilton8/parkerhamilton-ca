@@ -1,0 +1,134 @@
+---
+import { experiment4Results, experimentSummary } from '../../data/compound-growth/fixedExperimentalData';
+
+type Study = { number: number; ultra_short_label: string; one_sentence: string };
+type StudySummary = { experiments: Study[] };
+type ConditionResult = { mean: number; sd: number };
+type PublicResult = { line_graph: ConditionResult; table: ConditionResult; effect_b: number; p: string; d: number };
+type Experiment4Data = {
+  estimated_growth_task: { interpretation: { correct_value: number } };
+  public_facing_results: {
+    estimated_growth_ratio: PublicResult;
+    growth_confidence: PublicResult;
+    retirement_goal_achievability: PublicResult;
+    planned_retirement_contributions_cad_per_month: PublicResult;
+  };
+  serial_mediation: { causal_language_warning: string };
+};
+
+const studies = (experimentSummary as unknown as StudySummary).experiments;
+const experiment4 = experiment4Results as unknown as Experiment4Data;
+const results = experiment4.public_facing_results;
+const formatCad = (value: number) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+
+const studyAnswers = studies.map((study) => ({
+  ...study,
+  answer: study.number === 4 ? 'A significant serial indirect effect was consistent with the proposed pathway.' : study.one_sentence,
+}));
+
+const resultRows = [
+  { id:'egr', label:'Estimated Growth Ratio', table:results.estimated_growth_ratio.table.mean, graph:results.estimated_growth_ratio.line_graph.mean, tableSd:results.estimated_growth_ratio.table.sd, graphSd:results.estimated_growth_ratio.line_graph.sd, max:experiment4.estimated_growth_task.interpretation.correct_value, unit:'ratio', effect:`b = ${results.estimated_growth_ratio.effect_b.toFixed(2)}, p ${results.estimated_growth_ratio.p}, d = ${results.estimated_growth_ratio.d.toFixed(2)}`, reference:experiment4.estimated_growth_task.interpretation.correct_value, currency:false },
+  { id:'growth-confidence', label:'Growth confidence', table:results.growth_confidence.table.mean, graph:results.growth_confidence.line_graph.mean, tableSd:results.growth_confidence.table.sd, graphSd:results.growth_confidence.line_graph.sd, max:100, unit:'0–100 scale', effect:`b = ${results.growth_confidence.effect_b.toFixed(2)}, p ${results.growth_confidence.p}, d = ${results.growth_confidence.d.toFixed(2)}`, reference:null, currency:false },
+  { id:'achievability', label:'Retirement-goal achievability', table:results.retirement_goal_achievability.table.mean, graph:results.retirement_goal_achievability.line_graph.mean, tableSd:results.retirement_goal_achievability.table.sd, graphSd:results.retirement_goal_achievability.line_graph.sd, max:100, unit:'0–100 scale', effect:`b = ${results.retirement_goal_achievability.effect_b.toFixed(2)}, p ${results.retirement_goal_achievability.p}, d = ${results.retirement_goal_achievability.d.toFixed(2)}`, reference:null, currency:false },
+  { id:'planned-contributions', label:'Planned monthly retirement contributions', table:results.planned_retirement_contributions_cad_per_month.table.mean, graph:results.planned_retirement_contributions_cad_per_month.line_graph.mean, tableSd:results.planned_retirement_contributions_cad_per_month.table.sd, graphSd:results.planned_retirement_contributions_cad_per_month.line_graph.sd, max:250, unit:'CAD per month', effect:`b = ${results.planned_retirement_contributions_cad_per_month.effect_b.toFixed(2)}, p = ${results.planned_retirement_contributions_cad_per_month.p}, d = ${results.planned_retirement_contributions_cad_per_month.d.toFixed(2)}`, reference:null, currency:true },
+] as const;
+---
+
+<section class="cg-module" aria-labelledby="egr-title" data-egr-explainer>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Perceived acceleration</p><h2 id="egr-title">Two gains, one ratio</h2></div>
+    <p>Estimated Growth Ratio compares how much larger the later perceived gain is than the earlier one.</p>
+  </div>
+  <div class="cg-switch cg-switch--plain" aria-label="Estimated Growth Ratio example">
+    <button type="button" data-egr-preset="equal-gains" aria-pressed="false">Equal gains</button>
+    <button type="button" data-egr-preset="experimental-projection" aria-pressed="true">Experimental projection</button>
+  </div>
+  <div class="cg-egr">
+    <div class="cg-egr__points" aria-label="Growth estimates">
+      <div><span>Year 20</span><strong data-egr-year20>3.6×</strong></div>
+      <div><span>Year 30</span><strong data-egr-year30>10.3×</strong></div>
+      <div><span>Year 40</span><strong data-egr-year40>27.8×</strong></div>
+    </div>
+    <div class="cg-egr__gains">
+      <div class="cg-egr__gain"><span>Earlier gain</span><strong data-egr-earlier>10.3 − 3.6 = 6.7</strong></div>
+      <div class="cg-egr__division" aria-hidden="true">÷</div>
+      <div class="cg-egr__gain"><span>Later gain</span><strong data-egr-later>27.8 − 10.3 = 17.5</strong></div>
+    </div>
+    <div class="cg-egr__result" aria-live="polite">
+      <span>Estimated Growth Ratio</span><strong data-egr-ratio>2.61</strong><p data-egr-interpretation>2.61 = the normative ratio for the experimental projection.</p>
+    </div>
+  </div>
+  <p class="cg-persistent-note">Values above 1 indicate that the later gain is perceived as larger than the earlier gain.</p>
+  <p class="cg-source-note" data-egr-source>This preset uses the correct growth estimates from the experimental projection; it is not a participant mean.</p>
+</section>
+
+<section class="cg-module" aria-labelledby="study-title" data-study-progression>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Five experiments</p><h2 id="study-title">How the research question narrowed</h2></div>
+    <p>Each experiment tested a different part of the proposed account. The fifth study did not establish a unique connected-line mechanism.</p>
+  </div>
+  <ol class="cg-study-list">
+    {studyAnswers.map((study) => (
+      <li><article class="cg-study" tabindex="0" data-study-card><span class="cg-study__number" aria-hidden="true">{String(study.number).padStart(2,'0')}</span><div><h3>Experiment {study.number}: {study.ultra_short_label}</h3><p>{study.answer}</p></div></article></li>
+    ))}
+  </ol>
+</section>
+
+<section class="cg-module" aria-labelledby="results-title" data-experiment-four>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Experiment 4 · aggregate results</p><h2 id="results-title">The main group differences</h2></div>
+    <p>Presentation condition was randomized. The mediators and planned contributions were measured; the statistical sequence does not independently establish their causal ordering.</p>
+  </div>
+  <div class="cg-result-list">
+    {resultRows.map((result) => (
+      <article class="cg-result" data-result-row={result.id}>
+        <div class="cg-result__header"><h3>{result.label}</h3><span>{result.unit}</span></div>
+        <div class="cg-result__track-wrap">
+          <div class="cg-result__track" aria-hidden="true">{result.reference !== null && (<span class="cg-result__reference" style={`--position:${(result.reference / result.max) * 100}%`}></span>)}</div>
+          <button type="button" class="cg-result__marker cg-result__marker--table" style={`--position:${Math.min(100,(result.table/result.max)*100)}%`} aria-label={`${result.label}, table condition mean ${result.currency ? formatCad(result.table) : result.table.toFixed(2)}, ${result.unit}`} data-result-condition="Table" data-result-label={result.label} data-result-mean={result.currency ? formatCad(result.table) : result.table.toFixed(2)} data-result-sd={result.tableSd.toFixed(2)} data-result-unit={result.unit} data-result-effect={result.effect}><span aria-hidden="true">T</span></button>
+          <button type="button" class="cg-result__marker cg-result__marker--graph" style={`--position:${Math.min(100,(result.graph/result.max)*100)}%`} aria-label={`${result.label}, line graph condition mean ${result.currency ? formatCad(result.graph) : result.graph.toFixed(2)}, ${result.unit}`} data-result-condition="Line graph" data-result-label={result.label} data-result-mean={result.currency ? formatCad(result.graph) : result.graph.toFixed(2)} data-result-sd={result.graphSd.toFixed(2)} data-result-unit={result.unit} data-result-effect={result.effect}><span aria-hidden="true">G</span></button>
+        </div>
+        <div class="cg-result__values"><span><b>Table</b> {result.currency ? formatCad(result.table) : result.table.toFixed(2)}</span><span><b>Line graph</b> {result.currency ? formatCad(result.graph) : result.graph.toFixed(2)}</span>{result.reference !== null && <span><b>Correct reference</b> {result.reference.toFixed(2)}</span>}</div>
+      </article>
+    ))}
+  </div>
+  <div class="cg-result-detail" id="experiment-four-detail" aria-live="polite">Focus or tap a condition marker for its mean, standard deviation, and comparison statistic.</div>
+</section>
+
+<script>
+  const egrRoot = document.querySelector<HTMLElement>('[data-egr-explainer]');
+  if (egrRoot) {
+    const presets = {
+      'equal-gains': { year20:3.6, year30:10.3, year40:17, ratio:'1.00', interpretation:'1.00 = equal perceived gains across the two intervals.', source:'Illustrative equal-gains example — not participant data.' },
+      'experimental-projection': { year20:3.6, year30:10.3, year40:27.8, ratio:'2.61', interpretation:'2.61 = the normative ratio for the experimental projection.', source:'This preset uses the correct growth estimates from the experimental projection; it is not a participant mean.' },
+    } as const;
+    const buttons = Array.from(egrRoot.querySelectorAll<HTMLButtonElement>('[data-egr-preset]'));
+    const render = (id: keyof typeof presets) => {
+      const preset=presets[id], earlier=preset.year30-preset.year20, later=preset.year40-preset.year30;
+      const set=(selector:string,value:string)=>{const node=egrRoot.querySelector<HTMLElement>(selector);if(node)node.textContent=value;};
+      set('[data-egr-year20]',`${preset.year20.toFixed(1)}×`); set('[data-egr-year30]',`${preset.year30.toFixed(1)}×`); set('[data-egr-year40]',`${preset.year40.toFixed(1)}×`);
+      set('[data-egr-earlier]',`${preset.year30.toFixed(1)} − ${preset.year20.toFixed(1)} = ${earlier.toFixed(1)}`); set('[data-egr-later]',`${preset.year40.toFixed(1)} − ${preset.year30.toFixed(1)} = ${later.toFixed(1)}`);
+      set('[data-egr-ratio]',preset.ratio); set('[data-egr-interpretation]',preset.interpretation); set('[data-egr-source]',preset.source);
+      buttons.forEach((button)=>button.setAttribute('aria-pressed',button.dataset.egrPreset===id?'true':'false'));
+    };
+    buttons.forEach((button)=>button.addEventListener('click',()=>render(button.dataset.egrPreset as keyof typeof presets)));
+  }
+
+  const studyRoot = document.querySelector<HTMLElement>('[data-study-progression]');
+  if (studyRoot) {
+    const cards=Array.from(studyRoot.querySelectorAll<HTMLElement>('[data-study-card]'));
+    const activate=(active:HTMLElement)=>cards.forEach((card)=>card.classList.toggle('is-active',card===active));
+    cards.forEach((card)=>{card.addEventListener('focus',()=>activate(card));card.addEventListener('pointerenter',()=>activate(card));card.addEventListener('pointerdown',()=>activate(card));});
+  }
+
+  const resultRoot=document.querySelector<HTMLElement>('[data-experiment-four]');
+  if(resultRoot){
+    const detail=resultRoot.querySelector<HTMLElement>('#experiment-four-detail');
+    const markers=Array.from(resultRoot.querySelectorAll<HTMLButtonElement>('.cg-result__marker'));
+    let selected:HTMLButtonElement|null=null;
+    const show=(marker:HTMLButtonElement,persistent=false)=>{markers.forEach((item)=>item.classList.toggle('is-selected',item===marker&&persistent));if(persistent)selected=marker;if(detail)detail.textContent=`${marker.dataset.resultLabel} — ${marker.dataset.resultCondition}: mean ${marker.dataset.resultMean}, SD ${marker.dataset.resultSd}, ${marker.dataset.resultUnit}. Comparison: ${marker.dataset.resultEffect}.`;};
+    markers.forEach((marker)=>{marker.addEventListener('focus',()=>show(marker));marker.addEventListener('mouseenter',()=>show(marker));marker.addEventListener('click',()=>show(marker,true));});
+    document.addEventListener('pointerdown',(event)=>{if(selected&&!resultRoot.contains(event.target as Node)){selected.classList.remove('is-selected');selected=null;}});
+    document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&selected){selected.classList.remove('is-selected');selected=null;}});
+  }
+</script>

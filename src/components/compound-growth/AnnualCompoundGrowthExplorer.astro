@@ -1,0 +1,132 @@
+---
+import {
+  calculateCompoundGrowthProjection,
+  compoundGrowthDefaultInput,
+  selectCompoundGrowthDisplayPoints,
+} from '../../lib/calculators/compoundGrowth';
+
+const formatCad = (value: number) => new Intl.NumberFormat('en-CA', { style:'currency', currency:'CAD', maximumFractionDigits:0 }).format(value);
+const defaultProjection = calculateCompoundGrowthProjection(compoundGrowthDefaultInput);
+const defaultDisplayPoints = selectCompoundGrowthDisplayPoints(defaultProjection);
+---
+
+<section class="cg-explorer-boundary" aria-labelledby="explorer-title" data-explorer>
+  <div class="cg-explorer-boundary__statement">
+    <p class="cg-kicker">Separate exploratory model</p>
+    <h2 id="explorer-title">Explore a separate annual-compounding scenario. These adjustable projections were not tested in the experiments.</h2>
+    <p>Change the assumptions, then switch between the same results shown as a table or line graph.</p>
+  </div>
+
+  <div class="cg-explorer">
+    <form class="cg-explorer__controls" data-explorer-form novalidate>
+      <div class="cg-field"><label for="cg-starting-age">Starting age</label><input id="cg-starting-age" name="startingAge" type="number" min="18" max="70" step="1" value="25" inputmode="numeric" /><span class="cg-field-error" data-error-for="startingAge" aria-live="polite"></span></div>
+      <div class="cg-field"><label for="cg-retirement-age">Retirement age</label><input id="cg-retirement-age" name="retirementAge" type="number" min="19" max="80" step="1" value="65" inputmode="numeric" /><span class="cg-field-error" data-error-for="retirementAge" aria-live="polite"></span></div>
+      <div class="cg-field"><label for="cg-annual-contribution">Annual contribution</label><div class="cg-input-affix"><span aria-hidden="true">$</span><input id="cg-annual-contribution" name="annualContribution" type="number" min="0" max="100000" step="100" value="1200" inputmode="decimal" /></div><span class="cg-field-error" data-error-for="annualContribution" aria-live="polite"></span></div>
+      <div class="cg-field"><label for="cg-annual-return">Assumed annual return</label><div class="cg-input-affix cg-input-affix--suffix"><input id="cg-annual-return" name="annualReturn" type="number" min="0" max="20" step="0.1" value="10" inputmode="decimal" /><span aria-hidden="true">%</span></div><span class="cg-field-error" data-error-for="annualReturn" aria-live="polite"></span></div>
+    </form>
+    <p class="cg-explorer__global-error" data-explorer-error role="status"></p>
+
+    <dl class="cg-summary" aria-label="Exploratory projection summary">
+      <div><dt>Years invested</dt><dd data-summary-years>{defaultProjection.yearsInvested}</dd></div>
+      <div><dt>Total contributions</dt><dd data-summary-contributions>{formatCad(defaultProjection.totalContributions)}</dd></div>
+      <div><dt>Final projected balance</dt><dd data-summary-balance>{formatCad(defaultProjection.finalBalance)}</dd></div>
+      <div><dt>Projected investment growth</dt><dd data-summary-growth>{formatCad(defaultProjection.projectedInvestmentGrowth)}</dd></div>
+    </dl>
+
+    <div class="cg-switch" role="tablist" aria-label="Exploratory projection display">
+      <button id="explorer-tab-table" type="button" role="tab" aria-selected="true" aria-controls="explorer-panel-table" tabindex="0" data-explorer-view="table">Table</button>
+      <button id="explorer-tab-graph" type="button" role="tab" aria-selected="false" aria-controls="explorer-panel-graph" tabindex="-1" data-explorer-view="graph">Line graph</button>
+    </div>
+
+    <div id="explorer-panel-table" class="cg-panel" role="tabpanel" aria-labelledby="explorer-tab-table" data-explorer-panel="table">
+      <div class="cg-table-wrap"><table class="cg-data-table" data-explorer-table><caption>Exploratory annual-compounding projection</caption><thead><tr><th scope="col">Age</th><th scope="col">Years invested</th><th scope="col">Cumulative contributions</th><th scope="col">Projected account balance</th></tr></thead><tbody>{defaultDisplayPoints.map((point) => (<tr><th scope="row">{point.age}</th><td>{point.yearsInvested}</td><td>{formatCad(point.cumulativeContributions)}</td><td>{formatCad(point.projectedBalance)}</td></tr>))}</tbody></table></div>
+    </div>
+
+    <div id="explorer-panel-graph" class="cg-panel" role="tabpanel" aria-labelledby="explorer-tab-graph" hidden data-explorer-panel="graph">
+      <p class="cg-chart-summary" data-explorer-chart-summary>From age 25 to 65, 40 year-end contributions total $48,000. Under this separate annual model, the final projected balance is {formatCad(defaultProjection.finalBalance)}.</p>
+      <div class="cg-chart-frame"><svg class="cg-chart cg-chart--explorer" viewBox="0 0 760 390" role="img" aria-label="Exploratory annual-compounding projection" data-explorer-chart></svg></div>
+      <p class="cg-point-detail" data-explorer-point-detail aria-live="polite">Focus or tap a point to inspect the generated annual-model values.</p>
+      <div class="sr-only" data-explorer-a11y-table></div>
+    </div>
+
+    <div class="cg-assumptions">
+      <p><strong>Annual model:</strong> starting balance is fixed at $0. The existing balance grows once per year, then the annual contribution is added at year-end. This exploratory scenario was not tested in the experiments.</p>
+      <p>Illustrative projection only. It does not model fees, taxes, inflation, return volatility, or changes in contributions.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import {
+    CompoundGrowthInputError,
+    calculateCompoundGrowthProjection,
+    selectCompoundGrowthDisplayPoints,
+  } from '../../lib/calculators/compoundGrowth';
+
+  const root=document.querySelector<HTMLElement>('[data-explorer]');
+  if(root){
+    const tabButtons=Array.from(root.querySelectorAll<HTMLButtonElement>('[data-explorer-view]'));
+    const panels=Array.from(root.querySelectorAll<HTMLElement>('[data-explorer-panel]'));
+    const activate=(view:'table'|'graph',focus=false)=>{
+      tabButtons.forEach((button)=>{const selected=button.dataset.explorerView===view;button.setAttribute('aria-selected',selected?'true':'false');button.tabIndex=selected?0:-1;if(selected&&focus)button.focus();});
+      panels.forEach((panel)=>{panel.hidden=panel.dataset.explorerPanel!==view;});
+    };
+    tabButtons.forEach((button,index)=>{
+      button.addEventListener('click',()=>activate(button.dataset.explorerView as 'table'|'graph'));
+      button.addEventListener('keydown',(event)=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let next=index;if(event.key==='ArrowLeft')next=(index-1+tabButtons.length)%tabButtons.length;if(event.key==='ArrowRight')next=(index+1)%tabButtons.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabButtons.length-1;activate(tabButtons[next].dataset.explorerView as 'table'|'graph',true);});
+    });
+
+    const form=root.querySelector<HTMLFormElement>('[data-explorer-form]');
+    const globalError=root.querySelector<HTMLElement>('[data-explorer-error]');
+    const summaryYears=root.querySelector<HTMLElement>('[data-summary-years]');
+    const summaryContributions=root.querySelector<HTMLElement>('[data-summary-contributions]');
+    const summaryBalance=root.querySelector<HTMLElement>('[data-summary-balance]');
+    const summaryGrowth=root.querySelector<HTMLElement>('[data-summary-growth]');
+    const tableBody=root.querySelector<HTMLTableSectionElement>('[data-explorer-table] tbody');
+    const chart=root.querySelector<SVGSVGElement>('[data-explorer-chart]');
+    const chartSummary=root.querySelector<HTMLElement>('[data-explorer-chart-summary]');
+    const pointDetail=root.querySelector<HTMLElement>('[data-explorer-point-detail]');
+    const a11yTable=root.querySelector<HTMLElement>('[data-explorer-a11y-table]');
+    const currency=new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0});
+    let debounceId:number|undefined;
+
+    const fieldError=(name:string)=>root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+    const clearErrors=()=>{root.querySelectorAll<HTMLElement>('.cg-field-error').forEach((node)=>{node.textContent='';});root.querySelectorAll<HTMLInputElement>('input').forEach((input)=>input.removeAttribute('aria-invalid'));if(globalError)globalError.textContent='';};
+    const setFieldError=(name:string,message:string)=>{const input=form?.elements.namedItem(name);if(input instanceof HTMLInputElement)input.setAttribute('aria-invalid','true');const error=fieldError(name);if(error)error.textContent=message;};
+    const niceMax=(value:number)=>{if(value<=0)return 1000;const padded=value*1.08,magnitude=10**Math.floor(Math.log10(padded)),normalized=padded/magnitude,step=normalized<=2?.5:normalized<=5?1:2;return Math.ceil(normalized/step)*step*magnitude;};
+
+    const renderTable=(points:readonly {age:number;yearsInvested:number;cumulativeContributions:number;projectedBalance:number}[])=>{
+      if(tableBody)tableBody.replaceChildren(...points.map((point)=>{const row=document.createElement('tr');row.innerHTML=`<th scope="row">${point.age}</th><td>${point.yearsInvested}</td><td>${currency.format(point.cumulativeContributions)}</td><td>${currency.format(point.projectedBalance)}</td>`;return row;}));
+      if(a11yTable)a11yTable.innerHTML=`<table><caption>Exploratory annual-compounding values available while the graph is selected</caption><thead><tr><th scope="col">Age</th><th scope="col">Years invested</th><th scope="col">Cumulative contributions</th><th scope="col">Projected account balance</th></tr></thead><tbody>${points.map((point)=>`<tr><th scope="row">${point.age}</th><td>${point.yearsInvested}</td><td>${currency.format(point.cumulativeContributions)}</td><td>${currency.format(point.projectedBalance)}</td></tr>`).join('')}</tbody></table>`;
+    };
+
+    const renderChart=(points:readonly {age:number;yearsInvested:number;cumulativeContributions:number;projectedBalance:number}[])=>{
+      if(!chart||points.length===0)return;
+      const width=760,height=390,left=72,right=34,top=28,bottom=56,minAge=points[0].age,maxAge=points[points.length-1].age,yMax=niceMax(Math.max(...points.map((point)=>point.projectedBalance)));
+      const x=(age:number)=>left+((age-minAge)/Math.max(1,maxAge-minAge))*(width-left-right),y=(value:number)=>top+(1-value/yMax)*(height-top-bottom);
+      const ticks=[0,yMax/3,2*yMax/3,yMax],tickLabel=(value:number)=>value>=1000000?`$${(value/1000000).toFixed(value%1000000===0?0:1)}m`:`$${Math.round(value/1000)}k`;
+      const balancePolyline=points.map((point)=>`${x(point.age)},${y(point.projectedBalance)}`).join(' '),contributionPolyline=points.map((point)=>`${x(point.age)},${y(point.cumulativeContributions)}`).join(' ');
+      chart.innerHTML=`<title>Exploratory annual-compounding projection</title><desc>Generated values for cumulative contributions and projected account balance from age ${minAge} to ${maxAge}.</desc>${ticks.map((tick)=>`<line class="cg-grid" x1="${left}" y1="${y(tick)}" x2="${width-right}" y2="${y(tick)}"></line><text class="cg-axis-label" x="${left-12}" y="${y(tick)+4}" text-anchor="end">${tickLabel(tick)}</text>`).join('')}<line class="cg-axis" x1="${left}" y1="${top}" x2="${left}" y2="${height-bottom}"></line><line class="cg-axis" x1="${left}" y1="${height-bottom}" x2="${width-right}" y2="${height-bottom}"></line>${points.map((point)=>`<text class="cg-axis-label" x="${x(point.age)}" y="${height-bottom+25}" text-anchor="middle">${point.age}</text>`).join('')}<polyline class="cg-series cg-series--balance" points="${balancePolyline}"></polyline><polyline class="cg-series cg-series--contributions" points="${contributionPolyline}"></polyline>${points.map((point)=>`<circle class="cg-point cg-point--balance cg-explorer-point" cx="${x(point.age)}" cy="${y(point.projectedBalance)}" r="5" tabindex="0" role="button" aria-label="Age ${point.age}, projected balance ${currency.format(point.projectedBalance)}, cumulative contributions ${currency.format(point.cumulativeContributions)}" data-age="${point.age}" data-years="${point.yearsInvested}" data-balance="${point.projectedBalance}" data-contributions="${point.cumulativeContributions}"></circle><circle class="cg-point cg-point--contributions cg-explorer-point" cx="${x(point.age)}" cy="${y(point.cumulativeContributions)}" r="5" tabindex="0" role="button" aria-label="Age ${point.age}, cumulative contributions ${currency.format(point.cumulativeContributions)}, projected balance ${currency.format(point.projectedBalance)}" data-age="${point.age}" data-years="${point.yearsInvested}" data-balance="${point.projectedBalance}" data-contributions="${point.cumulativeContributions}"></circle>`).join('')}<text class="cg-axis-title" x="${(width+left-right)/2}" y="${height-8}" text-anchor="middle">Age</text>`;
+      chart.querySelectorAll<SVGElement>('.cg-explorer-point').forEach((point)=>{const show=()=>{if(pointDetail)pointDetail.textContent=`Age ${point.dataset.age} · ${point.dataset.years} years invested — cumulative contributions ${currency.format(Number(point.dataset.contributions))}; projected balance ${currency.format(Number(point.dataset.balance))}.`;};point.addEventListener('focus',show);point.addEventListener('click',show);point.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();show();}});});
+    };
+
+    const renderProjection=()=>{
+      if(!form)return;clearErrors();
+      const startingAgeInput=form.elements.namedItem('startingAge'),retirementAgeInput=form.elements.namedItem('retirementAge'),contributionInput=form.elements.namedItem('annualContribution'),returnInput=form.elements.namedItem('annualReturn');
+      if(!(startingAgeInput instanceof HTMLInputElement)||!(retirementAgeInput instanceof HTMLInputElement)||!(contributionInput instanceof HTMLInputElement)||!(returnInput instanceof HTMLInputElement))return;
+      const fields=[['startingAge',startingAgeInput],['retirementAge',retirementAgeInput],['annualContribution',contributionInput],['annualReturn',returnInput]] as const;
+      for(const [name,input] of fields){if(!Number.isFinite(input.valueAsNumber)){setFieldError(name,'Enter a valid number.');return;}if(!input.validity.valid){setFieldError(name,input.validationMessage||'Check this value.');return;}}
+      try{
+        const projection=calculateCompoundGrowthProjection({startingAge:startingAgeInput.valueAsNumber,retirementAge:retirementAgeInput.valueAsNumber,startingPortfolio:0,annualContribution:contributionInput.valueAsNumber,annualReturn:returnInput.valueAsNumber/100});
+        const points=selectCompoundGrowthDisplayPoints(projection);
+        if(summaryYears)summaryYears.textContent=String(projection.yearsInvested);if(summaryContributions)summaryContributions.textContent=currency.format(projection.totalContributions);if(summaryBalance)summaryBalance.textContent=currency.format(projection.finalBalance);if(summaryGrowth)summaryGrowth.textContent=currency.format(projection.projectedInvestmentGrowth);
+        if(chartSummary)chartSummary.textContent=`From age ${projection.input.startingAge} to ${projection.input.retirementAge}, ${projection.yearsInvested} year-end contributions total ${currency.format(projection.totalContributions)}. Under this separate annual model, the final projected balance is ${currency.format(projection.finalBalance)}.`;
+        renderTable(points);renderChart(points);
+      }catch(error){
+        if(error instanceof CompoundGrowthInputError){if(['RETIREMENT_AGE_NOT_AFTER_STARTING_AGE','RETIREMENT_AGE_OUT_OF_RANGE','PROJECTION_HORIZON_EXCEEDS_MAXIMUM'].includes(error.code))setFieldError('retirementAge',error.message);else if(['STARTING_AGE_OUT_OF_RANGE','AGE_NOT_WHOLE_YEAR'].includes(error.code))setFieldError('startingAge',error.message);else if(error.code==='NEGATIVE_ANNUAL_CONTRIBUTION')setFieldError('annualContribution',error.message);else if(error.code==='RETURN_NOT_GREATER_THAN_NEGATIVE_ONE')setFieldError('annualReturn',error.message);else if(globalError)globalError.textContent=error.message;}else if(globalError)globalError.textContent='This combination could not be projected. Check the inputs and try again.';
+      }
+    };
+    const schedule=()=>{window.clearTimeout(debounceId);debounceId=window.setTimeout(renderProjection,120);};
+    form?.addEventListener('input',schedule);form?.addEventListener('change',renderProjection);renderProjection();
+  }
+</script>
