@@ -2,9 +2,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 const route = '/work/coast-fi';
 
-async function setNumber(page: Page, label: string, value: number) {
-  const input = page.getByLabel(label, { exact: false });
-  await input.fill(String(value));
+async function setNumber(page: Page, selector: string, value: number) {
+  await page.locator(selector).fill(String(value));
 }
 
 async function calculate(page: Page) {
@@ -44,7 +43,7 @@ test('all four modes use the audited engine outputs and required display roundin
   await expect(page.locator('[data-metrics]').getByText('$376,889').first()).toBeVisible();
 
   await page.locator('#coast-mode-c').check();
-  await setNumber(page, 'Monthly contribution', 500);
+  await setNumber(page, '#coast-monthly-contribution', 500);
   await calculate(page);
   await expect(page.getByText(/projected portfolio first reaches the Coast threshold at about age 52 years 4 months/i)).toBeVisible();
   await expect(page.locator('[data-primary-value]')).toHaveText('age 52 years 4 months');
@@ -62,31 +61,31 @@ test('validation preserves entered values and handles edge cases without console
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(route);
 
-  await setNumber(page, 'Current invested portfolio', 123456);
-  await setNumber(page, 'Expected real annual return', 21);
+  await setNumber(page, '#coast-current-portfolio', 123456);
+  await setNumber(page, '#coast-real-return', 21);
   await calculate(page);
-  await expect(page.getByText(/greater than −100% and no more than 20%/)).toBeVisible();
-  await expect(page.getByLabel('Current invested portfolio')).toHaveValue('123456');
+  await expect(page.locator('[data-error-for="real-return"]')).toHaveText(/greater than −100% and no more than 20%/);
+  await expect(page.locator('#coast-current-portfolio')).toHaveValue('123456');
 
-  await setNumber(page, 'Expected real annual return', 0);
+  await setNumber(page, '#coast-real-return', 0);
   await calculate(page);
   await expect(page.locator('[data-primary-value]')).toHaveText('$1,000,000');
 
-  await setNumber(page, 'Expected real annual return', 12);
+  await setNumber(page, '#coast-real-return', 12);
   await calculate(page);
   await expect(page.getByText('High return assumption')).toBeVisible();
 
-  await setNumber(page, 'Expected real annual return', -1);
+  await setNumber(page, '#coast-real-return', -1);
   await calculate(page);
   await expect(page.getByText('Required Coast threshold today')).toBeVisible();
 
   await page.locator('#coast-mode-b').check();
-  await setNumber(page, 'Target Coast age', 30);
+  await setNumber(page, '#coast-target-age', 30);
   await calculate(page);
   await expect(page.getByText('No contribution window')).toBeVisible();
 
   await page.locator('#coast-mode-c').check();
-  await setNumber(page, 'Monthly contribution', 0);
+  await setNumber(page, '#coast-monthly-contribution', 0);
   await calculate(page);
   await expect(page.getByText(/does not reach the Coast threshold before retirement/i)).toBeVisible();
   expect(errors).toEqual([]);
@@ -101,12 +100,12 @@ test('mode selector and controls are keyboard-operable and reduced-motion compat
   await modeA.focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#coast-mode-b')).toBeChecked();
-  await expect(page.getByLabel('Target Coast age')).toBeVisible();
+  await expect(page.locator('#coast-target-age')).toBeVisible();
 
-  await page.getByLabel('Current age').focus();
-  await expect(page.getByLabel('Current age')).toBeFocused();
+  await page.locator('#coast-current-age').focus();
+  await expect(page.locator('#coast-current-age')).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('Target retirement age')).toBeFocused();
+  await expect(page.locator('#coast-retirement-age')).toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 });
 
@@ -118,8 +117,8 @@ test('financial inputs remain client-side and are not persisted, logged, or plac
   page.on('console', (message) => consoleMessages.push(message.text()));
 
   const beforeUrl = page.url();
-  await setNumber(page, 'Current invested portfolio', 987654);
-  await setNumber(page, 'Retirement portfolio target', 2345678);
+  await setNumber(page, '#coast-current-portfolio', 987654);
+  await setNumber(page, '#coast-retirement-target', 2345678);
   await calculate(page);
   await page.waitForTimeout(100);
 
