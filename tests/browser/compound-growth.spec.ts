@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
 const route = '/work/compound-growth/';
@@ -14,7 +14,7 @@ const fixedRows = [
   { year: 40, contributions: 48000, balance: 559461 },
 ];
 
-async function expectNoDocumentOverflow(page: Parameters<typeof test>[0]['page']) {
+async function expectNoDocumentOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 }
