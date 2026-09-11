@@ -36,11 +36,25 @@ async function expectNoDocumentOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
 }
 
-test('default Smith UI is wired to the canonical V2 engine result', async ({ page }) => {
-  const standard = caseById('standard-25y-golden');
+test('full Smith case study keeps the audited calculator as the central interactive', async ({ page }) => {
   await page.goto('/work/smith-manoeuvre');
   await expect(page.getByRole('heading', { level: 1, name: 'Smith Manoeuvre Model' })).toBeVisible();
   await expect(page).toHaveTitle('Smith Manoeuvre Model — Parker Hamilton');
+  await expect(page.getByRole('heading', { level: 2, name: 'The harder problem was making the comparison itself fair.' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Try the audited public scenario model.' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'The model has to satisfy invariants, not just produce a number.' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'A transparent model should show what it leaves out.' })).toBeVisible();
+  await expect(page.locator('[data-smith-calculator]')).toBeVisible();
+
+  const download = page.getByRole('link', { name: /Download the sanitized V2 demonstration workbook/ });
+  await expect(download).toHaveAttribute('href', '/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx');
+  await expect(download).toHaveAttribute('download', '');
+  await expect(page.locator('body')).not.toContainText('Smith_Manoeuvre_Public_Sanitized.xlsx');
+});
+
+test('default Smith UI is wired to the canonical V2 engine result', async ({ page }) => {
+  const standard = caseById('standard-25y-golden');
+  await page.goto('/work/smith-manoeuvre');
   await updateScenario(page);
   await expect(page.locator('[data-smith-status]')).toHaveText('Scenario updated.');
 
@@ -170,7 +184,7 @@ test('calculator interaction stays client-side with no value persistence or requ
   expect(consoleErrors).toEqual([]);
 });
 
-test('Smith tool is keyboard-usable, reduced-motion safe, and contained down to 320px', async ({ page }) => {
+test('Smith page and tool stay keyboard-usable, reduced-motion safe, and contained down to 320px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto('/work/smith-manoeuvre');
   await expectNoDocumentOverflow(page);
@@ -202,22 +216,24 @@ test('Smith tool is keyboard-usable, reduced-motion safe, and contained down to 
   await expectNoDocumentOverflow(page);
 });
 
-test('real Astro Smith tool captures required review-candidate viewports', async ({ page }, testInfo) => {
+test('full Smith page clears the required responsive containment matrix and captures review screenshots', async ({ page }, testInfo) => {
   const consoleErrors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  for (const width of [1440, 820, 390, 320]) {
-    await page.setViewportSize({ width, height: width >= 820 ? 1000 : 844 });
+  const widths = [1440, 1280, 1024, 820, 768, 430, 390, 360, 320];
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: width >= 768 ? 1000 : 844 });
     await page.goto('/work/smith-manoeuvre');
     await expect(page.locator('[data-smith-calculator]')).toBeVisible();
     await expect(page.getByRole('heading', { level: 2, name: 'Assumptions' })).toBeVisible();
     await expect(page.getByRole('heading', { level: 2, name: 'Results' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'The harder problem was making the comparison itself fair.' })).toBeVisible();
     await expectNoDocumentOverflow(page);
     if ([1440, 820, 390].includes(width)) {
-      await page.screenshot({ path: testInfo.outputPath(`smith-tool-${width}.png`), fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath(`smith-manoeuvre-page-${width}.png`), fullPage: true });
     }
   }
   expect(consoleErrors).toEqual([]);
