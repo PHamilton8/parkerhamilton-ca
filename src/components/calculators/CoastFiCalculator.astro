@@ -1,8 +1,11 @@
 <section class="coast-calculator" data-coast-calculator>
   <header class="tool-heading">
-    <p class="tool-kicker">Interactive planning model</p>
-    <h2>Coast FI calculator</h2>
-    <p>Use one of four modes to compare your portfolio with the Coast threshold, solve for a target-age contribution, estimate a Coast age, or solve for the full retirement-target contribution.</p>
+    <p class="tool-kicker">Calculator</p>
+    <h2>What would it take to reach your Coast threshold?</h2>
+    <p>Coast FI is an investment strategy built around doing more of your retirement saving early in your career, then letting compound growth carry your portfolio to your retirement target. By front-loading your retirement contributions, you give compounding more time to work, which can reduce the total lifetime contributions needed to hit your goal.</p>
+    <p>The four modes use the same underlying assumptions to answer different questions: where you are now, what it would take to Coast by a chosen age, when you might reach the threshold at a chosen contribution, or what contribution would reach the full retirement target.</p>
+    <p>All values use today’s dollars. The return assumption is a real annual return after inflation, and recurring contributions are treated as constant real contributions made at month-end.</p>
+    <p>Calculations run in your browser. Financial inputs are not stored or sent anywhere.</p>
   </header>
 
   <form data-coast-form novalidate>
@@ -11,19 +14,19 @@
       <div class="mode-grid">
         <div class="mode-option">
           <input type="radio" id="coast-mode-a" name="coast-mode" value="A" checked />
-          <label for="coast-mode-a"><strong>Where am I now?</strong><span>Compare your portfolio with today's Coast threshold.</span></label>
+          <label for="coast-mode-a"><strong>Where am I now?</strong><span>See how your current portfolio compares with today's Coast threshold.</span></label>
         </div>
         <div class="mode-option">
           <input type="radio" id="coast-mode-b" name="coast-mode" value="B" />
-          <label for="coast-mode-b"><strong>Coast by age</strong><span>Solve the monthly contribution needed by a target age.</span></label>
+          <label for="coast-mode-b"><strong>Coast by age</strong><span>Estimate the monthly contribution needed to reach Coast FI by a chosen age.</span></label>
         </div>
         <div class="mode-option">
           <input type="radio" id="coast-mode-c" name="coast-mode" value="C" />
-          <label for="coast-mode-c"><strong>When could I Coast?</strong><span>Estimate the first Coast month at a chosen contribution.</span></label>
+          <label for="coast-mode-c"><strong>When could I Coast?</strong><span>Enter a monthly contribution and estimate when the portfolio first reaches the Coast threshold.</span></label>
         </div>
         <div class="mode-option">
           <input type="radio" id="coast-mode-d" name="coast-mode" value="D" />
-          <label for="coast-mode-d"><strong>Retirement target</strong><span>Solve the contribution needed for the full target.</span></label>
+          <label for="coast-mode-d"><strong>Retirement target</strong><span>Estimate the monthly contribution needed to reach the full target by retirement.</span></label>
         </div>
       </div>
     </fieldset>
@@ -34,27 +37,27 @@
           <p class="step-label">01</p>
           <div>
             <h3 id="coast-inputs-title">Your assumptions</h3>
-            <p>All money values are in today's dollars.</p>
+            <p>All values use today’s dollars.</p>
           </div>
         </div>
 
         <div class="field-grid">
           <div class="field">
-            <label for="coast-current-age">Current age <span>years</span></label>
+            <label for="coast-current-age">Current age</label>
             <input id="coast-current-age" name="current-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="30" aria-describedby="coast-current-age-help coast-current-age-error" />
             <p class="field-help" id="coast-current-age-help">Whole years, 18–100.</p>
             <p class="field-error" id="coast-current-age-error" data-error-for="current-age" hidden></p>
           </div>
 
           <div class="field">
-            <label for="coast-retirement-age">Target retirement age <span>years</span></label>
+            <label for="coast-retirement-age">Retirement age</label>
             <input id="coast-retirement-age" name="retirement-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="65" aria-describedby="coast-retirement-age-help coast-retirement-age-error" />
             <p class="field-help" id="coast-retirement-age-help">Whole years, 18–100.</p>
             <p class="field-error" id="coast-retirement-age-error" data-error-for="retirement-age" hidden></p>
           </div>
 
           <div class="field field-wide">
-            <label for="coast-current-portfolio">Current invested portfolio <span>CAD</span></label>
+            <label for="coast-current-portfolio">Current invested portfolio</label>
             <div class="input-with-unit input-with-prefix">
               <span aria-hidden="true">$</span>
               <input id="coast-current-portfolio" name="current-portfolio" type="number" inputmode="decimal" min="0" step="1000" value="100000" aria-describedby="coast-current-portfolio-help coast-current-portfolio-error" />
@@ -64,34 +67,34 @@
           </div>
 
           <div class="field field-wide">
-            <label for="coast-retirement-target">Retirement portfolio target <span>today's dollars</span></label>
+            <label for="coast-retirement-target">Retirement portfolio target</label>
             <div class="input-with-unit input-with-prefix">
               <span aria-hidden="true">$</span>
               <input id="coast-retirement-target" name="retirement-target" type="number" inputmode="decimal" min="0.01" step="10000" value="1000000" aria-describedby="coast-retirement-target-help coast-retirement-target-error" />
             </div>
-            <p class="field-help" id="coast-retirement-target-help">A positive invested-portfolio target, before taxes or fees.</p>
+            <p class="field-help" id="coast-retirement-target-help">Your target invested portfolio, before taxes or fees.</p>
             <p class="field-error" id="coast-retirement-target-error" data-error-for="retirement-target" hidden></p>
           </div>
 
           <div class="field field-wide">
-            <label for="coast-real-return">Expected real annual return <span>after inflation</span></label>
+            <label for="coast-real-return">Expected real annual return</label>
             <div class="input-with-unit input-with-suffix">
               <input id="coast-real-return" name="real-return" type="number" inputmode="decimal" max="20" step="0.1" value="5" aria-describedby="coast-real-return-help coast-real-return-error" />
               <span aria-hidden="true">%</span>
             </div>
-            <p class="field-help" id="coast-real-return-help">Must be greater than −100% and no more than 20%.</p>
+            <p class="field-help" id="coast-real-return-help">Expected return after inflation. Maximum 20%.</p>
             <p class="field-error" id="coast-real-return-error" data-error-for="real-return" hidden></p>
           </div>
 
           <div class="field field-wide mode-specific" data-mode-b hidden>
-            <label for="coast-target-age">Target Coast age <span>years</span></label>
+            <label for="coast-target-age">Target Coast age</label>
             <input id="coast-target-age" name="target-coast-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="45" aria-describedby="coast-target-age-help coast-target-age-error" />
             <p class="field-help" id="coast-target-age-help">Between your current age and retirement age.</p>
             <p class="field-error" id="coast-target-age-error" data-error-for="target-coast-age" hidden></p>
           </div>
 
           <div class="field field-wide mode-specific" data-mode-c hidden>
-            <label for="coast-monthly-contribution">Monthly contribution <span>today's dollars</span></label>
+            <label for="coast-monthly-contribution">Monthly contribution</label>
             <div class="input-with-unit input-with-prefix">
               <span aria-hidden="true">$</span>
               <input id="coast-monthly-contribution" name="monthly-contribution" type="number" inputmode="decimal" min="0" step="25" value="500" aria-describedby="coast-monthly-contribution-help coast-monthly-contribution-error" />
@@ -112,7 +115,7 @@
           <p class="step-label">02</p>
           <div>
             <h3 id="coast-results-title">Projected result</h3>
-            <p data-mode-helper>Compare your current invested portfolio with the Coast threshold implied by your retirement target, age, and real-return assumption.</p>
+            <p data-mode-helper>See how your current portfolio compares with today's Coast threshold.</p>
           </div>
         </div>
 
@@ -187,17 +190,9 @@
 
   <div class="method-grid">
     <details>
-      <summary>Assumptions and method</summary>
-      <div class="detail-copy">
-        <p>All values use today's dollars and an expected real annual return. Monthly contributions are treated as constant real contributions made at month-end.</p>
-        <p>The audited calculation engine converts the annual real return to an effective monthly rate, compares projected portfolio values with the Coast threshold on a whole-month grid, and keeps full precision until values are formatted for display.</p>
-        <p>Taxes, fees, account rules, pensions, changing contribution schedules, withdrawals, and market uncertainty are outside this calculator.</p>
-      </div>
+      <summary>Calculation assumptions</summary>
+      <div class="detail-copy"><p>Today’s dollars · real annual return · month-end contributions · month-level Coast search.</p></div>
     </details>
-    <aside class="disclaimer" aria-label="Educational disclaimer">
-      <strong>Educational planning model only.</strong>
-      <p>Results are illustrative and depend heavily on the return assumption and future circumstances. The calculator uses today's dollars, a constant real return, and simplified contribution assumptions; it excludes taxes, fees, account rules, and market uncertainty. This is not financial advice.</p>
-    </aside>
   </div>
 </section>
 
@@ -218,7 +213,7 @@
   .tool-heading { max-width: 55rem; padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.25rem, 1vw, 0.75rem) 1.5rem; }
   .tool-kicker, .step-label { margin: 0; color: var(--color-teal); font-size: var(--text-xs); line-height: 1.3; font-weight: 820; letter-spacing: 0.12em; text-transform: uppercase; }
   .tool-heading h2 { margin: 0.35rem 0 0; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.03; letter-spacing: -0.045em; }
-  .tool-heading > p:last-child { margin: 0.8rem 0 0; color: var(--color-text); max-width: 48rem; }
+  .tool-heading > p:not(.tool-kicker) { margin: 0.8rem 0 0; color: var(--color-text); max-width: 48rem; }
 
   .mode-fieldset { margin: 0; padding: 0 0 1.5rem; border: 0; }
   .mode-fieldset legend { margin-bottom: 0.65rem; color: var(--color-muted); font-size: 0.8rem; font-weight: 760; }
@@ -266,7 +261,7 @@
   .primary-result { padding: 1rem 0; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
   .primary-result span { display: block; color: var(--color-muted); font-size: 0.72rem; font-weight: 760; letter-spacing: 0.04em; text-transform: uppercase; }
   .primary-result strong { display: block; margin-top: 0.25rem; color: var(--color-deep-teal); font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.02; letter-spacing: -0.045em; overflow-wrap: anywhere; }
-  .primary-result small { display: block; margin-top: 0.45rem; color: var(--color-muted); font-size: 0.72rem; }
+  .primary-result small { display: none; }
   .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 1.1rem 0 0; border-top: 1px solid var(--color-line); border-left: 1px solid var(--color-line); }
   .metric-grid > :global(div) { min-width: 0; padding: 0.75rem; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
   .metric-grid :global(dt) { color: var(--color-muted); font-size: 0.68rem; line-height: 1.35; }
@@ -302,13 +297,10 @@
   .projection-table-wrap :global(th:first-child) { text-align: left; }
   .projection-table-wrap :global(thead th) { color: var(--color-muted); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
-  .method-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 1rem; margin-top: 1rem; }
+  .method-grid { display: grid; grid-template-columns: minmax(0, 0.9fr); gap: 1rem; margin-top: 1rem; }
   .method-grid > details, .disclaimer { padding: 0.85rem 1rem; border: 1px solid var(--color-line); border-radius: 0.7rem; background: var(--color-canvas); }
   .detail-copy { padding-bottom: 0.4rem; color: var(--color-text); font-size: 0.75rem; line-height: 1.5; }
   .detail-copy p { margin: 0 0 0.65rem; }
-  .disclaimer { background: var(--color-surface-soft); }
-  .disclaimer strong { font-size: 0.78rem; }
-  .disclaimer p { margin: 0.3rem 0 0; color: var(--color-text); font-size: 0.72rem; line-height: 1.48; }
 
   @media (max-width: 56rem) {
     .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
