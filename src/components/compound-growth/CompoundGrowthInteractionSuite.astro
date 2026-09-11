@@ -6,12 +6,17 @@ import AnnualCompoundGrowthExplorer from './AnnualCompoundGrowthExplorer.astro';
 ---
 
 <div class="cg-suite" data-compound-growth-suite>
-  <header class="cg-suite__intro">
-    <p class="cg-suite__credential">MSc · Marketing Research & Behavioural Science · University of Ottawa</p>
-    <h1>Compound Growth & Retirement Investing</h1>
-  </header>
+  <slot name="before-fixed" />
 
   <FixedExperimentalRecreation />
+
+  <slot name="after-fixed" />
+
   <ResearchEvidenceInteractions />
+
+  <slot name="before-explorer" />
+
   <AnnualCompoundGrowthExplorer />
+
+  <slot name="after-explorer" />
 </div>
