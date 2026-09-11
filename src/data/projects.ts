@@ -101,7 +101,7 @@ export const projects: Project[] = [
     premise: 'A scenario model comparing leveraged and non-leveraged paths across debt, investment, account, and tax assumptions.',
     tags: ['Financial Decision-Making', 'Modelling & Analysis', 'Build & Systems'],
     featured: false,
-    usesSharedShell: true,
+    usesSharedShell: false,
     mediaKind: 'smith',
   },
   {
