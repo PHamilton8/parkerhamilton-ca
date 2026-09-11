@@ -129,7 +129,7 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     await page.goto('/work/coast-fi');
     const coastByAge = page.getByLabel('Coast by age');
     await coastByAge.check();
-    await expect(page.getByLabel('Target Coast age')).toBeVisible();
+    await expect(page.getByRole('spinbutton', { name: 'Target Coast age', exact: true })).toBeVisible();
     await expect(page.getByText('The model estimates a monthly contribution of about', { exact: false })).toBeVisible();
     await page.screenshot({ path: path.join(baselineRoot, 'states', 'coast-by-age-1440.png'), fullPage: true, animations: 'disabled' });
 
