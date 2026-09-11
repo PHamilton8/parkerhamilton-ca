@@ -1,0 +1,132 @@
+---
+import { fixedExperimentalProjectionRows } from '../../data/compound-growth/fixedExperimentalData';
+
+const formatCad = (value: number) =>
+  new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const chart = { width: 760, height: 390, left: 72, right: 34, top: 28, bottom: 56, max: 600_000 };
+const x = (year: number) => chart.left + (year / 40) * (chart.width - chart.left - chart.right);
+const y = (value: number) => chart.top + (1 - value / chart.max) * (chart.height - chart.top - chart.bottom);
+const balancePoints = fixedExperimentalProjectionRows.map((row) => `${x(row.years_invested)},${y(row.total_account_balance_cad)}`).join(' ');
+const contributionPoints = fixedExperimentalProjectionRows.map((row) => `${x(row.years_invested)},${y(row.cumulative_contributions_cad)}`).join(' ');
+const yTicks = [0, 200_000, 400_000, 600_000];
+---
+
+<section class="cg-module cg-module--fixed" aria-labelledby="fixed-title" data-fixed-recreation>
+  <div class="cg-module__heading">
+    <div>
+      <p class="cg-kicker">Controlled comparison</p>
+      <h2 id="fixed-title">Interactive recreation of the experimental values.</h2>
+    </div>
+    <p>Switch between a table and line graph. The underlying values are identical in both views.</p>
+  </div>
+
+  <div class="cg-switch" role="tablist" aria-label="Experimental projection display">
+    <button id="fixed-tab-table" type="button" role="tab" aria-selected="false" aria-controls="fixed-panel-table" tabindex="-1" data-fixed-view="table">Table</button>
+    <button id="fixed-tab-graph" type="button" role="tab" aria-selected="true" aria-controls="fixed-panel-graph" tabindex="0" data-fixed-view="graph">Line graph</button>
+  </div>
+
+  <div id="fixed-panel-table" class="cg-panel" role="tabpanel" aria-labelledby="fixed-tab-table" hidden data-fixed-panel="table">
+    <div class="cg-table-wrap">
+      <table class="cg-data-table">
+        <caption>Fixed experimental projection values</caption>
+        <thead><tr><th scope="col">Years invested</th><th scope="col">Your contributions</th><th scope="col">Total account balance</th></tr></thead>
+        <tbody>
+          {fixedExperimentalProjectionRows.map((row) => (
+            <tr><th scope="row">{row.years_invested}</th><td>{formatCad(row.cumulative_contributions_cad)}</td><td>{formatCad(row.total_account_balance_cad)}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="fixed-panel-graph" class="cg-panel" role="tabpanel" aria-labelledby="fixed-tab-graph" data-fixed-panel="graph">
+    <p class="cg-chart-summary">The projected account balance rises from $0 to $559,461 over 40 years while cumulative contributions rise to $48,000. Both series use the same fixed values as the table view.</p>
+    <div class="cg-chart-frame">
+      <svg class="cg-chart" viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-labelledby="fixed-chart-title fixed-chart-desc">
+        <title id="fixed-chart-title">Fixed experimental projection shown as a line graph</title>
+        <desc id="fixed-chart-desc">Two series show cumulative contributions and total account balance at nine fixed five-year intervals from year zero to year forty.</desc>
+        {yTicks.map((tick) => (
+          <>
+            <line class="cg-grid" x1={chart.left} y1={y(tick)} x2={chart.width - chart.right} y2={y(tick)} />
+            <text class="cg-axis-label" x={chart.left - 12} y={y(tick) + 4} text-anchor="end">{tick === 0 ? '$0' : `$${tick / 1000}k`}</text>
+          </>
+        ))}
+        <line class="cg-axis" x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.height - chart.bottom} />
+        <line class="cg-axis" x1={chart.left} y1={chart.height - chart.bottom} x2={chart.width - chart.right} y2={chart.height - chart.bottom} />
+        {fixedExperimentalProjectionRows.map((row) => (
+          <text class="cg-axis-label" x={x(row.years_invested)} y={chart.height - chart.bottom + 25} text-anchor="middle">{row.years_invested}</text>
+        ))}
+        <polyline class="cg-series cg-series--balance" points={balancePoints} />
+        <polyline class="cg-series cg-series--contributions" points={contributionPoints} />
+        {fixedExperimentalProjectionRows.map((row) => (
+          <>
+            <circle class="cg-point cg-point--balance cg-fixed-point" cx={x(row.years_invested)} cy={y(row.total_account_balance_cad)} r="5" tabindex="0" role="button" aria-label={`${row.years_invested} years invested, total account balance ${formatCad(row.total_account_balance_cad)}, contributions ${formatCad(row.cumulative_contributions_cad)}`} data-year={row.years_invested} data-balance={row.total_account_balance_cad} data-contributions={row.cumulative_contributions_cad} />
+            <circle class="cg-point cg-point--contributions cg-fixed-point" cx={x(row.years_invested)} cy={y(row.cumulative_contributions_cad)} r="5" tabindex="0" role="button" aria-label={`${row.years_invested} years invested, contributions ${formatCad(row.cumulative_contributions_cad)}, total account balance ${formatCad(row.total_account_balance_cad)}`} data-year={row.years_invested} data-balance={row.total_account_balance_cad} data-contributions={row.cumulative_contributions_cad} />
+          </>
+        ))}
+        <text class="cg-end-label cg-end-label--balance" x={chart.width - chart.right - 2} y={y(559_461) - 14} text-anchor="end">Total account balance — $559,461</text>
+        <text class="cg-end-label" x={chart.width - chart.right - 2} y={y(48_000) - 14} text-anchor="end">Your contributions — $48,000</text>
+        <text class="cg-axis-title" x={(chart.width + chart.left - chart.right) / 2} y={chart.height - 8} text-anchor="middle">Years invested</text>
+      </svg>
+    </div>
+    <p class="cg-point-detail" id="fixed-point-detail" aria-live="polite">Focus or tap a point to inspect its exact stored values.</p>
+    <div class="sr-only">
+      <table>
+        <caption>Fixed experimental values available while the graph is selected</caption>
+        <thead><tr><th scope="col">Years invested</th><th scope="col">Your contributions</th><th scope="col">Total account balance</th></tr></thead>
+        <tbody>{fixedExperimentalProjectionRows.map((row) => (<tr><th scope="row">{row.years_invested}</th><td>{formatCad(row.cumulative_contributions_cad)}</td><td>{formatCad(row.total_account_balance_cad)}</td></tr>))}</tbody>
+      </table>
+    </div>
+  </div>
+  <p class="cg-source-note">Portfolio recreation — not the original experimental interface. The historical stimulus values are stored directly; visitor controls do not recalculate them.</p>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-fixed-recreation]');
+  if (root) {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-fixed-view]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-fixed-panel]'));
+    const activate = (view: 'table' | 'graph', focus = false) => {
+      buttons.forEach((button) => {
+        const selected = button.dataset.fixedView === view;
+        button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        button.tabIndex = selected ? 0 : -1;
+        if (selected && focus) button.focus();
+      });
+      panels.forEach((panel) => { panel.hidden = panel.dataset.fixedPanel !== view; });
+    };
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', () => activate(button.dataset.fixedView as 'table' | 'graph'));
+      button.addEventListener('keydown', (event) => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        let nextIndex = index;
+        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + buttons.length) % buttons.length;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % buttons.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = buttons.length - 1;
+        const next = buttons[nextIndex];
+        activate(next.dataset.fixedView as 'table' | 'graph', true);
+      });
+    });
+
+    const detail = root.querySelector<HTMLElement>('#fixed-point-detail');
+    const currency = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+    const showPoint = (point: SVGElement) => {
+      if (!detail) return;
+      detail.textContent = `${point.dataset.year} years invested — contributions ${currency.format(Number(point.dataset.contributions))}; total account balance ${currency.format(Number(point.dataset.balance))}.`;
+    };
+    root.querySelectorAll<SVGElement>('.cg-fixed-point').forEach((point) => {
+      point.addEventListener('focus', () => showPoint(point));
+      point.addEventListener('click', () => showPoint(point));
+      point.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); showPoint(point); }
+      });
+    });
+  }
+</script>
