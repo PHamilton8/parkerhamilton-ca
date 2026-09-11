@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CompoundGrowthInteractionSuite from '../../components/compound-growth/CompoundGrowthInteractionSuite.astro';
+import { projects } from '../../data/projects';
+
+const project = projects.find((item) => item.slug === 'compound-growth');
+if (!project) throw new Error('Compound Growth project record is missing.');
+---
+
+<BaseLayout
+  title="Compound Growth & Retirement Investing"
+  description={project.premise}
+  canonicalPath={project.route}
+>
+  <!-- Interaction tool candidate only. Full case-study narrative remains intentionally out of scope. -->
+  <CompoundGrowthInteractionSuite />
+</BaseLayout>
