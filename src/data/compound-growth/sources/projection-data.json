@@ -1,0 +1,72 @@
+{
+  "source": {
+    "document": "How Line Graphs of Compound Growth Shape Retirement Investing Judgments",
+    "author": "Parker Hamilton",
+    "date": "2026-08-20",
+    "status": "authoritative corrected thesis supplied in the ChatGPT Project"
+  },
+  "scenario": {
+    "monthly_contribution_cad": 100,
+    "annual_return": 0.1,
+    "source_compounding_description": "10% annual rate of return with annual compounding",
+    "display_horizon_years": 40,
+    "display_interval_years": 5,
+    "series": [
+      "cumulative_contributions",
+      "total_account_balance"
+    ]
+  },
+  "data": [
+    {
+      "years_invested": 0,
+      "cumulative_contributions_cad": 0,
+      "total_account_balance_cad": 0
+    },
+    {
+      "years_invested": 5,
+      "cumulative_contributions_cad": 6000,
+      "total_account_balance_cad": 7717
+    },
+    {
+      "years_invested": 10,
+      "cumulative_contributions_cad": 12000,
+      "total_account_balance_cad": 20146
+    },
+    {
+      "years_invested": 15,
+      "cumulative_contributions_cad": 18000,
+      "total_account_balance_cad": 40162
+    },
+    {
+      "years_invested": 20,
+      "cumulative_contributions_cad": 24000,
+      "total_account_balance_cad": 72399
+    },
+    {
+      "years_invested": 25,
+      "cumulative_contributions_cad": 30000,
+      "total_account_balance_cad": 124316
+    },
+    {
+      "years_invested": 30,
+      "cumulative_contributions_cad": 36000,
+      "total_account_balance_cad": 207929
+    },
+    {
+      "years_invested": 35,
+      "cumulative_contributions_cad": 42000,
+      "total_account_balance_cad": 342589
+    },
+    {
+      "years_invested": 40,
+      "cumulative_contributions_cad": 48000,
+      "total_account_balance_cad": 559461
+    }
+  ],
+  "reproduction_note": {
+    "status": "derived implementation inference, not a formula stated in the thesis",
+    "exact_match_formula": "FV = C * (((1+i)^N - 1) / i) * (1+i), where i=(1+r)^(1/12)-1, N=12*t, C=monthly contribution",
+    "interpretation": "The displayed balances are reproduced to rounding by treating the 10% return as an effective annual return converted to an equivalent monthly rate and treating contributions as an annuity due (beginning of month).",
+    "warning": "The thesis text describes a 10% annual return with annual compounding. Because the displayed values exactly match the monthly annuity-due formulation above, confirm the intended convention before coding a generalized calculator. V1 should use the fixed displayed values rather than regenerate them."
+  }
+}

@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactBand from '../../components/layout/ContactBand.astro';
+import ProjectMetadata from '../../components/project/ProjectMetadata.astro';
+import { projects } from '../../data/projects';
+import '../../styles/askwill.css';
+
+const project = projects.find((item) => item.slug === 'askwill');
+if (!project) throw new Error('AskWill project record is missing.');
+
+const comparisons = [
+  {
+    id: 'services', title: 'Services', index: '01', width: 560, height: 680,
+    summary: 'Service catalogue → problem-led starting point.',
+    why: 'The rebuild starts with what a homeowner is noticing, so visitors do not need to know the equipment or service name before choosing a path.',
+    v1: '/assets/projects/askwill/services-v1-detail.webp',
+    v2: '/assets/projects/askwill/services-v2-detail.webp',
+    v1Alt: 'Recovered Wix Services page showing a catalogue of water-treatment and well services.',
+    v2Alt: 'Final-stage rebuild preview of the Services page showing symptom-led service routing.',
+  },
+  {
+    id: 'repair', title: 'Water Softener Repair', index: '02', width: 480, height: 320,
+    summary: 'Sales-oriented repair page → symptom-led, repair-first decision support.',
+    why: 'The new page begins with symptoms, explains the diagnostic path, and separates repair from replacement instead of treating replacement as the default.',
+    v1: '/assets/projects/askwill/repair-v1-detail.webp',
+    v2: '/assets/projects/askwill/repair-v2-detail.webp',
+    v1Alt: 'Recovered Wix Water Softener Repair page with a sales-oriented service introduction.',
+    v2Alt: 'Final-stage rebuild preview of Water Softener Repair with symptom-led repair-first guidance.',
+  },
+  {
+    id: 'contact', title: 'Contact', index: '03', width: 560, height: 680,
+    summary: 'Generic form → explicit direct-to-Will handoff.',
+    why: 'The contact journey now explains what information is useful, keeps direct call and email paths visible, and makes the form one option rather than the whole experience.',
+    v1: '/assets/projects/askwill/contact-v1-detail.webp',
+    v2: '/assets/projects/askwill/contact-v2-detail.webp',
+    v1Alt: 'Recovered Wix Contact page centred on a conventional contact form.',
+    v2Alt: 'Final-stage rebuild preview of Contact with direct-to-owner paths and a structured handoff.',
+  },
+] as const;
+---
+
+<BaseLayout
+  title={project.title}
+  description="A local-service website rebuild shaped by what I learned building and maintaining Version 1: clearer customer routing, responsive rules, SEO continuity, and a more maintainable system."
+  canonicalPath={project.route}
+>
+  <article class="askwill-case">
+    <header class="askwill-hero">
+      <p class="askwill-eyebrow">03 · AskWill Water Technology</p>
+      <h1>{project.title}</h1>
+      <p class="askwill-lede">I built the original AskWill site in Wix, then designed and led its rebuild around clearer service routing, responsive behavior, SEO continuity, and a more maintainable implementation.</p>
+      <ProjectMetadata tags={project.tags} />
+      <dl class="askwill-facts" aria-label="Project context">
+        <div><dt>Context</dt><dd>Family-run water-treatment and well-services business</dd></div>
+        <div><dt>My role</dt><dd>Strategy, IA, UX, copy, SEO decisions, visual direction, and QA</dd></div>
+        <div><dt>Rebuild</dt><dd>19-page, source-controlled static site</dd></div>
+      </dl>
+    </header>
+
+    <section class="askwill-section" aria-labelledby="clearest-change">
+      <div class="askwill-intro">
+        <div><p class="askwill-eyebrow">The clearest change</p><h2 id="clearest-change">Start with the problem, not the product name.</h2></div>
+        <p>Version 1 already had real service depth. The opportunity was to help people who knew what was wrong—but not what piece of equipment or service they needed.</p>
+      </div>
+      {comparisons.slice(0, 1).map((comparison) => (
+        <figure class="askwill-comparison" aria-labelledby={`${comparison.id}-comparison-title`}>
+          <div class="askwill-comparison-copy"><div><p class="askwill-index">{comparison.index}</p><h3 id={`${comparison.id}-comparison-title`}>{comparison.title}</h3><p class="askwill-summary">{comparison.summary}</p></div><p>{comparison.why}</p></div>
+          <div class="askwill-compare-grid">
+            <div class="askwill-panel"><p class="askwill-panel-label">V1 · Wix</p><img src={comparison.v1} alt={comparison.v1Alt} width={comparison.width} height={comparison.height} loading="eager" decoding="async" /></div>
+            <div class="askwill-panel"><p class="askwill-panel-label">V2 · Rebuild</p><img src={comparison.v2} alt={comparison.v2Alt} width={comparison.width} height={comparison.height} loading="eager" decoding="async" /></div>
+          </div>
+          <figcaption>Real AskWill screenshots. V1 is recovered Wix evidence; V2 is a September 7, 2026 final-stage rebuild preview.</figcaption>
+        </figure>
+      ))}
+    </section>
+
+    <section class="askwill-section" aria-labelledby="brief-title">
+      <div class="askwill-intro askwill-intro--single"><p class="askwill-eyebrow">The brief</p><h2 id="brief-title">Preserve what worked. Fix what maintenance exposed.</h2></div>
+      <div class="askwill-three">
+        <div><p class="askwill-mini">Problem</p><p>Version 1 had useful content, established service pages, and a recognizable local identity. Maintaining it made precise layout changes slow and fragile for me, while customer questions showed that many visitors started with a symptom rather than a product name.</p></div>
+        <div><p class="askwill-mini">Role</p><p>I defined the strategy, structure, content, UX, requirements, SEO decisions, and QA for the rebuild, including responsive behavior and migration requirements.</p></div>
+        <div><p class="askwill-mini">Result</p><p>A portable 19-page rebuild with problem-led service routing, preserved legacy URLs, separate organic and paid-search page roles, and clearer direct-to-owner contact paths.</p></div>
+      </div>
+    </section>
+
+    <section class="askwill-section" aria-labelledby="maintenance-title">
+      <div class="askwill-intro"><div><p class="askwill-eyebrow">What V1 taught me</p><h2 id="maintenance-title">Maintenance became the research.</h2></div><p>The second version was not driven by “make it modern.” It was driven by requirements that came from using and changing the first one.</p></div>
+      <div class="askwill-decisions" role="list">
+        <div role="listitem"><p><span>Maintaining V1 revealed</span>Precise manual layout edits could be slow and easy to disturb.</p><p><span>Requirement for V2</span>Reusable components and explicit CSS rules.</p></div>
+        <div role="listitem"><p><span>Maintaining V1 revealed</span>Editor, preview, and mobile behavior could be hard to predict.</p><p><span>Requirement for V2</span>An explicit responsive system with repeatable viewport QA.</p></div>
+        <div role="listitem"><p><span>Maintaining V1 revealed</span>Changes were difficult to review and compare before publishing.</p><p><span>Requirement for V2</span>Source control, tests, and branch-based review.</p></div>
+        <div role="listitem"><p><span>Maintaining V1 revealed</span>Customers often described a symptom before naming a service.</p><p><span>Requirement for V2</span>Problem-led routing beneath a complete Services hub.</p></div>
+      </div>
+    </section>
+
+    <section class="askwill-section" aria-labelledby="journey-title">
+      <div class="askwill-intro askwill-intro--single"><p class="askwill-eyebrow">Customer journey</p><h2 id="journey-title">Make the next step obvious without pretending the website can diagnose the problem.</h2></div>
+      <ol class="askwill-journey">
+        <li><span>01</span><strong>Notice a problem</strong><p>Start with what the homeowner can actually observe.</p></li>
+        <li><span>02</span><strong>Find the closest service</strong><p>Route from symptoms while keeping the full service directory available.</p></li>
+        <li><span>03</span><strong>Understand the decision</strong><p>Explain boundaries such as repair vs. replacement or treatment vs. supply.</p></li>
+        <li><span>04</span><strong>Talk directly with Will</strong><p>End at a qualified human handoff instead of automated diagnosis.</p></li>
+      </ol>
+    </section>
+
+    <section class="askwill-section" aria-labelledby="proof-title">
+      <div class="askwill-intro askwill-intro--single"><p class="askwill-eyebrow">Two more proof points</p><h2 id="proof-title">Decision support and handoff, not just a visual restyle.</h2></div>
+      <div class="askwill-comparison-stack">
+        {comparisons.slice(1).map((comparison) => (
+          <figure class="askwill-comparison" aria-labelledby={`${comparison.id}-comparison-title`}>
+            <div class="askwill-comparison-copy"><div><p class="askwill-index">{comparison.index}</p><h3 id={`${comparison.id}-comparison-title`}>{comparison.title}</h3><p class="askwill-summary">{comparison.summary}</p></div><p>{comparison.why}</p></div>
+            <div class="askwill-compare-grid">
+              <div class="askwill-panel"><p class="askwill-panel-label">V1 · Wix</p><img src={comparison.v1} alt={comparison.v1Alt} width={comparison.width} height={comparison.height} loading="lazy" decoding="async" /></div>
+              <div class="askwill-panel"><p class="askwill-panel-label">V2 · Rebuild</p><img src={comparison.v2} alt={comparison.v2Alt} width={comparison.width} height={comparison.height} loading="lazy" decoding="async" /></div>
+            </div>
+            <figcaption>Real AskWill screenshots. V1 is recovered Wix evidence; V2 is a September 7, 2026 final-stage rebuild preview.</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="askwill-section" aria-labelledby="system-title">
+      <div class="askwill-intro"><div><p class="askwill-eyebrow">System, search, release</p><h2 id="system-title">Translate business requirements into rules the site can keep.</h2></div><p>The implementation stays intentionally lightweight. The work I owned was deciding what the site needed to do, how the information should be structured, and how to prove the result before release.</p></div>
+      <div class="askwill-three">
+        <div><p class="askwill-mini">Information architecture</p><ul><li>Problem-led service paths</li><li>Clearer distinctions between related services</li><li>Direct owner handoff as the end state</li></ul></div>
+        <div><p class="askwill-mini">SEO continuity</p><ul><li>Legacy URL preservation and redirects</li><li>Distinct organic and paid-search page roles</li><li>Structured metadata and page-level semantics</li></ul></div>
+        <div><p class="askwill-mini">Release discipline</p><ul><li>Source-controlled review</li><li>Responsive viewport checks</li><li>Automated source and browser gates</li></ul></div>
+      </div>
+    </section>
+
+    <section class="askwill-section" aria-labelledby="validation-title">
+      <div class="askwill-intro askwill-intro--single"><p class="askwill-eyebrow">Validation</p><h2 id="validation-title">The rebuild was tested as a system, not spot-checked as a mockup.</h2></div>
+      <div class="askwill-proof" aria-label="AskWill rebuild validation evidence">
+        <div><strong>19</strong><span>pages in the build</span></div>
+        <div><strong>199</strong><span>source tests</span></div>
+        <div><strong>0</strong><span>automated failures</span></div>
+        <div><strong>Firefox + WebKit</strong><span>browser checks</span></div>
+      </div>
+      <p class="askwill-note">Those checks support build and implementation quality. Physical-device, zoom, assistive-technology, and production-observation checks remain separate manual release work.</p>
+    </section>
+
+    <section class="askwill-section askwill-closing" aria-labelledby="authorship-title">
+      <div><p class="askwill-eyebrow">Authorship</p><h2 id="authorship-title">Designed and led the rebuild.</h2><p>I owned the strategy, requirements, information architecture, content, UX, SEO decisions, visual direction, responsive review, QA, and iteration. Implementation code was produced with AI-assisted development tooling under those requirements and review gates.</p></div>
+      <blockquote><p>V1 was not a failed website. It was a useful first version—and maintaining it gave me the evidence to make Version 2 more deliberate.</p></blockquote>
+    </section>
+  </article>
+  <ContactBand />
+</BaseLayout>

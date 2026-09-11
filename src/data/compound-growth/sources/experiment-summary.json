@@ -1,0 +1,277 @@
+{
+  "program": {
+    "title": "How Line Graphs of Compound Growth Shape Retirement Investing Judgments",
+    "number_of_experiments": 5,
+    "final_analytic_n_total": 1248,
+    "recruited_n_total": 1339,
+    "total_note": "Totals are derived by summing the experiment-level Ns in the corrected thesis; the thesis does not print a single combined N.",
+    "population": "Young adults who reported that they had not begun investing for retirement",
+    "core_manipulation": "Presentation of identical retirement investment projections as line graphs versus numerical tables; Experiment 5 adds proportional area growth cards."
+  },
+  "experiments": [
+    {
+      "number": 1,
+      "ultra_short_label": "Does display change achievability?",
+      "one_sentence": "A standardized 40-year projection showed that presenting identical values as a line graph rather than a table substantially increased retirement-goal achievability.",
+      "objective": "Initial test of whether presentation changes belief that adequate retirement wealth can be accumulated.",
+      "recruited_n": 298,
+      "final_n": 295,
+      "age_range": "18–25",
+      "conditions": {
+        "line_graph": 164,
+        "table": 131
+      },
+      "random_assignment": true,
+      "projection": "Standardized 40-year projection; $100/month; 10% annual return with annual compounding; five-year display intervals.",
+      "key_results": {
+        "retirement_goal_achievability": {
+          "line_graph_mean": 68.97,
+          "table_mean": 32.75,
+          "b": 36.23,
+          "p": "<.001",
+          "d": 1.71
+        },
+        "processing_fluency": {
+          "p": ".19"
+        },
+        "numeracy_moderation": {
+          "p": ".97"
+        },
+        "graph_literacy_moderation": {
+          "p": ".90"
+        }
+      },
+      "next_step": "Test whether the judgment effect extends to planned retirement contributions."
+    },
+    {
+      "number": 2,
+      "ultra_short_label": "Does it change planned contributions?",
+      "one_sentence": "With projections personalized from current age to 65, line graphs increased both retirement-goal achievability and planned monthly retirement contributions.",
+      "objective": "Test the downstream planned-contribution outcome and a statistical indirect effect through retirement-goal achievability.",
+      "recruited_n": 141,
+      "final_n": 141,
+      "age_range": "18–25",
+      "conditions": {
+        "line_graph": 71,
+        "table": 70
+      },
+      "random_assignment": true,
+      "projection": "Personalized from current age to age 65; $100/month; 10% annual return with annual compounding.",
+      "key_results": {
+        "retirement_goal_achievability": {
+          "line_graph_mean": 70.94,
+          "table_mean": 58.8,
+          "b": 11.37,
+          "p": "<.01",
+          "d": 0.55
+        },
+        "planned_contributions": {
+          "line_graph_mean": 129.44,
+          "table_mean": 100.41,
+          "b": 32.2,
+          "p": ".04",
+          "d": 0.31
+        },
+        "indirect_via_achievability": {
+          "b": 19.15,
+          "ci_95": [
+            6.09,
+            35.01
+          ],
+          "p": ".01"
+        },
+        "processing_fluency": {
+          "p": ".44"
+        }
+      },
+      "next_step": "Separate confidence in investment growth from confidence in personal ability to contribute."
+    },
+    {
+      "number": 3,
+      "ultra_short_label": "Which confidence changes?",
+      "one_sentence": "Line graphs increased growth confidence, not ability confidence, providing process evidence that the display changed beliefs about what investment growth can accomplish rather than personal capacity to contribute.",
+      "objective": "Distinguish growth confidence from ability confidence as potential pathways to retirement-goal achievability.",
+      "recruited_n": 99,
+      "final_n": 97,
+      "age_range": "24–30",
+      "conditions": {
+        "line_graph": 51,
+        "table": 46
+      },
+      "random_assignment": true,
+      "projection": "Personalized from current age to age 65; same financial assumptions as Experiment 2.",
+      "key_results": {
+        "growth_confidence": {
+          "line_graph_mean": 58.98,
+          "table_mean": 43.07,
+          "b": 16.22,
+          "p": "<.01",
+          "d": 0.64
+        },
+        "ability_confidence": {
+          "line_graph_mean": 45.16,
+          "table_mean": 39.44,
+          "p": ".22"
+        },
+        "retirement_goal_achievability": {
+          "line_graph_mean": 68.24,
+          "table_mean": 59.41,
+          "p": ".09"
+        },
+        "planned_contributions": {
+          "line_graph_mean": 98.45,
+          "table_mean": 94.26,
+          "p": ".79"
+        },
+        "growth_confidence_indirect": {
+          "b": 7.28,
+          "ci_95": [
+            1.84,
+            14.62
+          ]
+        },
+        "ability_confidence_indirect": {
+          "b": 1.08,
+          "ci_95": [
+            -0.79,
+            4.13
+          ]
+        }
+      },
+      "next_step": "Test whether line graphs change perceived compound-growth acceleration itself."
+    },
+    {
+      "number": 4,
+      "ultra_short_label": "Does perceived acceleration help explain it?",
+      "one_sentence": "Adding an Estimated Growth Ratio measure showed that line graphs increased perceived compound-growth acceleration and produced the strongest single-study evidence for the proposed statistical sequence through growth confidence and retirement-goal achievability.",
+      "objective": "Directly assess perceived compound-growth acceleration and test the complete proposed statistical pathway.",
+      "recruited_n": 198,
+      "final_n": 182,
+      "age_range": "24–30",
+      "conditions": {
+        "line_graph": 93,
+        "table": 89
+      },
+      "random_assignment": true,
+      "projection": "Personalized from current age to age 65; same financial assumptions; estimated-growth task added.",
+      "key_results": {
+        "estimated_growth_ratio": {
+          "line_graph": {
+            "mean": 1.65,
+            "sd": 1.22
+          },
+          "table": {
+            "mean": 1.25,
+            "sd": 1.34
+          },
+          "effect_b": 0.38,
+          "p": "<.05",
+          "d": 0.32
+        },
+        "growth_confidence": {
+          "line_graph": {
+            "mean": 67.89,
+            "sd": 23.98
+          },
+          "table": {
+            "mean": 57.39,
+            "sd": 21.5
+          },
+          "effect_b": 10.29,
+          "p": "<.01",
+          "d": 0.46
+        },
+        "retirement_goal_achievability": {
+          "line_graph": {
+            "mean": 72.59,
+            "sd": 23.61
+          },
+          "table": {
+            "mean": 59.19,
+            "sd": 26.34
+          },
+          "effect_b": 13.15,
+          "p": "<.001",
+          "d": 0.54
+        },
+        "planned_retirement_contributions_cad_per_month": {
+          "line_graph": {
+            "mean": 195.59,
+            "sd": 144.77
+          },
+          "table": {
+            "mean": 154.92,
+            "sd": 141.79
+          },
+          "effect_b": 42.46,
+          "p": ".048",
+          "d": 0.28
+        }
+      },
+      "next_step": "Test whether a connected trajectory is uniquely responsible or whether visual magnitude information is sufficient."
+    },
+    {
+      "number": 5,
+      "ultra_short_label": "What part of the visual representation matters?",
+      "one_sentence": "Adding proportional area growth cards replicated the line-graph-versus-table Estimated Growth Ratio difference but did not establish that the connected line trajectory was uniquely responsible.",
+      "objective": "Probe connected-trajectory versus broader visual-magnitude explanations.",
+      "recruited_n": 603,
+      "final_n": 533,
+      "age_range": "25–29",
+      "conditions": {
+        "line_graph": 180,
+        "table": 177,
+        "area_cards": 176
+      },
+      "random_assignment": true,
+      "projection": "Personalized from current age to age 65; identical projected values across all three conditions; area-card square areas proportional to values.",
+      "key_results": {
+        "estimated_growth_ratio": {
+          "line_graph_mean": 1.66,
+          "table_mean": 1.35,
+          "area_cards_mean": 1.5,
+          "omnibus_p": ".047",
+          "line_vs_table": {
+            "b": 0.29,
+            "p": ".014",
+            "tukey_p": ".036",
+            "d": 0.26
+          },
+          "line_vs_area": {
+            "p": ".194"
+          },
+          "area_vs_table": {
+            "p": ".241"
+          }
+        },
+        "growth_confidence": {
+          "line_graph_mean": 65.99,
+          "table_mean": 60.87,
+          "area_cards_mean": 61.0,
+          "omnibus_p": ".057"
+        },
+        "retirement_goal_achievability": {
+          "line_graph_mean": 66.67,
+          "table_mean": 61.1,
+          "area_cards_mean": 59.91,
+          "omnibus_p": ".027"
+        },
+        "planned_contributions": {
+          "line_graph_mean": 188.12,
+          "table_mean": 164.12,
+          "area_cards_mean": 177.9,
+          "omnibus_p": ".217"
+        },
+        "complete_serial_indirect_effect": {
+          "line_vs_table_b": 0.08,
+          "ci_95_bca": [
+            -0.04,
+            0.45
+          ],
+          "significant": false
+        }
+      },
+      "next_step": "No sixth experiment in the thesis. The mechanism remains partially unresolved: connected trajectory and visual magnitude were not cleanly isolated."
+    }
+  ]
+}

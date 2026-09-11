@@ -1,0 +1,483 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CoastFiCalculator from '../../components/calculators/CoastFiCalculator.astro';
+import ContactBand from '../../components/layout/ContactBand.astro';
+---
+
+<BaseLayout
+  title="Coast FI / Net Worth Calculator"
+  description="A tested Coast FI calculator and case study showing how a paycheck-level retirement model was audited, simplified, and refactored into a four-mode web tool."
+  canonicalPath="/work/coast-fi"
+>
+  <article class="coast-page">
+    <header class="case-hero">
+      <p class="eyebrow">Financial decision-making · Modelling · Builds and systems</p>
+      <h1>Coast FI / Net Worth Calculator</h1>
+      <p class="case-hero__premise">A planning model that connects today’s savings, future contributions, and investment growth to retirement targets.</p>
+      <p class="case-hero__lede">I built and audited a paycheck-level retirement model, then refactored its Coast logic into a smaller four-mode calculator with a transparent formula contract and regression tests.</p>
+    </header>
+
+    <section class="calculator-intro" aria-labelledby="calculator-intro-title">
+      <div class="calculator-intro__copy">
+        <p class="section-kicker">Try the public model</p>
+        <h2 id="calculator-intro-title">How far is your portfolio from the point where compounding could carry it to your retirement target?</h2>
+        <p>Every mode uses the same current portfolio, retirement age, portfolio target, and expected real return. The calculator simply solves the model in different directions: compare a Coast threshold, solve for a contribution, or search for the first monthly crossing.</p>
+        <p class="calculator-intro__note">All values use today’s dollars. The return assumption is a real annual return after inflation, and recurring contributions are treated as constant real contributions made at month-end.</p>
+      </div>
+    </section>
+
+    <div class="calculator-stage">
+      <CoastFiCalculator />
+    </div>
+
+    <section class="story-section story-section--split" aria-labelledby="origin-title">
+      <div class="story-copy">
+        <p class="section-kicker">Where it came from</p>
+        <h2 id="origin-title">The public calculator started as a much bigger spreadsheet problem.</h2>
+        <p>I wanted to understand how long-horizon retirement assets could evolve when contributions happen every paycheque rather than once per year. The original workbook grew into a 1,066-period bi-weekly engine spanning TFSA and RRSP contribution allocation, modeled RRSP refund recycling, non-registered spillover, separate FHSA tracking, and annual retirement-net-worth and Coast FI analyses.</p>
+        <p>That model was useful for detailed scenario reasoning, but it was too specific and too complex to put directly on a public portfolio site. The better product question was narrower: given a portfolio, a target, a time horizon, and a real return assumption, where is the Coast threshold and what would it take to reach it?</p>
+      </div>
+
+      <div class="architecture" aria-labelledby="architecture-title">
+        <p class="architecture__label" id="architecture-title">Original model architecture</p>
+        <ol class="architecture__flow">
+          <li><span>01</span><strong>Inputs + contribution schedule</strong><small>Annual limits, starting balances, and planned bi-weekly savings.</small></li>
+          <li><span>02</span><strong>1,066-period bi-weekly engine</strong><small>State rolls forward every pay period instead of using one annual savings number.</small></li>
+          <li><span>03</span><strong>TFSA → RRSP → refund → non-registered</strong><small>A deterministic priority waterfall, not an optimization engine.</small></li>
+          <li><span>04</span><strong>Account growth + separate FHSA tracking</strong><small>Registered and non-registered balances use separate growth assumptions.</small></li>
+          <li><span>05</span><strong>Annual retirement-net-worth summary</strong><small>Year-end snapshots feed the Coast FI analysis.</small></li>
+        </ol>
+        <p class="architecture__aside"><strong>FHSA stays separate.</strong> The workbook treats it as a home-purchase pool with a modeled withdrawal event rather than part of retirement net worth.</p>
+      </div>
+    </section>
+
+    <section class="story-section engine-section" aria-labelledby="engine-title">
+      <div class="section-heading-block">
+        <p class="section-kicker">Model design</p>
+        <h2 id="engine-title">Why model every paycheque?</h2>
+      </div>
+      <div class="engine-grid">
+        <p>A single annual contribution assumption hides the sequence of decisions that actually interested me. At each pay period, the workbook tracks how much annual contribution room has already been used, sends new savings through a TFSA → RRSP → non-registered priority, and reinvests a modeled RRSP refund only when RRSP capacity remains.</p>
+        <p>Balances then roll forward one period at a time. That makes the spreadsheet a stateful financial engine rather than a collection of isolated future-value formulas. It also made defects easier to reason about because each period has explicit beginning balances, contribution flows, growth, and ending balances.</p>
+      </div>
+    </section>
+
+    <section class="story-section audit-section" aria-labelledby="audit-title">
+      <div class="section-heading-block section-heading-block--wide">
+        <p class="section-kicker">Audit before publication</p>
+        <h2 id="audit-title">The main scenario worked. The audit still found real defects.</h2>
+        <p>I independently reconstructed the pay-period and annual calculations and matched the workbook’s cached results at normal floating-point tolerance. That validation also surfaced problems that were easy to miss when the main scenario did not exercise them.</p>
+      </div>
+      <ul class="audit-list">
+        <li><strong>Broken summary references</strong><span>Visible output cells contained deleted-range references.</span></li>
+        <li><strong>Chart-range mismatch</strong><span>Age categories and retirement-net-worth values started on different rows.</span></li>
+        <li><strong>Brittle FHSA handling</strong><span>Later annual rows were hardcoded to zero instead of following the withdrawal-year assumption.</span></li>
+        <li><strong>Hidden refund seed</strong><span>A one-off opening RRSP refund was embedded directly in the engine rather than exposed as an assumption.</span></li>
+        <li><strong>Non-registered tax-basis defect</strong><span>Later contributions could be treated as gains in the simplified after-tax calculation.</span></li>
+      </ul>
+      <p class="audit-section__close">I left the original private workbook untouched. A separate demonstration copy was sanitized, corrected, and re-audited for public sharing.</p>
+    </section>
+
+    <section class="story-section refactor-section" aria-labelledby="refactor-title">
+      <div class="section-heading-block">
+        <p class="section-kicker">Product refactor</p>
+        <h2 id="refactor-title">I did not turn the private workbook into a public tax calculator.</h2>
+        <p>The public tool keeps the part of the model a visitor can understand and interrogate without a wall of Canadian account inputs. The deeper spreadsheet remains useful evidence of the modeling process, but it is not the web calculator’s calculation engine.</p>
+      </div>
+      <div class="refactor-grid">
+        <div>
+          <h3>Retained in the public tool</h3>
+          <ul>
+            <li>Current invested portfolio</li>
+            <li>Retirement portfolio target</li>
+            <li>Current age and retirement age</li>
+            <li>Expected real annual return</li>
+            <li>Coast threshold</li>
+            <li>Constant real monthly contributions</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Deliberately removed</h3>
+          <ul>
+            <li>Account-specific tax treatment</li>
+            <li>TFSA/RRSP contribution-room mechanics</li>
+            <li>RRSP refund recycling</li>
+            <li>FHSA withdrawal logic</li>
+            <li>Pension details</li>
+            <li>Non-registered tax-drag assumptions</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-section contract-section" aria-labelledby="contract-title">
+      <div class="contract-copy">
+        <p class="section-kicker">Calculation contract</p>
+        <h2 id="contract-title">One engine, explicit conventions, 34 regression cases.</h2>
+        <p>The web calculator imports the audited TypeScript engine directly. It converts an effective real annual return to an effective monthly rate, treats contributions as month-end cash flows, searches Coast crossings on an exact whole-month grid, and keeps zero-return and valid negative-return cases explicit rather than letting formulas fail silently.</p>
+        <p>The test suite covers all four modes plus already-Coast states, unreachable thresholds, zero and negative returns, invalid age ordering, and contribution edge cases. The UI adds display formatting only after the engine returns full-precision values.</p>
+      </div>
+      <dl class="contract-facts">
+        <div><dt>Money basis</dt><dd>Today’s dollars</dd></div>
+        <div><dt>Return basis</dt><dd>Effective real annual return</dd></div>
+        <div><dt>Contribution timing</dt><dd>End of month</dd></div>
+        <div><dt>Coast timing</dt><dd>First whole-month threshold crossing</dd></div>
+        <div><dt>Regression contract</dt><dd>34 canonical cases</dd></div>
+        <div><dt>Input privacy</dt><dd>Client-side only; no storage or transmission</dd></div>
+      </dl>
+    </section>
+
+    <section class="story-section workbook-section" aria-labelledby="workbook-title">
+      <div>
+        <p class="section-kicker">Deeper technical artifact</p>
+        <h2 id="workbook-title">Want to inspect the spreadsheet engine?</h2>
+        <p>The sanitized demonstration workbook uses hypothetical assumptions and preserves the deeper bi-weekly model architecture. It is a separate public-safe artifact, not the exact calculation model behind the simplified web tool.</p>
+      </div>
+      <a class="workbook-download" href="/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx" download>
+        <span>
+          <strong>Download sanitized demonstration workbook</strong>
+          <small>XLSX · hypothetical inputs · audited public copy</small>
+        </span>
+        <span aria-hidden="true">↓</span>
+      </a>
+    </section>
+
+    <section class="story-section limits-section" aria-labelledby="limits-title">
+      <div class="limits-copy">
+        <p class="section-kicker">Limits I kept visible</p>
+        <h2 id="limits-title">A planning model is only as useful as its assumptions are clear.</h2>
+        <p>The calculator assumes a constant real annual return and constant real monthly contributions. It does not model full Canadian tax rules, account contribution limits, pension benefits, investment fees, withdrawals, or market uncertainty. The retirement portfolio target is supplied by the user.</p>
+        <p>Coast thresholds are illustrative planning estimates. They are not a statement that someone can safely stop saving, retire, or expect a particular future balance.</p>
+      </div>
+      <aside class="reflection" aria-label="Project reflection">
+        <p class="section-kicker">What the project demonstrates</p>
+        <p>The interesting part was not finding one clever formula. It was translating a messy planning question into deterministic state logic, auditing the implementation, separating private evidence from public artifacts, and then reducing the model until the web product answered a clear question without pretending to do more than it does.</p>
+      </aside>
+    </section>
+  </article>
+
+  <ContactBand />
+</BaseLayout>
+
+<style>
+  .coast-page {
+    max-width: var(--content-wide);
+    margin-inline: auto;
+    padding: clamp(3rem, 6vw, 5.75rem) clamp(1.125rem, 3vw, 2.25rem) clamp(5.25rem, 8vw, 7.5rem);
+  }
+
+  .case-hero,
+  .calculator-intro,
+  .story-section {
+    max-width: var(--content-main);
+    margin-inline: auto;
+  }
+
+  .case-hero {
+    padding-bottom: clamp(3.5rem, 7vw, 6.5rem);
+  }
+
+  .case-hero h1 {
+    max-width: 64rem;
+    margin: 0;
+    font-size: clamp(3.15rem, 7vw, 6.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.06em;
+  }
+
+  .case-hero__premise {
+    max-width: 55rem;
+    margin: 1.45rem 0 0;
+    color: var(--color-text);
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    line-height: 1.38;
+    letter-spacing: -0.025em;
+  }
+
+  .case-hero__lede {
+    max-width: 45rem;
+    margin: 1.35rem 0 0;
+    color: var(--color-muted);
+    font-size: 1.02rem;
+  }
+
+  .section-kicker {
+    margin: 0 0 0.8rem;
+    color: var(--color-teal);
+    font-size: var(--text-xs);
+    font-weight: 820;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .calculator-intro {
+    padding-bottom: 1.5rem;
+  }
+
+  .calculator-intro__copy {
+    max-width: 58rem;
+  }
+
+  .calculator-intro h2,
+  .story-section h2 {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: clamp(2.2rem, 4.5vw, 4.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+  }
+
+  .calculator-intro p:not(.section-kicker),
+  .section-heading-block > p:not(.section-kicker),
+  .story-copy p,
+  .contract-copy p,
+  .workbook-section p,
+  .limits-copy p,
+  .engine-grid p {
+    color: var(--color-text);
+  }
+
+  .calculator-intro__copy > p:nth-of-type(2) {
+    max-width: 48rem;
+    margin: 1.35rem 0 0;
+    font-size: 1.05rem;
+  }
+
+  .calculator-intro__note {
+    max-width: 48rem;
+    margin: 0.85rem 0 0;
+    color: var(--color-muted) !important;
+    font-size: 0.9rem;
+  }
+
+  .calculator-stage {
+    max-width: var(--content-main);
+    margin: 0 auto clamp(6rem, 10vw, 9rem);
+  }
+
+  .story-section {
+    padding-block: clamp(4.5rem, 8vw, 7rem);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .story-section--split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(26rem, 1.18fr);
+    gap: clamp(3rem, 7vw, 6.5rem);
+    align-items: start;
+  }
+
+  .story-copy p {
+    margin: 1.25rem 0 0;
+  }
+
+  .architecture {
+    padding: clamp(1.35rem, 3vw, 2rem);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .architecture__label {
+    margin: 0 0 1rem;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .architecture__flow {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .architecture__flow li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.2rem 0.85rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .architecture__flow li:first-child { border-top: 0; }
+  .architecture__flow li > span { grid-row: 1 / span 2; color: var(--color-teal); font-size: 0.74rem; font-weight: 850; }
+  .architecture__flow strong { font-size: 0.98rem; }
+  .architecture__flow small { color: var(--color-muted); font-size: 0.8rem; line-height: 1.45; }
+
+  .architecture__aside {
+    margin: 1rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-muted);
+    font-size: 0.82rem;
+  }
+
+  .architecture__aside strong { color: var(--color-ink); }
+
+  .section-heading-block { max-width: 52rem; }
+  .section-heading-block--wide { max-width: 61rem; }
+  .section-heading-block > p:not(.section-kicker) { margin: 1.25rem 0 0; }
+
+  .engine-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 5vw, 5rem);
+    margin-top: 2.3rem;
+  }
+
+  .engine-grid p { margin: 0; }
+
+  .audit-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 2.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-line-strong);
+    border-bottom: 1px solid var(--color-line-strong);
+  }
+
+  .audit-list li {
+    min-width: 0;
+    padding: 1.35rem 1.1rem 1.5rem 0;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .audit-list li + li { padding-left: 1.1rem; }
+  .audit-list li:last-child { border-right: 0; }
+  .audit-list strong { display: block; font-size: 0.94rem; line-height: 1.25; }
+  .audit-list span { display: block; margin-top: 0.55rem; color: var(--color-muted); font-size: 0.8rem; line-height: 1.45; }
+  .audit-section__close { max-width: 50rem; margin: 1.4rem 0 0; color: var(--color-text); }
+
+  .refactor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 2.5rem;
+    overflow: hidden;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-line);
+  }
+
+  .refactor-grid > div {
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--color-surface);
+  }
+
+  .refactor-grid h3 { margin: 0; font-size: 1.15rem; }
+  .refactor-grid ul { margin: 1rem 0 0; padding-left: 1.15rem; color: var(--color-text); }
+  .refactor-grid li + li { margin-top: 0.45rem; }
+
+  .contract-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.82fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+  }
+
+  .contract-copy p { margin: 1.15rem 0 0; }
+
+  .contract-facts {
+    margin: 0;
+    border-top: 1px solid var(--color-line-strong);
+  }
+
+  .contract-facts > div {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.75fr) minmax(0, 1.25fr);
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .contract-facts dt { color: var(--color-muted); font-size: 0.76rem; font-weight: 760; text-transform: uppercase; letter-spacing: 0.06em; }
+  .contract-facts dd { margin: 0; font-size: 0.92rem; font-weight: 700; }
+
+  .workbook-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(21rem, 0.85fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: center;
+  }
+
+  .workbook-section p:not(.section-kicker) { max-width: 49rem; margin: 1.15rem 0 0; }
+
+  .workbook-download {
+    min-height: 6.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+
+  .workbook-download strong { display: block; line-height: 1.3; }
+  .workbook-download small { display: block; margin-top: 0.4rem; color: var(--color-muted); line-height: 1.35; }
+  .workbook-download > span:last-child { color: var(--color-teal); font-size: 1.5rem; }
+  .workbook-download:hover { border-color: var(--color-teal); }
+
+  .limits-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(21rem, 0.85fr);
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+  }
+
+  .limits-copy p { margin: 1.15rem 0 0; }
+
+  .reflection {
+    padding: 1.6rem;
+    border-left: 3px solid var(--color-teal);
+    background: var(--color-surface-soft);
+  }
+
+  .reflection p:last-child { margin: 0; color: var(--color-text); }
+
+  @media (max-width: 70rem) {
+    .audit-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .audit-list li { border-right: 0; border-bottom: 1px solid var(--color-line); padding-left: 0; }
+    .audit-list li + li { padding-left: 1.1rem; }
+    .audit-list li:nth-child(odd) { padding-left: 0; padding-right: 1.1rem; border-right: 1px solid var(--color-line); }
+    .audit-list li:nth-child(even) { padding-right: 0; }
+    .audit-list li:last-child { border-bottom: 0; }
+  }
+
+  @media (max-width: 60rem) {
+    .story-section--split,
+    .contract-section,
+    .workbook-section,
+    .limits-section { grid-template-columns: 1fr; }
+    .architecture { max-width: 48rem; }
+    .workbook-download { max-width: 35rem; }
+  }
+
+  @media (max-width: 44rem) {
+    .coast-page { padding-inline: 0.875rem; padding-top: 2.6rem; }
+    .case-hero { padding-inline: 0.25rem; }
+    .case-hero h1 { font-size: clamp(2.75rem, 14vw, 4.2rem); }
+    .case-hero__premise { font-size: 1.18rem; }
+    .calculator-stage { margin-inline: -0.125rem; }
+    .engine-grid,
+    .refactor-grid { grid-template-columns: 1fr; }
+    .audit-list { grid-template-columns: 1fr; }
+    .audit-list li,
+    .audit-list li + li,
+    .audit-list li:nth-child(odd) { padding: 1rem 0; border-right: 0; border-bottom: 1px solid var(--color-line); }
+    .audit-list li:last-child { border-bottom: 0; }
+    .contract-facts > div { grid-template-columns: 1fr; gap: 0.35rem; }
+    .architecture { padding: 1.1rem; }
+    .workbook-download { min-height: 5.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .workbook-download { transition: none; }
+  }
+</style>

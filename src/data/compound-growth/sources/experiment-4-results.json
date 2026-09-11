@@ -1,0 +1,171 @@
+{
+  "experiment": 4,
+  "objective": "Test whether line graphs increase perceived compound-growth acceleration and examine the complete proposed statistical pathway.",
+  "sample": {
+    "recruited_n": 198,
+    "age_range": "24–30",
+    "population": "CloudResearch participants who reported that they had not begun investing for retirement",
+    "exclusions": [
+      {
+        "n": 14,
+        "reason": "Growth estimates indicated apparent misunderstanding of the response scale; at least one estimate exceeded twice the correct Year 40 estimate (55.6)."
+      },
+      {
+        "n": 1,
+        "reason": "Outside the target age range."
+      },
+      {
+        "n": 1,
+        "reason": "Undefined Estimated Growth Ratio because Year 20 and Year 30 estimates were equal."
+      }
+    ],
+    "final_n": 182,
+    "conditions": {
+      "line_graph": 93,
+      "table": 89
+    },
+    "random_assignment": true
+  },
+  "projection": {
+    "monthly_contribution_cad": 100,
+    "annual_return": 0.1,
+    "source_compounding_description": "annual compounding",
+    "horizon": "personalized from current age to age 65",
+    "underlying_values_identical_between_conditions": true
+  },
+  "estimated_growth_task": {
+    "reference": "Year 10 account balance",
+    "estimated_years": [
+      20,
+      30,
+      40
+    ],
+    "correct_growth_estimates": {
+      "year_20": 3.6,
+      "year_30": 10.3,
+      "year_40": 27.8
+    },
+    "formula": "(Year 40 growth estimate - Year 30 growth estimate) / (Year 30 growth estimate - Year 20 growth estimate)",
+    "interpretation": {
+      "1": "equal perceived increases in the earlier and later intervals",
+      ">1": "larger perceived increase in the later interval; stronger perceived acceleration",
+      "correct_value": 2.61
+    }
+  },
+  "public_facing_results": {
+    "estimated_growth_ratio": {
+      "line_graph": {
+        "mean": 1.65,
+        "sd": 1.22
+      },
+      "table": {
+        "mean": 1.25,
+        "sd": 1.34
+      },
+      "effect_b": 0.38,
+      "p": "<.05",
+      "d": 0.32
+    },
+    "growth_confidence": {
+      "line_graph": {
+        "mean": 67.89,
+        "sd": 23.98
+      },
+      "table": {
+        "mean": 57.39,
+        "sd": 21.5
+      },
+      "effect_b": 10.29,
+      "p": "<.01",
+      "d": 0.46
+    },
+    "retirement_goal_achievability": {
+      "line_graph": {
+        "mean": 72.59,
+        "sd": 23.61
+      },
+      "table": {
+        "mean": 59.19,
+        "sd": 26.34
+      },
+      "effect_b": 13.15,
+      "p": "<.001",
+      "d": 0.54
+    },
+    "planned_retirement_contributions_cad_per_month": {
+      "line_graph": {
+        "mean": 195.59,
+        "sd": 144.77
+      },
+      "table": {
+        "mean": 154.92,
+        "sd": 141.79
+      },
+      "effect_b": 42.46,
+      "p": ".048",
+      "d": 0.28
+    }
+  },
+  "secondary_results": {
+    "individual_growth_estimates": {
+      "year_20": {
+        "line_graph_mean": 3.94,
+        "table_mean": 3.22,
+        "p": ".15"
+      },
+      "year_30": {
+        "line_graph_mean": 7.78,
+        "table_mean": 6.52,
+        "p": ".16"
+      },
+      "year_40": {
+        "line_graph_mean": 14.7,
+        "table_mean": 11.6,
+        "p": ".09"
+      }
+    },
+    "ability_confidence": {
+      "line_graph_mean": 61.72,
+      "table_mean": 54.03,
+      "p": ".06",
+      "interpretation": "marginal direct effect; the ability-confidence serial indirect pathway was not significant"
+    },
+    "processing_fluency": {
+      "line_graph_mean": 57.4,
+      "table_mean": 48.76,
+      "p": ".06",
+      "interpretation": "marginal direct effect; not a consistent explanation across the program"
+    }
+  },
+  "serial_mediation": {
+    "presentation_to_estimated_growth_ratio": {
+      "b": 0.38,
+      "p": ".04"
+    },
+    "estimated_growth_ratio_to_growth_confidence": {
+      "b": 2.26,
+      "p": ".048"
+    },
+    "growth_confidence_to_retirement_goal_achievability": {
+      "b": 0.68,
+      "p": "<.001"
+    },
+    "retirement_goal_achievability_to_planned_contributions": {
+      "b": 0.9,
+      "p": ".03"
+    },
+    "serial_indirect_effect": {
+      "b": 0.53,
+      "ci_95_bca": [
+        0.04,
+        2.4
+      ],
+      "standardized_effect": 0.002
+    },
+    "conditional_direct_effect": {
+      "b": 19.1,
+      "p": ".32"
+    },
+    "causal_language_warning": "Presentation condition was randomized. Estimated Growth Ratio, growth confidence, retirement-goal achievability, and planned contributions were measured. The serial indirect model is statistically consistent with the proposed pathway but does not independently establish causal ordering among the measured constructs."
+  }
+}

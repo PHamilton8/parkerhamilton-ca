@@ -1,0 +1,1040 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SmithManoeuvreCalculator from '../../components/calculators/SmithManoeuvreCalculator.astro';
+
+const title = 'Smith Manoeuvre Model';
+const description = 'A case study in leveraged-investing scenario design, baseline fairness, formula auditing, and test-driven validation, with an educational Smith Manoeuvre calculator.';
+---
+
+<BaseLayout title={title} description={description} canonicalPath="/work/smith-manoeuvre">
+  <article class="smith-page">
+    <header class="smith-hero page-shell">
+      <div class="smith-hero-copy">
+        <p class="eyebrow">06 · Decision support</p>
+        <h1>{title}</h1>
+        <p class="hero-dek">
+          I built a leveraged-investing scenario model, then audited the parts most likely to make the comparison misleading:
+          borrowing capacity, estimated tax-offset routing, cash symmetry, and payoff-period logic.
+        </p>
+        <p class="advice-badge">Educational scenario model — not financial, tax, legal, or lending advice.</p>
+      </div>
+
+      <dl class="proof-grid" aria-label="Project proof points">
+        <div><dt>Model</dt><dd>Audited monthly V2</dd></div>
+        <div><dt>Comparison</dt><dd>Equal-cash baseline</dd></div>
+        <div><dt>Regression suite</dt><dd>21 / 21 scenarios pass</dd></div>
+        <div><dt>Public artifact</dt><dd>Sanitized V2 workbook</dd></div>
+      </dl>
+    </header>
+
+    <section class="case-section page-shell" aria-labelledby="modelling-problem">
+      <div class="section-heading">
+        <p class="section-kicker">The modelling problem</p>
+        <h2 id="modelling-problem">A simple comparison can become unfair surprisingly quickly.</h2>
+      </div>
+      <div class="reading-copy">
+        <p>
+          The strategy combines mortgage amortization, changing revolving room, leveraged investing, borrowing cost,
+          estimated tax treatment, and a counterfactual baseline. Each part changes over time, and a small accounting
+          shortcut can compound into a large apparent difference over a long horizon.
+        </p>
+        <p>
+          The first challenge was representing the strategy. The more important challenge became testing whether the
+          alternative scenario was being given the same economic resources.
+        </p>
+      </div>
+
+      <div class="mechanism" aria-labelledby="mechanism-title">
+        <div class="mechanism-intro">
+          <h3 id="mechanism-title">The public V2 mechanism</h3>
+          <p>One monthly sequence, made explicit enough to test.</p>
+        </div>
+        <ol class="mechanism-flow">
+          <li><span>01</span><strong>Mortgage payment</strong><small>reduces amortizing debt</small></li>
+          <li><span>02</span><strong>Actual principal reduction</strong><small>measures what really disappeared</small></li>
+          <li><span>03</span><strong>Eligible revolving room</strong><small>stays inside the simplified 65% envelope</small></li>
+          <li><span>04</span><strong>Month-end HELOC draw</strong><small>becomes invested capital</small></li>
+          <li><span>05</span><strong>Taxable portfolio</strong><small>grows under the entered return assumption</small></li>
+          <li><span>06</span><strong>HELOC interest</strong><small>is paid from household cash on the opening balance</small></li>
+          <li><span>07</span><strong>Estimated tax offset</strong><small>settles once per 12 model months</small></li>
+        </ol>
+        <p class="mechanism-note">
+          The non-Smith baseline runs beside this sequence rather than being treated as an afterthought.
+        </p>
+      </div>
+    </section>
+
+    <section class="fairness-section" aria-labelledby="fairness-title">
+      <div class="page-shell fairness-inner">
+        <div class="fairness-copy">
+          <p class="section-kicker section-kicker-light">The centerpiece</p>
+          <h2 id="fairness-title">The harder problem was making the comparison itself fair.</h2>
+          <p>
+            A strategy comparison is not fair if money used in one scenario simply disappears from the alternative.
+            V2 turns that principle into a period-by-period accounting identity.
+          </p>
+        </div>
+
+        <div class="cash-identity" aria-label="Equal external household cash comparison">
+          <div class="cash-path">
+            <p class="cash-label">Smith household cash</p>
+            <p class="cash-equation">Fixed mortgage cash budget <span>+</span> HELOC interest</p>
+          </div>
+          <div class="cash-divider" aria-hidden="true">=</div>
+          <div class="cash-path">
+            <p class="cash-label">Baseline household cash</p>
+            <p class="cash-equation">Fixed mortgage cash budget <span>+</span> matching investment equal to HELOC interest</p>
+          </div>
+        </div>
+
+        <p class="fairness-footnote">
+          If either mortgage needs less than the fixed monthly budget in its final payment period, the unused cash is
+          invested in that scenario rather than disappearing. HELOC interest is therefore already represented in the
+          comparison and is not subtracted a second time from the Smith ending position.
+        </p>
+      </div>
+    </section>
+
+    <section class="case-section page-shell" aria-labelledby="audit-title">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="section-kicker">What the audit changed</p>
+          <h2 id="audit-title">I treated plausible-looking outputs as something to challenge, not trust.</h2>
+        </div>
+        <p>
+          The correction log became more useful than any single headline result because it exposed where model structure,
+          rather than the strategy itself, could create an apparent advantage.
+        </p>
+      </div>
+
+      <div class="audit-grid">
+        <article>
+          <p class="audit-number">01</p>
+          <h3>Baseline symmetry</h3>
+          <p>Starting resources and recurring household cash needed productive treatment on both sides of the comparison.</p>
+          <p class="audit-check">Validation: strategy-disabled paths converge.</p>
+        </article>
+        <article>
+          <p class="audit-number">02</p>
+          <h3>Offset existence vs. destination</h3>
+          <p>An estimated tax offset can change destination without ceasing to exist. V2 routes it to the mortgage first, then the portfolio after payoff.</p>
+          <p class="audit-check">Validation: post-payoff offset remains in the model.</p>
+        </article>
+        <article>
+          <p class="audit-number">03</p>
+          <h3>Final-payoff readvancement</h3>
+          <p>The private workbook could create room from scheduled principal beyond the debt actually repaid in the final period.</p>
+          <p class="audit-check">V2 fix: new room uses opening mortgage minus closing mortgage.</p>
+        </article>
+        <article>
+          <p class="audit-number">04</p>
+          <h3>Conservative revolving boundary</h3>
+          <p>The richer private model used an above-65% proxy. The public V2 does not create new revolving borrowing above a 65% total secured-LTV envelope.</p>
+          <p class="audit-check">Validation: every positive draw respects the cap.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="case-section page-shell" aria-labelledby="private-public-title">
+      <div class="section-heading">
+        <p class="section-kicker">From spreadsheet to public model</p>
+        <h2 id="private-public-title">The browser tool is deliberately simpler than the private workbook.</h2>
+      </div>
+
+      <div class="comparison-grid">
+        <article class="comparison-panel">
+          <p class="panel-label">Private spreadsheet</p>
+          <h3>Richer modelling evidence</h3>
+          <ul>
+            <li>26-period biweekly architecture</li>
+            <li>registered-account waterfalls and routing switches</li>
+            <li>additional lender and portfolio proxies</li>
+            <li>correction log and formula-audit history</li>
+          </ul>
+          <p>Useful for showing modelling depth, but not appropriate to transplant directly into a public consumer-facing tool.</p>
+        </article>
+        <article class="comparison-panel comparison-panel-accent">
+          <p class="panel-label">Public calculator V2</p>
+          <h3>Smaller, explicit, testable contract</h3>
+          <ul>
+            <li>monthly periods and constant home value</li>
+            <li>no starting HELOC or interest capitalization</li>
+            <li>no registered-account waterfall</li>
+            <li>65% revolving envelope and equal-cash baseline</li>
+          </ul>
+          <p>The TypeScript engine and canonical regression fixtures are the implementation source of truth.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="calculator-section" aria-labelledby="calculator-title">
+      <div class="page-shell calculator-intro">
+        <p class="section-kicker">Interactive model</p>
+        <h2 id="calculator-title">Try the audited public scenario model.</h2>
+        <p>
+          Change the assumptions and inspect the resulting debt, portfolio, payoff, LTV, and net-position paths. The
+          calculator is educational and deterministic: it illustrates how assumptions interact, not what will happen or
+          what anyone should do.
+        </p>
+      </div>
+      <SmithManoeuvreCalculator />
+    </section>
+
+    <section class="case-section page-shell" aria-labelledby="rules-title">
+      <div class="section-heading">
+        <p class="section-kicker">Accounting rules made visible</p>
+        <h2 id="rules-title">The public contract removes ambiguity before the UI ever renders a result.</h2>
+      </div>
+
+      <div class="rules-grid">
+        <article>
+          <h3>Rates and timing</h3>
+          <p>
+            The quoted mortgage rate follows the Canadian nominal semi-annual convention and is converted to a monthly
+            equivalent. HELOC interest uses the annual rate divided by 12 on the opening monthly balance. Expected return
+            is entered as an effective annual rate and converted to an equivalent monthly return.
+          </p>
+        </article>
+        <article>
+          <h3>Readvancement</h3>
+          <p>
+            New borrowing is based on actual mortgage principal reduction, not scheduled principal. The draw occurs at
+            month end, so it begins incurring modelled HELOC interest in the following month.
+          </p>
+        </article>
+        <article>
+          <h3>Revolving room</h3>
+          <p>
+            The public model holds home value constant and creates no new revolving borrowing above a simplified 65%
+            total secured-LTV envelope. An 80% boundary is used only to validate the starting mortgage example.
+          </p>
+        </article>
+        <article>
+          <h3>Estimated tax offset</h3>
+          <p>
+            Once every 12 model months, the model applies the entered deductible-interest assumption and marginal-rate
+            proxy to that model year's HELOC interest. The offset goes to the mortgage first; any excess after payoff is invested.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="qa-section" aria-labelledby="qa-title">
+      <div class="page-shell qa-layout">
+        <div class="qa-stat" aria-label="21 of 21 canonical regression scenarios passing">
+          <span>21 / 21</span>
+          <p>canonical regression scenarios pass</p>
+        </div>
+        <div class="qa-copy">
+          <p class="section-kicker">Validation</p>
+          <h2 id="qa-title">The model has to satisfy invariants, not just produce a number.</h2>
+          <ul class="qa-list">
+            <li>Smith and baseline external household cash reconcile every month and cumulatively.</li>
+            <li>A new HELOC draw cannot exceed actual mortgage principal reduction.</li>
+            <li>A positive draw cannot breach the 65% secured-LTV envelope.</li>
+            <li>Mortgage and HELOC balances cannot become negative.</li>
+            <li>When readvancement disappears, matched scenarios converge.</li>
+            <li>Post-payoff mortgage cash and estimated tax offsets stay productive rather than vanishing.</li>
+          </ul>
+          <p class="qa-note">
+            The separate browser suite also checks field-to-engine mapping, edge cases, chart/table parity, keyboard use,
+            privacy behavior, reduced motion, and narrow-screen containment.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section page-shell" aria-labelledby="limits-title">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="section-kicker">Limits and assumptions</p>
+          <h2 id="limits-title">A transparent model should show what it leaves out.</h2>
+        </div>
+        <p>
+          These simplifications are part of the model boundary, not fine print. Real lender products, tax treatment,
+          returns, rates, and cash-flow timing can differ materially.
+        </p>
+      </div>
+
+      <ul class="limits-grid">
+        <li>Monthly public model rather than the private workbook's biweekly engine</li>
+        <li>Constant home value and constant mortgage / HELOC rates within a run</li>
+        <li>Constant deterministic investment return; no volatility or sequence risk simulation</li>
+        <li>Simplified HELOC interest timing rather than a lender statement engine</li>
+        <li>Estimated tax proxy only; the calculator does not determine deductibility</li>
+        <li>No fees, refinancing costs, investment-tax engine, or registered-account contribution-room model</li>
+        <li>No lender-specific above-65% amortizing tranche or promise of available credit</li>
+        <li>Borrowing to invest increases exposure to both market losses and borrowing-cost changes</li>
+      </ul>
+
+      <div class="disclosure-grid">
+        <div>
+          <h3>Tax</h3>
+          <p>
+            The estimated tax offset is only an illustration. Interest deductibility depends on the actual use and
+            tracing of borrowed funds, income-earning purpose, legal obligations, record keeping, and other tax rules.
+            This calculator does not determine tax eligibility.
+          </p>
+        </div>
+        <div>
+          <h3>Lending</h3>
+          <p>
+            This educational model uses simplified 65% revolving and 80% starting-LTV boundaries. Actual HELOC limits,
+            combined-loan rules, authorized limits, underwriting, payments, and readvancement behavior depend on the
+            lender and current requirements.
+          </p>
+        </div>
+        <div>
+          <h3>Mortgage mechanics</h3>
+          <p>
+            The mortgage calculation is a standardized monthly illustration. Actual payment timing, prepayment
+            privileges, variable-rate mechanics, fees, and lender calculations may differ.
+          </p>
+        </div>
+        <div>
+          <h3>Investment risk</h3>
+          <p>
+            Borrowing to invest increases exposure to both market losses and interest-rate changes. Returns are
+            uncertain, borrowing costs can rise, and investments can underperform borrowing costs for long periods.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="workbook-section" aria-labelledby="workbook-title">
+      <div class="page-shell workbook-inner">
+        <div>
+          <p class="section-kicker">Public companion</p>
+          <h2 id="workbook-title">Sanitized V2 demonstration workbook</h2>
+          <p>
+            Hypothetical inputs only. This spreadsheet companion follows the public calculator's monthly V2 formula
+            architecture, while the TypeScript reference model and regression suite remain the implementation source of truth.
+          </p>
+          <p class="workbook-disclaimer">Educational only; not financial, tax, legal, or lending advice.</p>
+        </div>
+        <a class="download-link" href="/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx" download>
+          Download the sanitized V2 demonstration workbook
+          <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="learning-section page-shell" aria-labelledby="learning-title">
+      <div class="section-heading">
+        <p class="section-kicker">What this project demonstrates</p>
+        <h2 id="learning-title">The useful skill was turning assumptions into rules that could fail visibly.</h2>
+      </div>
+      <div class="learning-grid">
+        <p>
+          I translated a complicated household-finance question into a formula-driven model, documented the timing and
+          cash-routing assumptions, and then built tests around the places where a comparison could create value through
+          accounting rather than through the modelled mechanism.
+        </p>
+        <p>
+          The result is less about producing a persuasive forecast and more about model design: defining a fair
+          counterfactual, isolating simplifications, finding edge-case defects, and carrying the same accounting contract
+          from spreadsheet evidence into a public TypeScript implementation.
+        </p>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .smith-page {
+    overflow: clip;
+  }
+
+  .page-shell {
+    width: min(calc(100% - 2.25rem), var(--content-main));
+    margin-inline: auto;
+  }
+
+  .smith-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.6fr);
+    gap: clamp(2.5rem, 6vw, 6.5rem);
+    align-items: end;
+    padding-block: clamp(3.75rem, 8vw, 7.5rem) clamp(4.5rem, 8vw, 7rem);
+  }
+
+  .eyebrow,
+  .section-kicker,
+  .panel-label,
+  .cash-label,
+  .audit-number {
+    margin: 0;
+    font-size: 0.76rem;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .eyebrow,
+  .section-kicker,
+  .panel-label,
+  .audit-number {
+    color: var(--color-teal);
+  }
+
+  .smith-hero h1 {
+    max-width: 58rem;
+    margin: 0.7rem 0 0;
+    font-size: clamp(3.35rem, 7vw, 6.6rem);
+    line-height: 0.94;
+    letter-spacing: -0.065em;
+  }
+
+  .hero-dek {
+    max-width: 50rem;
+    margin: 1.5rem 0 0;
+    color: var(--color-text);
+    font-size: clamp(1.08rem, 1.8vw, 1.35rem);
+    line-height: 1.54;
+  }
+
+  .advice-badge {
+    display: inline-block;
+    max-width: 44rem;
+    margin: 1.35rem 0 0;
+    padding: 0.72rem 0.9rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-warm);
+    color: var(--color-ink);
+    font-size: 0.86rem;
+    font-weight: 690;
+    line-height: 1.4;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-top: 1px solid var(--color-line-strong);
+  }
+
+  .proof-grid div {
+    min-width: 0;
+    padding: 1rem 0.4rem 1.05rem 0;
+    border-bottom: 1px solid var(--color-line-strong);
+  }
+
+  .proof-grid div:nth-child(odd) {
+    padding-right: 1rem;
+    border-right: 1px solid var(--color-line-strong);
+  }
+
+  .proof-grid div:nth-child(even) {
+    padding-left: 1rem;
+  }
+
+  .proof-grid dt {
+    color: var(--color-muted);
+    font-size: 0.72rem;
+    font-weight: 720;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .proof-grid dd {
+    margin: 0.38rem 0 0;
+    color: var(--color-ink);
+    font-size: 0.96rem;
+    font-weight: 710;
+    line-height: 1.35;
+  }
+
+  .case-section {
+    padding-block: clamp(4.5rem, 8vw, 7.5rem);
+  }
+
+  .section-heading {
+    max-width: 58rem;
+  }
+
+  .section-heading h2,
+  .fairness-copy h2,
+  .calculator-intro h2,
+  .qa-copy h2,
+  .workbook-inner h2 {
+    margin: 0.65rem 0 0;
+    color: var(--color-ink);
+    font-size: clamp(2.2rem, 4.2vw, 4rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+  }
+
+  .reading-copy {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 4vw, 4rem);
+    max-width: 69rem;
+    margin-top: 2rem;
+  }
+
+  .reading-copy p,
+  .split-heading > p,
+  .learning-grid p {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1rem, 1.25vw, 1.12rem);
+    line-height: 1.7;
+  }
+
+  .mechanism {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding: clamp(1.5rem, 3vw, 2.4rem);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .mechanism-intro {
+    display: flex;
+    gap: 1rem 2rem;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 1.15rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .mechanism-intro h3 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .mechanism-intro p,
+  .mechanism-note {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .mechanism-flow {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 1.5rem 0;
+    list-style: none;
+  }
+
+  .mechanism-flow li {
+    position: relative;
+    min-width: 0;
+    padding: 0.25rem 1rem 0.35rem;
+    border-left: 1px solid var(--color-line);
+  }
+
+  .mechanism-flow li:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .mechanism-flow li:last-child {
+    padding-right: 0;
+  }
+
+  .mechanism-flow span {
+    display: block;
+    color: var(--color-teal);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .mechanism-flow strong {
+    display: block;
+    margin-top: 0.45rem;
+    font-size: 0.89rem;
+    line-height: 1.32;
+  }
+
+  .mechanism-flow small {
+    display: block;
+    margin-top: 0.32rem;
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    line-height: 1.38;
+  }
+
+  .fairness-section {
+    background: var(--color-deep-teal);
+    color: var(--color-on-deep);
+  }
+
+  .fairness-inner {
+    padding-block: clamp(4.75rem, 8vw, 7.5rem);
+  }
+
+  .section-kicker-light {
+    color: var(--color-on-deep-muted);
+  }
+
+  .fairness-copy {
+    max-width: 62rem;
+  }
+
+  .fairness-copy h2 {
+    color: var(--color-on-deep);
+  }
+
+  .fairness-copy > p:last-child {
+    max-width: 50rem;
+    margin: 1.35rem 0 0;
+    color: var(--color-on-deep-muted);
+    font-size: 1.05rem;
+    line-height: 1.68;
+  }
+
+  .cash-identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2.5rem);
+    align-items: stretch;
+    margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  .cash-path {
+    padding: clamp(1.35rem, 3vw, 2rem);
+    border: 1px solid rgb(199 218 215 / 0.35);
+    border-radius: var(--radius-md);
+    background: rgb(247 251 250 / 0.05);
+  }
+
+  .cash-label {
+    color: var(--color-on-deep-muted);
+  }
+
+  .cash-equation {
+    margin: 0.7rem 0 0;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.42;
+  }
+
+  .cash-equation span {
+    color: var(--color-on-deep-muted);
+  }
+
+  .cash-divider {
+    align-self: center;
+    color: var(--color-on-deep-muted);
+    font-size: 2rem;
+    font-weight: 750;
+  }
+
+  .fairness-footnote {
+    max-width: 58rem;
+    margin: 1.45rem 0 0;
+    color: var(--color-on-deep-muted);
+    font-size: 0.9rem;
+    line-height: 1.62;
+  }
+
+  .split-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.6fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: end;
+    max-width: none;
+  }
+
+  .split-heading > p {
+    padding-bottom: 0.25rem;
+  }
+
+  .audit-grid,
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(2.4rem, 5vw, 4rem);
+    overflow: hidden;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-line-strong);
+  }
+
+  .audit-grid article,
+  .rules-grid article {
+    min-width: 0;
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    background: var(--color-surface);
+  }
+
+  .audit-grid h3,
+  .rules-grid h3,
+  .comparison-panel h3,
+  .disclosure-grid h3 {
+    margin: 0.55rem 0 0;
+    color: var(--color-ink);
+    font-size: 1.18rem;
+    line-height: 1.28;
+  }
+
+  .audit-grid article > p:not(.audit-number, .audit-check),
+  .rules-grid p,
+  .comparison-panel p,
+  .comparison-panel li,
+  .disclosure-grid p {
+    color: var(--color-text);
+    font-size: 0.94rem;
+    line-height: 1.62;
+  }
+
+  .audit-check {
+    margin: 1rem 0 0;
+    color: var(--color-deep-teal);
+    font-size: 0.82rem;
+    font-weight: 720;
+    line-height: 1.45;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 2rem);
+    margin-top: clamp(2.3rem, 5vw, 4rem);
+  }
+
+  .comparison-panel {
+    padding: clamp(1.5rem, 3vw, 2.4rem);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .comparison-panel-accent {
+    background: var(--color-surface-soft);
+  }
+
+  .comparison-panel h3 {
+    margin-top: 0.6rem;
+    font-size: 1.45rem;
+  }
+
+  .comparison-panel ul {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0;
+    padding-left: 1.15rem;
+  }
+
+  .comparison-panel > p:last-child {
+    margin: 1.4rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .calculator-section {
+    padding-block: clamp(4.75rem, 8vw, 7.5rem);
+    background: var(--color-surface-blue);
+  }
+
+  .calculator-intro {
+    margin-bottom: 2.2rem;
+  }
+
+  .calculator-intro p:last-child {
+    max-width: 52rem;
+    margin: 1.15rem 0 0;
+    color: var(--color-text);
+    font-size: 1rem;
+    line-height: 1.66;
+  }
+
+  .rules-grid article {
+    padding: clamp(1.55rem, 3vw, 2.35rem);
+  }
+
+  .rules-grid h3 {
+    margin-top: 0;
+    color: var(--color-deep-teal);
+  }
+
+  .qa-section {
+    background: var(--color-surface-warm);
+  }
+
+  .qa-layout {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.52fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: start;
+    padding-block: clamp(4.75rem, 8vw, 7.5rem);
+  }
+
+  .qa-stat {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-line-strong);
+  }
+
+  .qa-stat span {
+    display: block;
+    color: var(--color-deep-teal);
+    font-size: clamp(4rem, 9vw, 7.5rem);
+    font-weight: 760;
+    line-height: 0.95;
+    letter-spacing: -0.065em;
+  }
+
+  .qa-stat p {
+    max-width: 17rem;
+    margin: 0.8rem 0 0;
+    color: var(--color-text);
+    font-weight: 680;
+    line-height: 1.4;
+  }
+
+  .qa-list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.6rem 0 0;
+    padding-left: 1.15rem;
+    color: var(--color-text);
+    line-height: 1.58;
+  }
+
+  .qa-note {
+    margin: 1.55rem 0 0;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--color-line-strong);
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    line-height: 1.58;
+  }
+
+  .limits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 2rem;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .limits-grid li {
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-text);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .disclosure-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    overflow: hidden;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-line-strong);
+  }
+
+  .disclosure-grid > div {
+    padding: clamp(1.35rem, 3vw, 2rem);
+    background: var(--color-surface-soft);
+  }
+
+  .disclosure-grid h3 {
+    margin-top: 0;
+  }
+
+  .disclosure-grid p {
+    margin-bottom: 0;
+  }
+
+  .workbook-section {
+    background: var(--color-deep-teal-2);
+    color: var(--color-on-deep);
+  }
+
+  .workbook-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: end;
+    padding-block: clamp(4rem, 7vw, 6rem);
+  }
+
+  .workbook-inner .section-kicker {
+    color: var(--color-on-deep-muted);
+  }
+
+  .workbook-inner h2 {
+    color: var(--color-on-deep);
+  }
+
+  .workbook-inner p {
+    max-width: 47rem;
+    margin: 1rem 0 0;
+    color: var(--color-on-deep-muted);
+    line-height: 1.62;
+  }
+
+  .workbook-disclaimer {
+    font-size: 0.84rem;
+    font-weight: 680;
+  }
+
+  .download-link {
+    display: inline-flex;
+    gap: 1.2rem;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3rem;
+    max-width: 24rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgb(247 251 250 / 0.42);
+    border-radius: var(--radius-sm);
+    color: var(--color-on-deep);
+    font-size: 0.92rem;
+    font-weight: 720;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .download-link:hover {
+    background: rgb(247 251 250 / 0.08);
+  }
+
+  .download-link span {
+    flex: 0 0 auto;
+    font-size: 1.2rem;
+  }
+
+  .learning-section {
+    padding-block: clamp(5rem, 9vw, 8.5rem);
+  }
+
+  .learning-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 5vw, 5rem);
+    max-width: 70rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 68.75rem) {
+    .smith-hero {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .proof-grid {
+      max-width: 40rem;
+    }
+
+    .mechanism-flow {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--color-line);
+    }
+
+    .mechanism-flow li,
+    .mechanism-flow li:first-child,
+    .mechanism-flow li:last-child {
+      padding: 1rem;
+      border: 0;
+      background: var(--color-surface);
+    }
+  }
+
+  @media (max-width: 51.25rem) {
+    .smith-hero {
+      padding-top: 3.4rem;
+    }
+
+    .reading-copy,
+    .split-heading,
+    .comparison-grid,
+    .qa-layout,
+    .workbook-inner,
+    .learning-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .split-heading,
+    .qa-layout,
+    .workbook-inner {
+      gap: 1.8rem;
+    }
+
+    .cash-identity {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .cash-divider {
+      justify-self: center;
+      line-height: 1;
+    }
+
+    .qa-stat {
+      max-width: 22rem;
+    }
+
+    .download-link {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 43rem) {
+    .page-shell {
+      width: min(calc(100% - 2rem), var(--content-main));
+    }
+
+    .smith-hero h1 {
+      font-size: clamp(3rem, 16vw, 4.5rem);
+    }
+
+    .proof-grid,
+    .audit-grid,
+    .rules-grid,
+    .limits-grid,
+    .disclosure-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .proof-grid div:nth-child(odd),
+    .proof-grid div:nth-child(even) {
+      padding-inline: 0;
+      border-right: 0;
+    }
+
+    .mechanism {
+      padding: 1rem;
+    }
+
+    .mechanism-intro {
+      display: block;
+    }
+
+    .mechanism-intro p {
+      margin-top: 0.45rem;
+    }
+
+    .mechanism-flow {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 23rem) {
+    .page-shell {
+      width: min(calc(100% - 1.5rem), var(--content-main));
+    }
+
+    .smith-hero h1 {
+      font-size: 2.8rem;
+    }
+
+    .mechanism-flow {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CompoundGrowthInteractionSuite from '../../components/compound-growth/CompoundGrowthInteractionSuite.astro';
+import { projects } from '../../data/projects';
+
+const project = projects.find((item) => item.slug === 'compound-growth');
+if (!project) throw new Error('Compound Growth project record is missing.');
+---
+
+<BaseLayout
+  title="Compound Growth & Retirement Investing"
+  description={project.premise}
+  canonicalPath={project.route}
+>
+  <article class="cg-case-study" data-compound-growth-page>
+    <CompoundGrowthInteractionSuite>
+      <header slot="before-fixed" class="cg-page-hero">
+        <p class="cg-page-hero__credential">MSc · Marketing Research & Behavioural Science · University of Ottawa</p>
+        <h1>Same numbers. Different judgments.</h1>
+        <p class="cg-page-hero__lede">
+          I studied whether identical retirement-growth projections produce different judgments when shown as a numerical table or a line graph. Across five randomized experiments with young adults who had not begun investing for retirement, the representation changed what participants perceived in the same projected values.
+        </p>
+
+        <dl class="cg-page-meta" aria-label="Research program at a glance">
+          <div><dt>Program</dt><dd>5 randomized experiments</dd></div>
+          <div><dt>Final analytic N</dt><dd>1,248 participants</dd></div>
+          <div><dt>Population</dt><dd>Young adults who had not begun investing for retirement</dd></div>
+        </dl>
+
+        <div class="cg-page-hero__grid">
+          <div>
+            <p class="cg-page-label">Research question</p>
+            <h2>Can identical compound-growth retirement projections produce different judgments when shown as a line graph rather than a numerical table?</h2>
+          </div>
+          <div class="cg-page-hero__summary">
+            <p><strong>My role:</strong> I designed and fielded the experiments, developed the stimuli and measures, analyzed the data, decided what to test next, and translated the findings into the final manuscript under faculty supervision.</p>
+            <p><strong>Bottom line:</strong> line graphs made compound-growth acceleration more apparent than tables. In several experiments they also strengthened growth confidence and retirement-goal achievability; in Experiments 2 and 4 they increased <em>planned</em> monthly retirement contributions.</p>
+          </div>
+        </div>
+      </header>
+
+      <section slot="after-fixed" class="cg-narrative cg-narrative--representation" aria-labelledby="representation-title" data-representation-section>
+        <div class="cg-narrative__heading">
+          <p class="cg-kicker">What the representation changes</p>
+          <h2 id="representation-title">The values were held constant. The perceptual work was not.</h2>
+        </div>
+        <div class="cg-narrative-grid">
+          <div>
+            <h3>In a table</h3>
+            <p>Acceleration has to be reconstructed from separate values: compare one interval, compare the next, then notice that the gains are getting larger.</p>
+          </div>
+          <div>
+            <h3>In a line graph</h3>
+            <p>The same values form a connected trajectory whose steepness changes over time. That makes the pattern of increasingly large gains spatially available while exact values remain accessible.</p>
+          </div>
+        </div>
+        <p class="cg-callout">The research question was not whether graphs are universally “better.” It was whether representation changes what people perceive in the same financial projection.</p>
+      </section>
+
+      <div slot="before-explorer" class="cg-page-flow">
+        <section class="cg-narrative" aria-labelledby="experiment-four-context-title" data-experiment-four-context>
+          <div class="cg-narrative__heading">
+            <p class="cg-kicker">Experiment 4 · mechanism deep dive</p>
+            <h2 id="experiment-four-context-title">The clearest sequence in the program</h2>
+          </div>
+          <div class="cg-two-column">
+            <div>
+              <p>Experiment 4 recruited young adults aged 24–30 who had not begun investing for retirement. After exclusions specified before the final analysis, the analytic sample was <strong>N = 182</strong>: 93 saw a line graph and 89 saw a table. Presentation was randomly assigned; the underlying projection values were the same.</p>
+              <p>The key addition was the Estimated Growth Ratio. Rather than asking only for one future balance, the measure captured whether participants perceived the increase in growth as larger in the later interval than in the earlier one.</p>
+            </div>
+            <div class="cg-evidence-note">
+              <p class="cg-page-label">What the direct comparison showed</p>
+              <p>Line-graph presentation increased Estimated Growth Ratio, growth confidence, retirement-goal achievability, and planned monthly contribution selections in this experiment.</p>
+              <p>Both groups still under-perceived the normative acceleration: the line-graph mean was 1.65, the table mean was 1.25, and the correct reference was 2.61.</p>
+            </div>
+          </div>
+
+          <div class="cg-pathway" aria-label="Experiment 4 statistical pathway">
+            <div class="cg-pathway__step cg-pathway__step--randomized"><span>Randomized</span><strong>Presentation</strong><small>Table or line graph</small></div>
+            <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+            <div class="cg-pathway__step"><span>Measured</span><strong>Perceived acceleration</strong><small>Estimated Growth Ratio</small></div>
+            <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+            <div class="cg-pathway__step"><span>Measured</span><strong>Growth confidence</strong></div>
+            <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+            <div class="cg-pathway__step"><span>Measured</span><strong>Goal achievability</strong></div>
+            <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+            <div class="cg-pathway__step"><span>Measured</span><strong>Planned contributions</strong></div>
+          </div>
+          <p class="cg-pathway-note"><strong>Interpretation:</strong> the significant serial indirect effect was consistent with the proposed sequence. Only presentation was experimentally manipulated, so the measured links in the pathway are statistical associations rather than independently established causal steps.</p>
+
+          <details class="cg-details">
+            <summary>Experiment 4 statistical detail</summary>
+            <div class="cg-details__body">
+              <p>Presentation → Estimated Growth Ratio: b = 0.38, p = .04. Estimated Growth Ratio → growth confidence: b = 2.26, p = .048. Growth confidence → retirement-goal achievability: b = 0.68, p &lt; .001. Achievability → planned contributions: b = 0.90, p = .03.</p>
+              <p>The complete serial indirect effect was b = 0.53, 95% BCa CI [0.04, 2.40]. The conditional direct effect on planned contributions was not significant after the measured pathway variables were included (b = 19.10, p = .32).</p>
+            </div>
+          </details>
+        </section>
+
+        <section class="cg-narrative cg-narrative--boundary" aria-labelledby="experiment-five-title" data-experiment-five-boundary>
+          <div class="cg-narrative__heading">
+            <p class="cg-kicker">Experiment 5 · boundary test</p>
+            <h2 id="experiment-five-title">A useful result that did not resolve the mechanism completely</h2>
+          </div>
+          <div class="cg-two-column">
+            <div>
+              <p>The final experiment added proportional area growth cards. Like the line graph, the cards represented changing magnitudes visually; unlike the line graph, they did not connect successive values into a continuous trajectory.</p>
+              <p>For Estimated Growth Ratio, the line graph again exceeded the table: <strong>1.66 vs 1.35</strong>. The area-card mean was <strong>1.50</strong>, between the other two conditions.</p>
+            </div>
+            <div class="cg-evidence-note">
+              <p class="cg-page-label">What that means</p>
+              <p>The line-graph-versus-table difference remained significant after Tukey adjustment. The line graph did not significantly differ from the area cards, and the area cards did not significantly differ from the table.</p>
+              <p><strong>So Experiment 5 did not establish that the connected line trajectory was uniquely responsible for the effect.</strong></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="cg-narrative" aria-labelledby="implications-title" data-implications>
+          <div class="cg-narrative__heading">
+            <p class="cg-kicker">Implications for retirement tools</p>
+            <h2 id="implications-title">Presentation is part of the information, not just decoration.</h2>
+          </div>
+          <div class="cg-implications">
+            <article><h3>Support exact lookup</h3><p>Tables make individual values easy to retrieve and compare precisely.</p></article>
+            <article><h3>Support pattern perception</h3><p>Visual trajectories can make changes in growth over time more apparent without changing the underlying values.</p></article>
+            <article><h3>Use both deliberately</h3><p>Consumer-facing projection tools can pair precise numerical values with a clear visual representation instead of treating the formats as interchangeable.</p></article>
+          </div>
+          <p class="cg-source-note">The experiments measured retirement judgments and planned contributions, not actual deposits or realized investing behaviour.</p>
+        </section>
+      </div>
+
+      <div slot="after-explorer" class="cg-page-flow cg-page-flow--after-explorer">
+        <section class="cg-narrative cg-narrative--model-boundary" aria-labelledby="model-boundary-title" data-model-boundary>
+          <div class="cg-narrative__heading">
+            <p class="cg-kicker">Method and model boundary</p>
+            <h2 id="model-boundary-title">Two projection systems, deliberately not reconciled</h2>
+          </div>
+          <p>The experimental recreation and the explorer answer different questions. The historical recreation preserves the exact values participants saw. The explorer demonstrates a transparent annual model with adjustable assumptions. Applying the explorer formula to the experimental values would silently rewrite the study stimulus, so the two systems stay separate.</p>
+          <div class="cg-model-comparison" role="group" aria-label="Experimental recreation and annual explorer comparison">
+            <article>
+              <p class="cg-page-label">Experimental recreation</p>
+              <h3>Historical stimulus values</h3>
+              <ul>
+                <li>Fixed stored values only</li>
+                <li>No visitor-input recalculation</li>
+                <li>Table and graph show identical nine time points</li>
+                <li>40-year endpoint: $559,461</li>
+              </ul>
+            </article>
+            <article>
+              <p class="cg-page-label">Annual explorer</p>
+              <h3>Separate illustrative model</h3>
+              <ul>
+                <li>Adjustable assumptions</li>
+                <li>Annual compounding</li>
+                <li>Contribution added at each year-end</li>
+                <li>Default 25→65 endpoint: about $531,111</li>
+              </ul>
+            </article>
+          </div>
+          <p class="cg-callout">The different default endpoints are intentional. The experimental recreation uses the original study values; the explorer uses the simplified annual convention shown in its assumptions note.</p>
+        </section>
+
+        <section class="cg-narrative" aria-labelledby="limitations-title" data-limitations>
+          <div class="cg-narrative__heading">
+            <p class="cg-kicker">What this research does not show</p>
+            <h2 id="limitations-title">The boundaries matter as much as the effects.</h2>
+          </div>
+          <div class="cg-limitations">
+            <p><strong>Planned, not actual contributions.</strong> The studies measured hypothetical monthly contribution selections rather than deposits into real accounts.</p>
+            <p><strong>A specific population.</strong> Participants were young adults who had not yet begun investing for retirement; the effects may differ for current investors, older adults, or shorter horizons.</p>
+            <p><strong>A measured pathway.</strong> The mediator variables were measured rather than independently manipulated, so the serial models do not prove the causal order of the intermediate constructs.</p>
+            <p><strong>No universal graph rule.</strong> Experiment 5 left the visual mechanism partly unresolved, and tables can be better suited to exact-value retrieval.</p>
+          </div>
+
+          <details class="cg-details">
+            <summary>Methods and evidence notes</summary>
+            <div class="cg-details__body cg-details__body--columns">
+              <div>
+                <h3>Study progression</h3>
+                <p>Final analytic samples were 295, 141, 97, 182, and 533 across Experiments 1–5. Conditions were randomized within each experiment. Experiments 1–4 compared tables with line graphs; Experiment 5 added proportional area growth cards.</p>
+              </div>
+              <div>
+                <h3>Analysis</h3>
+                <p>Primary models used age-adjusted regression. Later experiments used bootstrap mediation models to examine statistical indirect pathways. Processing fluency was not consistently higher for line graphs, so the findings are not summarized as a general “easier to understand” effect.</p>
+              </div>
+              <div>
+                <h3>Projection scope</h3>
+                <p>The experiments used simplified deterministic retirement projections to isolate representation. Real-world projections can include return uncertainty, fees, taxes, inflation, changing contributions, and financial constraints.</p>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="cg-reflection" aria-labelledby="reflection-title">
+          <p class="cg-kicker">Research judgment</p>
+          <h2 id="reflection-title">The project became stronger each time the next study tested the weak point in the previous one.</h2>
+          <p>What mattered most was not turning one significant comparison into a broad claim. The program moved from an outcome difference, to a confidence distinction, to a direct measure of perceived acceleration, and finally to a visual boundary condition that produced a more qualified conclusion. That sequence shaped how I think about applied research: design the clean comparison, interrogate the mechanism, keep the mixed evidence, and communicate the limit of what the data can support.</p>
+        </section>
+
+        <footer class="cg-source-footer">
+          <p class="cg-page-label">Research source</p>
+          <p><strong>How Line Graphs of Compound Growth Shape Retirement Investing Judgments</strong></p>
+          <p>MSc · Marketing Research & Behavioural Science · University of Ottawa · 2026</p>
+        </footer>
+      </div>
+    </CompoundGrowthInteractionSuite>
+  </article>
+</BaseLayout>

@@ -1,0 +1,345 @@
+<section class="coast-calculator" data-coast-calculator>
+  <header class="tool-heading">
+    <p class="tool-kicker">Interactive planning model</p>
+    <h2>Coast FI calculator</h2>
+    <p>Use one of four modes to compare your portfolio with the Coast threshold, solve for a target-age contribution, estimate a Coast age, or solve for the full retirement-target contribution.</p>
+  </header>
+
+  <form data-coast-form novalidate>
+    <fieldset class="mode-fieldset">
+      <legend>Choose a question</legend>
+      <div class="mode-grid">
+        <div class="mode-option">
+          <input type="radio" id="coast-mode-a" name="coast-mode" value="A" checked />
+          <label for="coast-mode-a"><strong>Where am I now?</strong><span>Compare your portfolio with today's Coast threshold.</span></label>
+        </div>
+        <div class="mode-option">
+          <input type="radio" id="coast-mode-b" name="coast-mode" value="B" />
+          <label for="coast-mode-b"><strong>Coast by age</strong><span>Solve the monthly contribution needed by a target age.</span></label>
+        </div>
+        <div class="mode-option">
+          <input type="radio" id="coast-mode-c" name="coast-mode" value="C" />
+          <label for="coast-mode-c"><strong>When could I Coast?</strong><span>Estimate the first Coast month at a chosen contribution.</span></label>
+        </div>
+        <div class="mode-option">
+          <input type="radio" id="coast-mode-d" name="coast-mode" value="D" />
+          <label for="coast-mode-d"><strong>Retirement target</strong><span>Solve the contribution needed for the full target.</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="workbench">
+      <section class="input-panel" aria-labelledby="coast-inputs-title">
+        <div class="panel-heading">
+          <p class="step-label">01</p>
+          <div>
+            <h3 id="coast-inputs-title">Your assumptions</h3>
+            <p>All money values are in today's dollars.</p>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="coast-current-age">Current age <span>years</span></label>
+            <input id="coast-current-age" name="current-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="30" aria-describedby="coast-current-age-help coast-current-age-error" />
+            <p class="field-help" id="coast-current-age-help">Whole years, 18–100.</p>
+            <p class="field-error" id="coast-current-age-error" data-error-for="current-age" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="coast-retirement-age">Target retirement age <span>years</span></label>
+            <input id="coast-retirement-age" name="retirement-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="65" aria-describedby="coast-retirement-age-help coast-retirement-age-error" />
+            <p class="field-help" id="coast-retirement-age-help">Whole years, 18–100.</p>
+            <p class="field-error" id="coast-retirement-age-error" data-error-for="retirement-age" hidden></p>
+          </div>
+
+          <div class="field field-wide">
+            <label for="coast-current-portfolio">Current invested portfolio <span>CAD</span></label>
+            <div class="input-with-unit input-with-prefix">
+              <span aria-hidden="true">$</span>
+              <input id="coast-current-portfolio" name="current-portfolio" type="number" inputmode="decimal" min="0" step="1000" value="100000" aria-describedby="coast-current-portfolio-help coast-current-portfolio-error" />
+            </div>
+            <p class="field-help" id="coast-current-portfolio-help">Invested assets included in this simplified model.</p>
+            <p class="field-error" id="coast-current-portfolio-error" data-error-for="current-portfolio" hidden></p>
+          </div>
+
+          <div class="field field-wide">
+            <label for="coast-retirement-target">Retirement portfolio target <span>today's dollars</span></label>
+            <div class="input-with-unit input-with-prefix">
+              <span aria-hidden="true">$</span>
+              <input id="coast-retirement-target" name="retirement-target" type="number" inputmode="decimal" min="0.01" step="10000" value="1000000" aria-describedby="coast-retirement-target-help coast-retirement-target-error" />
+            </div>
+            <p class="field-help" id="coast-retirement-target-help">A positive invested-portfolio target, before taxes or fees.</p>
+            <p class="field-error" id="coast-retirement-target-error" data-error-for="retirement-target" hidden></p>
+          </div>
+
+          <div class="field field-wide">
+            <label for="coast-real-return">Expected real annual return <span>after inflation</span></label>
+            <div class="input-with-unit input-with-suffix">
+              <input id="coast-real-return" name="real-return" type="number" inputmode="decimal" max="20" step="0.1" value="5" aria-describedby="coast-real-return-help coast-real-return-error" />
+              <span aria-hidden="true">%</span>
+            </div>
+            <p class="field-help" id="coast-real-return-help">Must be greater than −100% and no more than 20%.</p>
+            <p class="field-error" id="coast-real-return-error" data-error-for="real-return" hidden></p>
+          </div>
+
+          <div class="field field-wide mode-specific" data-mode-b hidden>
+            <label for="coast-target-age">Target Coast age <span>years</span></label>
+            <input id="coast-target-age" name="target-coast-age" type="number" inputmode="numeric" min="18" max="100" step="1" value="45" aria-describedby="coast-target-age-help coast-target-age-error" />
+            <p class="field-help" id="coast-target-age-help">Between your current age and retirement age.</p>
+            <p class="field-error" id="coast-target-age-error" data-error-for="target-coast-age" hidden></p>
+          </div>
+
+          <div class="field field-wide mode-specific" data-mode-c hidden>
+            <label for="coast-monthly-contribution">Monthly contribution <span>today's dollars</span></label>
+            <div class="input-with-unit input-with-prefix">
+              <span aria-hidden="true">$</span>
+              <input id="coast-monthly-contribution" name="monthly-contribution" type="number" inputmode="decimal" min="0" step="25" value="500" aria-describedby="coast-monthly-contribution-help coast-monthly-contribution-error" />
+            </div>
+            <p class="field-help" id="coast-monthly-contribution-help">A constant real contribution made at month-end.</p>
+            <p class="field-error" id="coast-monthly-contribution-error" data-error-for="monthly-contribution" hidden></p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="calculate-button" type="submit">Calculate</button>
+          <button class="reset-button" type="button" data-reset>Reset to example</button>
+        </div>
+      </section>
+
+      <section class="result-panel" aria-labelledby="coast-results-title">
+        <div class="panel-heading">
+          <p class="step-label">02</p>
+          <div>
+            <h3 id="coast-results-title">Projected result</h3>
+            <p data-mode-helper>Compare your current invested portfolio with the Coast threshold implied by your retirement target, age, and real-return assumption.</p>
+          </div>
+        </div>
+
+        <div class="calculation-error" data-calculation-error role="alert" hidden></div>
+        <div data-result-content>
+          <p class="answer-copy" data-answer role="status" aria-live="polite"></p>
+          <div class="primary-result">
+            <span data-primary-label></span>
+            <strong data-primary-value></strong>
+            <small data-primary-note></small>
+          </div>
+          <dl class="metric-grid" data-metrics></dl>
+          <div class="assumption-warning" data-return-warning hidden>
+            <strong>High return assumption</strong>
+            <span>A real return above 10% is an aggressive assumption. Small changes in long-term return assumptions can materially change the result.</span>
+          </div>
+          <p class="assumptions-line" data-assumptions></p>
+        </div>
+      </section>
+    </div>
+  </form>
+
+  <figure class="trajectory" data-chart-figure>
+    <figcaption>
+      <div>
+        <p class="step-label">03</p>
+        <h3>Projected portfolio and Coast threshold</h3>
+      </div>
+      <p data-chart-summary></p>
+    </figcaption>
+
+    <div class="chart-wrap">
+      <svg data-chart viewBox="0 0 760 360" role="img" aria-labelledby="coast-chart-title coast-chart-desc" preserveAspectRatio="xMidYMid meet">
+        <title id="coast-chart-title">Projected portfolio and Coast threshold by age</title>
+        <desc id="coast-chart-desc" data-chart-desc>The chart updates after a valid calculation. Exact selected values are also available in the table below.</desc>
+        <g class="chart-grid" aria-hidden="true">
+          <line data-grid="0" x1="76" x2="730"></line>
+          <line data-grid="1" x1="76" x2="730"></line>
+          <line data-grid="2" x1="76" x2="730"></line>
+        </g>
+        <g class="chart-axis-labels" aria-hidden="true">
+          <text data-y-label="0" x="66" text-anchor="end"></text>
+          <text data-y-label="1" x="66" text-anchor="end"></text>
+          <text data-y-label="2" x="66" text-anchor="end"></text>
+          <text data-x-label="start" y="338" text-anchor="start"></text>
+          <text data-x-label="middle" y="338" text-anchor="middle"></text>
+          <text data-x-label="end" y="338" text-anchor="end"></text>
+        </g>
+        <path class="threshold-path" data-threshold-path d=""></path>
+        <path class="portfolio-path" data-portfolio-path d=""></path>
+        <g data-chart-markers aria-hidden="true"></g>
+      </svg>
+    </div>
+
+    <div class="chart-key" aria-label="Chart series">
+      <span><i class="portfolio-key" aria-hidden="true"></i>Projected portfolio</span>
+      <span><i class="threshold-key" aria-hidden="true"></i>Coast threshold</span>
+    </div>
+    <p class="marker-summary" data-marker-summary></p>
+
+    <details class="projection-table-details">
+      <summary>View selected projection points</summary>
+      <div class="projection-table-wrap">
+        <table>
+          <caption>Selected annual points from the same projection shown in the chart.</caption>
+          <thead><tr><th scope="col">Age</th><th scope="col">Projected portfolio</th><th scope="col">Coast threshold</th></tr></thead>
+          <tbody data-projection-table></tbody>
+        </table>
+      </div>
+    </details>
+  </figure>
+
+  <div class="method-grid">
+    <details>
+      <summary>Assumptions and method</summary>
+      <div class="detail-copy">
+        <p>All values use today's dollars and an expected real annual return. Monthly contributions are treated as constant real contributions made at month-end.</p>
+        <p>The audited calculation engine converts the annual real return to an effective monthly rate, compares projected portfolio values with the Coast threshold on a whole-month grid, and keeps full precision until values are formatted for display.</p>
+        <p>Taxes, fees, account rules, pensions, changing contribution schedules, withdrawals, and market uncertainty are outside this calculator.</p>
+      </div>
+    </details>
+    <aside class="disclaimer" aria-label="Educational disclaimer">
+      <strong>Educational planning model only.</strong>
+      <p>Results are illustrative and depend heavily on the return assumption and future circumstances. The calculator uses today's dollars, a constant real return, and simplified contribution assumptions; it excludes taxes, fees, account rules, and market uncertainty. This is not financial advice.</p>
+    </aside>
+  </div>
+</section>
+
+<script>
+  import '../../scripts/coastFiCalculator';
+</script>
+
+<style>
+  .coast-calculator {
+    max-width: var(--content-main);
+    margin: 2.4rem auto 0;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: 0 0.3rem 1.2rem rgb(19 48 47 / 0.035);
+  }
+  .tool-heading { max-width: 55rem; padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.25rem, 1vw, 0.75rem) 1.5rem; }
+  .tool-kicker, .step-label { margin: 0; color: var(--color-teal); font-size: var(--text-xs); line-height: 1.3; font-weight: 820; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tool-heading h2 { margin: 0.35rem 0 0; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.03; letter-spacing: -0.045em; }
+  .tool-heading > p:last-child { margin: 0.8rem 0 0; color: var(--color-text); max-width: 48rem; }
+
+  .mode-fieldset { margin: 0; padding: 0 0 1.5rem; border: 0; }
+  .mode-fieldset legend { margin-bottom: 0.65rem; color: var(--color-muted); font-size: 0.8rem; font-weight: 760; }
+  .mode-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.55rem; }
+  .mode-option { position: relative; min-width: 0; }
+  .mode-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .mode-option label { min-height: 5.5rem; padding: 0.8rem 0.85rem; display: flex; flex-direction: column; justify-content: center; gap: 0.2rem; border: 1px solid var(--color-line); border-radius: 0.7rem; background: var(--color-canvas); cursor: pointer; }
+  .mode-option label strong { font-size: 0.86rem; line-height: 1.2; }
+  .mode-option label span { color: var(--color-muted); font-size: 0.72rem; line-height: 1.35; }
+  .mode-option input:checked + label { border-color: var(--color-deep-teal); background: var(--color-deep-teal); color: var(--color-on-deep); }
+  .mode-option input:checked + label span { color: var(--color-on-deep-muted); }
+  .mode-option input:focus-visible + label { outline: 3px solid var(--color-focus); outline-offset: 4px; }
+
+  .workbench { display: grid; grid-template-columns: minmax(20rem, 0.82fr) minmax(0, 1.18fr); border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+  .input-panel, .result-panel { min-width: 0; padding: clamp(1.25rem, 2.4vw, 2rem); }
+  .input-panel { border-right: 1px solid var(--color-line); background: var(--color-surface-soft); }
+  .panel-heading { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 0.7rem; align-items: start; margin-bottom: 1.4rem; }
+  .panel-heading .step-label { padding-top: 0.18rem; }
+  .panel-heading h3 { margin: 0; font-size: 1.2rem; line-height: 1.2; letter-spacing: -0.02em; }
+  .panel-heading p:not(.step-label) { margin: 0.3rem 0 0; color: var(--color-muted); font-size: 0.82rem; line-height: 1.45; }
+
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.85rem; }
+  .field-wide { grid-column: 1 / -1; }
+  .field label { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.4rem; margin-bottom: 0.35rem; font-size: 0.78rem; font-weight: 760; }
+  .field label span { color: var(--color-muted); font-size: 0.68rem; font-weight: 650; }
+  .field input { width: 100%; min-height: 2.85rem; padding: 0.65rem 0.75rem; border: 1px solid var(--color-line-strong); border-radius: 0.55rem; background: var(--color-surface); color: var(--color-ink); font: inherit; font-size: 0.92rem; }
+  .field input[aria-invalid='true'] { border-color: #8b3d35; box-shadow: inset 0 0 0 1px #8b3d35; }
+  .input-with-unit { position: relative; }
+  .input-with-unit > span { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; color: var(--color-muted); font-size: 0.84rem; pointer-events: none; }
+  .input-with-prefix > span { left: 0.78rem; }
+  .input-with-prefix input { padding-left: 1.65rem; }
+  .input-with-suffix > span { right: 0.78rem; }
+  .input-with-suffix input { padding-right: 1.65rem; }
+  .field-help, .field-error { margin: 0.32rem 0 0; font-size: 0.68rem; line-height: 1.35; }
+  .field-help { color: var(--color-muted); }
+  .field-error { color: #7a302a; font-weight: 700; }
+  .mode-specific[hidden] { display: none; }
+
+  .form-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.35rem; }
+  .calculate-button, .reset-button { min-height: 2.85rem; border-radius: 0.55rem; padding: 0.68rem 1rem; font: inherit; font-size: 0.8rem; font-weight: 780; cursor: pointer; }
+  .calculate-button { border: 1px solid var(--color-deep-teal); background: var(--color-deep-teal); color: white; }
+  .reset-button { border: 1px solid var(--color-line-strong); background: transparent; color: var(--color-ink); }
+
+  .answer-copy { margin: 0 0 1.15rem; color: var(--color-text); font-size: 0.94rem; line-height: 1.52; }
+  .primary-result { padding: 1rem 0; border-top: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+  .primary-result span { display: block; color: var(--color-muted); font-size: 0.72rem; font-weight: 760; letter-spacing: 0.04em; text-transform: uppercase; }
+  .primary-result strong { display: block; margin-top: 0.25rem; color: var(--color-deep-teal); font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.02; letter-spacing: -0.045em; overflow-wrap: anywhere; }
+  .primary-result small { display: block; margin-top: 0.45rem; color: var(--color-muted); font-size: 0.72rem; }
+  .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 1.1rem 0 0; border-top: 1px solid var(--color-line); border-left: 1px solid var(--color-line); }
+  .metric-grid > :global(div) { min-width: 0; padding: 0.75rem; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+  .metric-grid :global(dt) { color: var(--color-muted); font-size: 0.68rem; line-height: 1.35; }
+  .metric-grid :global(dd) { margin: 0.24rem 0 0; font-size: 0.9rem; line-height: 1.3; font-weight: 760; overflow-wrap: anywhere; }
+  .assumption-warning { margin-top: 1rem; padding: 0.78rem 0.9rem; border-left: 3px solid #9a6d12; background: #faf5e8; color: #5d4517; font-size: 0.75rem; line-height: 1.4; }
+  .assumption-warning strong { display: block; margin-bottom: 0.15rem; }
+  .assumptions-line { margin: 1rem 0 0; color: var(--color-muted); font-size: 0.68rem; line-height: 1.45; }
+  .calculation-error { margin: 0; padding: 0.9rem; border: 1px solid #b78079; background: #fff5f3; color: #6f2f29; font-size: 0.8rem; font-weight: 680; }
+
+  .trajectory { margin: 0; padding: clamp(1.4rem, 2.5vw, 2rem) clamp(0.3rem, 1vw, 0.8rem) 0.7rem; }
+  .trajectory figcaption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem); gap: 1.5rem; align-items: end; padding-inline: clamp(0.2rem, 1vw, 0.7rem); }
+  .trajectory figcaption > div { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 0.7rem; align-items: baseline; }
+  .trajectory h3 { margin: 0; font-size: 1.2rem; letter-spacing: -0.02em; }
+  .trajectory figcaption > p { margin: 0; color: var(--color-muted); font-size: 0.78rem; line-height: 1.45; }
+  .chart-wrap { margin-top: 1.2rem; width: 100%; overflow: hidden; }
+  [data-chart] { display: block; width: 100%; height: auto; min-height: 15rem; }
+  .chart-grid line { stroke: var(--color-line); stroke-width: 1; }
+  .chart-axis-labels text { fill: var(--color-muted); font-size: 11px; font-family: var(--font-sans); }
+  .portfolio-path, .threshold-path { fill: none; vector-effect: non-scaling-stroke; }
+  .portfolio-path { stroke: var(--color-deep-teal); stroke-width: 2.5; }
+  .threshold-path { stroke: var(--color-muted); stroke-width: 2; stroke-dasharray: 7 6; }
+  .chart-key { display: flex; flex-wrap: wrap; gap: 0.75rem 1.2rem; margin: 0.4rem 0 0; color: var(--color-text); font-size: 0.72rem; font-weight: 720; }
+  .chart-key span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .chart-key i { width: 1.8rem; display: inline-block; border-top: 2px solid var(--color-deep-teal); }
+  .chart-key .threshold-key { border-top-color: var(--color-muted); border-top-style: dashed; }
+  .marker-summary { margin: 0.55rem 0 0; color: var(--color-muted); font-size: 0.7rem; }
+  .projection-table-details { margin-top: 0.8rem; border-top: 1px solid var(--color-line); }
+  .projection-table-details summary, .method-grid summary { min-height: 2.75rem; display: flex; align-items: center; cursor: pointer; font-size: 0.76rem; font-weight: 780; }
+  .projection-table-wrap { padding-bottom: 0.4rem; }
+  .projection-table-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.72rem; }
+  .projection-table-wrap caption { text-align: left; padding: 0 0 0.6rem; color: var(--color-muted); font-size: 0.68rem; }
+  .projection-table-wrap :global(th), .projection-table-wrap :global(td) { padding: 0.55rem 0.45rem; border-bottom: 1px solid var(--color-line); text-align: right; overflow-wrap: anywhere; }
+  .projection-table-wrap :global(th:first-child) { text-align: left; }
+  .projection-table-wrap :global(thead th) { color: var(--color-muted); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .method-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 1rem; margin-top: 1rem; }
+  .method-grid > details, .disclaimer { padding: 0.85rem 1rem; border: 1px solid var(--color-line); border-radius: 0.7rem; background: var(--color-canvas); }
+  .detail-copy { padding-bottom: 0.4rem; color: var(--color-text); font-size: 0.75rem; line-height: 1.5; }
+  .detail-copy p { margin: 0 0 0.65rem; }
+  .disclaimer { background: var(--color-surface-soft); }
+  .disclaimer strong { font-size: 0.78rem; }
+  .disclaimer p { margin: 0.3rem 0 0; color: var(--color-text); font-size: 0.72rem; line-height: 1.48; }
+
+  @media (max-width: 56rem) {
+    .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mode-option label { min-height: 4.9rem; }
+    .workbench { grid-template-columns: 1fr; }
+    .input-panel { border-right: 0; border-bottom: 1px solid var(--color-line); }
+    .trajectory figcaption { grid-template-columns: 1fr; gap: 0.55rem; }
+  }
+
+  @media (max-width: 35rem) {
+    .coast-calculator { margin-top: 1.5rem; padding: 0.75rem; border-radius: 0.9rem; }
+    .tool-heading { padding-inline: 0.35rem; }
+    .tool-heading h2 { font-size: 2rem; }
+    .mode-grid { gap: 0.45rem; }
+    .mode-option label { min-height: 5.7rem; padding: 0.65rem; }
+    .mode-option label strong { font-size: 0.78rem; }
+    .mode-option label span { font-size: 0.66rem; }
+    .input-panel, .result-panel { padding: 1.05rem 0.65rem; }
+    .field-grid { grid-template-columns: 1fr; }
+    .field-wide { grid-column: auto; }
+    .metric-grid { grid-template-columns: 1fr; }
+    .trajectory { padding-inline: 0.2rem; }
+    [data-chart] { min-height: 12rem; }
+    .chart-axis-labels text { font-size: 10px; }
+    .chart-key { gap: 0.55rem 0.8rem; }
+    .method-grid { grid-template-columns: 1fr; }
+    .projection-table-wrap table { font-size: 0.66rem; }
+    .projection-table-wrap :global(th), .projection-table-wrap :global(td) { padding-inline: 0.3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mode-option label, .calculate-button, .reset-button { transition: none; }
+  }
+</style>
