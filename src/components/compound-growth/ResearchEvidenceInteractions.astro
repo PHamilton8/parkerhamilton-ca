@@ -1,8 +1,6 @@
 ---
-import { experiment4Results, experimentSummary } from '../../data/compound-growth/fixedExperimentalData';
+import { experiment4Results } from '../../data/compound-growth/fixedExperimentalData';
 
-type Study = { number: number; ultra_short_label: string; one_sentence: string };
-type StudySummary = { experiments: Study[] };
 type ConditionResult = { mean: number; sd: number };
 type PublicResult = { line_graph: ConditionResult; table: ConditionResult; effect_b: number; p: string; d: number };
 type Experiment4Data = {
@@ -13,18 +11,19 @@ type Experiment4Data = {
     retirement_goal_achievability: PublicResult;
     planned_retirement_contributions_cad_per_month: PublicResult;
   };
-  serial_mediation: { causal_language_warning: string };
 };
 
-const studies = (experimentSummary as unknown as StudySummary).experiments;
 const experiment4 = experiment4Results as unknown as Experiment4Data;
 const results = experiment4.public_facing_results;
 const formatCad = (value: number) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
-const studyAnswers = studies.map((study) => ({
-  ...study,
-  answer: study.number === 4 ? 'A significant serial indirect effect was consistent with the proposed pathway.' : study.one_sentence,
-}));
+const studies = [
+  { number: 1, question: 'Does display change achievability?', answer: 'Line-graph presentation increased retirement-goal achievability.' },
+  { number: 2, question: 'Does it change planned contributions?', answer: 'Line graphs increased achievability and planned monthly retirement contributions.' },
+  { number: 3, question: 'Which confidence changes?', answer: "Line graphs increased confidence in investment growth, but not confidence in participants' ability to contribute." },
+  { number: 4, question: 'Does perceived acceleration help explain it?', answer: 'Line graphs increased perceived compound-growth acceleration, and the results were statistically consistent with the proposed pathway.' },
+  { number: 5, question: 'What part of the visual representation matters?', answer: 'The line graph again exceeded the table on perceived acceleration, but the area-card condition left the exact visual mechanism unresolved.' },
+] as const;
 
 const resultRows = [
   { id:'egr', label:'Estimated Growth Ratio', table:results.estimated_growth_ratio.table.mean, graph:results.estimated_growth_ratio.line_graph.mean, tableSd:results.estimated_growth_ratio.table.sd, graphSd:results.estimated_growth_ratio.line_graph.sd, max:experiment4.estimated_growth_task.interpretation.correct_value, unit:'ratio', effect:`b = ${results.estimated_growth_ratio.effect_b.toFixed(2)}, p ${results.estimated_growth_ratio.p}, d = ${results.estimated_growth_ratio.d.toFixed(2)}`, reference:experiment4.estimated_growth_task.interpretation.correct_value, currency:false },
@@ -34,10 +33,32 @@ const resultRows = [
 ] as const;
 ---
 
+<section class="cg-module" aria-labelledby="study-title" data-study-progression>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Five experiments</p><h2 id="study-title">How the five studies built on each other</h2></div>
+  </div>
+  <ol class="cg-study-list">
+    {studies.map((study) => (
+      <li><article class="cg-study" tabindex="0" data-study-card><span class="cg-study__number" aria-hidden="true">{String(study.number).padStart(2,'0')}</span><div><h3>Experiment {study.number}: {study.question}</h3><p>{study.answer}</p></div></article></li>
+    ))}
+  </ol>
+</section>
+
+<section class="cg-module" aria-labelledby="experiment-four-context-title" data-experiment-four-context>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Experiment 4</p><h2 id="experiment-four-context-title">Measuring perceived compound-growth acceleration</h2></div>
+  </div>
+  <div class="cg-two-column">
+    <div>
+      <p>Experiment 4 randomly assigned participants aged 24–30 to see the same $100-per-month retirement projection as either a numerical table or line graph. The study added the Estimated Growth Ratio, a measure designed to capture whether participants perceived the later increase in growth as larger than the earlier increase.</p>
+    </div>
+  </div>
+</section>
+
 <section class="cg-module" aria-labelledby="egr-title" data-egr-explainer>
   <div class="cg-module__heading">
-    <div><p class="cg-kicker">Perceived acceleration</p><h2 id="egr-title">Two gains, one ratio</h2></div>
-    <p>Estimated Growth Ratio compares how much larger the later perceived gain is than the earlier one.</p>
+    <div><p class="cg-kicker">Measure</p><h2 id="egr-title">How perceived acceleration was measured</h2></div>
+    <p>The Estimated Growth Ratio compares the later increase in perceived growth with the earlier increase.</p>
   </div>
   <div class="cg-switch cg-switch--plain" aria-label="Estimated Growth Ratio example">
     <button type="button" data-egr-preset="equal-gains" aria-pressed="false">Equal gains</button>
@@ -55,29 +76,15 @@ const resultRows = [
       <div class="cg-egr__gain"><span>Later gain</span><strong data-egr-later>27.8 − 10.3 = 17.5</strong></div>
     </div>
     <div class="cg-egr__result" aria-live="polite">
-      <span>Estimated Growth Ratio</span><strong data-egr-ratio>2.61</strong><p data-egr-interpretation>2.61 = the normative ratio for the experimental projection.</p>
+      <span>Estimated Growth Ratio</span><strong data-egr-ratio>2.61</strong><p data-egr-interpretation>2.61 = the correct ratio for the experimental projection.</p>
     </div>
   </div>
   <p class="cg-persistent-note">Values above 1 indicate that the later gain is perceived as larger than the earlier gain.</p>
-  <p class="cg-source-note" data-egr-source>This preset uses the correct growth estimates from the experimental projection; it is not a participant mean.</p>
-</section>
-
-<section class="cg-module" aria-labelledby="study-title" data-study-progression>
-  <div class="cg-module__heading">
-    <div><p class="cg-kicker">Five experiments</p><h2 id="study-title">How the research question narrowed</h2></div>
-    <p>Each experiment tested a different part of the proposed account. The fifth study did not establish a unique connected-line mechanism.</p>
-  </div>
-  <ol class="cg-study-list">
-    {studyAnswers.map((study) => (
-      <li><article class="cg-study" tabindex="0" data-study-card><span class="cg-study__number" aria-hidden="true">{String(study.number).padStart(2,'0')}</span><div><h3>Experiment {study.number}: {study.ultra_short_label}</h3><p>{study.answer}</p></div></article></li>
-    ))}
-  </ol>
 </section>
 
 <section class="cg-module" aria-labelledby="results-title" data-experiment-four>
   <div class="cg-module__heading">
-    <div><p class="cg-kicker">Experiment 4 · aggregate results</p><h2 id="results-title">The main group differences</h2></div>
-    <p>Presentation condition was randomized. The mediators and planned contributions were measured; the statistical sequence does not independently establish their causal ordering.</p>
+    <div><p class="cg-kicker">Experiment 4 results</p><h2 id="results-title">What changed?</h2></div>
   </div>
   <div class="cg-result-list">
     {resultRows.map((result) => (
@@ -93,14 +100,59 @@ const resultRows = [
     ))}
   </div>
   <div class="cg-result-detail" id="experiment-four-detail" aria-live="polite">Focus or tap a condition marker for its mean, standard deviation, and comparison statistic.</div>
+
+  <div class="cg-pathway" aria-label="Proposed statistical pathway">
+    <div class="cg-pathway__step cg-pathway__step--randomized"><strong>Line graph presentation</strong></div>
+    <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+    <div class="cg-pathway__step"><strong>greater perceived compound growth acceleration</strong></div>
+    <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+    <div class="cg-pathway__step"><strong>stronger confidence in investment growth</strong></div>
+    <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+    <div class="cg-pathway__step"><strong>retirement feels more achievable</strong></div>
+    <span class="cg-pathway__arrow" aria-hidden="true">→</span>
+    <div class="cg-pathway__step"><strong>higher planned contributions</strong></div>
+  </div>
+  <div class="cg-narrative__heading cg-pathway-heading"><h2>How the results fit together</h2></div>
+  <p class="cg-callout">The results were largely statistically consistent with this pathway: Line graph presentation → greater perceived compound growth acceleration → stronger confidence in investment growth → retirement feels more achievable → higher planned contributions</p>
+  <details class="cg-details">
+    <summary>Experiment 4 statistical detail</summary>
+    <div class="cg-details__body">
+      <p>Presentation → Estimated Growth Ratio: b = 0.38, p = .04. Estimated Growth Ratio → growth confidence: b = 2.26, p = .048. Growth confidence → retirement-goal achievability: b = 0.68, p &lt; .001. Achievability → planned contributions: b = 0.90, p = .03.</p>
+      <p>The complete serial indirect effect was b = 0.53, 95% BCa CI [0.04, 2.40]. The conditional direct effect on planned contributions was not significant after the measured pathway variables were included (b = 19.10, p = .32).</p>
+    </div>
+  </details>
+</section>
+
+<section class="cg-module" aria-labelledby="experiment-five-title" data-experiment-five-boundary>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Experiment 5</p><h2 id="experiment-five-title">Testing the visual mechanism</h2></div>
+  </div>
+  <div class="cg-two-column">
+    <div>
+      <p>The final experiment added proportional area cards, which represented changing magnitude visually without connecting the values with a line. The line graph again produced a higher Estimated Growth Ratio than the table, but it did not significantly differ from the area cards.</p>
+      <p><strong>That narrowed the explanation, but did not show that the connected line itself was uniquely responsible.</strong></p>
+    </div>
+  </div>
+</section>
+
+<section class="cg-module" aria-labelledby="implications-title" data-implications>
+  <div class="cg-module__heading">
+    <div><p class="cg-kicker">Implications</p><h2 id="implications-title">What this could mean for retirement tools</h2></div>
+  </div>
+  <div class="cg-implications">
+    <article><h3>Exact values</h3><p>Tables are useful when someone needs to find or compare precise values.</p></article>
+    <article><h3>Growth patterns</h3><p>Line graphs can make changes in growth over time more apparent.</p></article>
+    <article><h3>Using both</h3><p>Showing exact values and a visual trajectory may support different tasks better than treating the formats as interchangeable.</p></article>
+  </div>
+  <p class="cg-source-note">The experiments measured retirement judgments and planned contributions, not actual deposits or realized investing behaviour.</p>
 </section>
 
 <script>
   const egrRoot = document.querySelector<HTMLElement>('[data-egr-explainer]');
   if (egrRoot) {
     const presets = {
-      'equal-gains': { year20:3.6, year30:10.3, year40:17, ratio:'1.00', interpretation:'1.00 = equal perceived gains across the two intervals.', source:'Illustrative equal-gains example — not participant data.' },
-      'experimental-projection': { year20:3.6, year30:10.3, year40:27.8, ratio:'2.61', interpretation:'2.61 = the normative ratio for the experimental projection.', source:'This preset uses the correct growth estimates from the experimental projection; it is not a participant mean.' },
+      'equal-gains': { year20:3.6, year30:10.3, year40:17, ratio:'1.00', interpretation:'1.00 = equal perceived gains across the two intervals.' },
+      'experimental-projection': { year20:3.6, year30:10.3, year40:27.8, ratio:'2.61', interpretation:'2.61 = the correct ratio for the experimental projection.' },
     } as const;
     const buttons = Array.from(egrRoot.querySelectorAll<HTMLButtonElement>('[data-egr-preset]'));
     const render = (id: keyof typeof presets) => {
@@ -108,7 +160,7 @@ const resultRows = [
       const set=(selector:string,value:string)=>{const node=egrRoot.querySelector<HTMLElement>(selector);if(node)node.textContent=value;};
       set('[data-egr-year20]',`${preset.year20.toFixed(1)}×`); set('[data-egr-year30]',`${preset.year30.toFixed(1)}×`); set('[data-egr-year40]',`${preset.year40.toFixed(1)}×`);
       set('[data-egr-earlier]',`${preset.year30.toFixed(1)} − ${preset.year20.toFixed(1)} = ${earlier.toFixed(1)}`); set('[data-egr-later]',`${preset.year40.toFixed(1)} − ${preset.year30.toFixed(1)} = ${later.toFixed(1)}`);
-      set('[data-egr-ratio]',preset.ratio); set('[data-egr-interpretation]',preset.interpretation); set('[data-egr-source]',preset.source);
+      set('[data-egr-ratio]',preset.ratio); set('[data-egr-interpretation]',preset.interpretation);
       buttons.forEach((button)=>button.setAttribute('aria-pressed',button.dataset.egrPreset===id?'true':'false'));
     };
     buttons.forEach((button)=>button.addEventListener('click',()=>render(button.dataset.egrPreset as keyof typeof presets)));
@@ -132,3 +184,7 @@ const resultRows = [
     document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&selected){selected.classList.remove('is-selected');selected=null;}});
   }
 </script>
+
+<style>
+  .cg-pathway-heading { margin-top: 2rem; }
+</style>
