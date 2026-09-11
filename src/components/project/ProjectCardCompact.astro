@@ -4,28 +4,16 @@ import ProjectMetadata from './ProjectMetadata.astro';
 interface Props { project: Project }
 const { project } = Astro.props;
 const mediaPath = `/assets/projects/${project.slug}/${project.mediaKind === 'reporting' ? 'workflow' : project.mediaKind}.svg`;
-const notes: Record<Project['mediaKind'], string> = {
-  thesis: '',
-  'design-day': '',
-  askwill: '',
-  grocery: 'Live data → rules → structured weekly output.',
-  reporting: 'Synthetic public visual; confidential workplace data is excluded.',
-  smith: 'Educational model view; no personal financial inputs are shown.',
-  coast: 'Conceptual public preview; private assumptions are removed.',
-};
 ---
 <article class="project-card secondary-card">
   <div class="project-meta">
     <span class="project-number">{project.number}</span>
-    <span class="project-kicker">{project.kicker}</span>
   </div>
   <h3>{project.title}</h3>
   <p class="project-premise">{project.premise}</p>
   <ProjectMetadata tags={project.tags} />
   <figure class="secondary-visual">
     <img src={mediaPath} alt="" loading="lazy" />
-    <figcaption class="sr-only">{notes[project.mediaKind]}</figcaption>
   </figure>
-  <p class="visual-note">{notes[project.mediaKind]}</p>
   <a class="project-link" href={project.route}><span>Case study</span><span aria-hidden="true">↗</span></a>
 </article>
