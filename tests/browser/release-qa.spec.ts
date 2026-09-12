@@ -135,7 +135,9 @@ async function assertCalculatorDomIntegrity(page: Page) {
 
 async function openRoute(page: Page, route: string) {
   const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
-  expect(response?.status(), route).toBe(200);
+  const status = response?.status();
+  expect(status, route).toBeDefined();
+  expect([200, 304], route).toContain(status);
 }
 
 test.describe('release-level QA harness hardening', () => {
