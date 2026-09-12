@@ -19,7 +19,12 @@
     "test:engines": "node --experimental-strip-types --test tests/compound-growth.test.ts tests/coast-fi-invariants.test.ts && node --experimental-strip-types tests/coast-fi-v2-runner.ts tests/fixtures/coast-fi/coast-fi-test-cases-v2.json && node tests/run-smith-manoeuvre-tests.cjs",
     "test:browser": "playwright test",
     "qa:contrast": "python tests/contrast_check.py",
-    "public-safety": "node scripts/public-safety-scan.mjs"
+    "public-safety": "node scripts/public-safety-scan.mjs",
+    "release:build": "npm run check && npm test && npm run public-safety && npm run build && npm run infra:validate-dist",
+    "infra:validate": "node scripts/validate-cloudflare-infra.mjs",
+    "infra:validate-dist": "node scripts/validate-release-dist.mjs",
+    "infra:dry-run": "wrangler deploy --dry-run --outdir .wrangler-dry-run",
+    "infra:preview-dry-run": "wrangler versions upload --dry-run"
   },
   "dependencies": {
     "astro": "7.2.8"
@@ -28,6 +33,7 @@
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.63.0",
     "@types/node": "24.10.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "wrangler": "4.131.1"
   }
 }
