@@ -1,0 +1,3 @@
+# ParkerHamilton.ca site-path redirects only.
+# Intentionally empty during release-infrastructure preparation.
+# Domain-level HTTP -> HTTPS and www -> apex redirects belong in Cloudflare zone Redirect Rules at launch.
