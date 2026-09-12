@@ -43,14 +43,19 @@ jobs:
       - run: npm run release:build
       - run: npm run infra:validate
       - name: Wrangler assets-only deploy dry-run
-        run: npm run infra:dry-run
+        shell: bash
+        run: |
+          mkdir -p .wrangler-dry-run
+          npm run infra:dry-run 2>&1 | tee .wrangler-dry-run/deploy-dry-run.log
       - name: Wrangler version-upload dry-run
-        run: npm run infra:preview-dry-run
+        shell: bash
+        run: |
+          npm run infra:preview-dry-run 2>&1 | tee .wrangler-dry-run/version-upload-dry-run.log
       - name: Preserve Wrangler dry-run output
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cloudflare-wrangler-dry-run-${{ github.sha }}
           path: .wrangler-dry-run/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
