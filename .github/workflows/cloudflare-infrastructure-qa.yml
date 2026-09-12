@@ -1,0 +1,56 @@
+name: cloudflare-infrastructure-qa
+
+on:
+  push:
+    branches: ['prep/cloudflare-workers-release-infra-v1']
+    paths:
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/validate-cloudflare-infra.mjs'
+      - 'scripts/validate-release-dist.mjs'
+      - 'public/_headers'
+      - 'public/_redirects'
+      - '.github/workflows/cloudflare-*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - name: Recompute package-lock without running package scripts
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Preserve the computed lockfile for bootstrap/review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-infra-lockfile-${{ github.sha }}
+          path: package-lock.json
+          retention-days: 7
+      - name: Assert committed lockfile is deterministic and current
+        run: git diff --exit-code -- package-lock.json
+      - run: npm ci
+      - run: npm run release:build
+      - run: npm run infra:validate
+      - name: Wrangler assets-only deploy dry-run
+        run: npm run infra:dry-run
+      - name: Wrangler version-upload dry-run
+        run: npm run infra:preview-dry-run
+      - name: Preserve Wrangler dry-run output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cloudflare-wrangler-dry-run-${{ github.sha }}
+          path: .wrangler-dry-run/
+          if-no-files-found: warn
+          retention-days: 7
