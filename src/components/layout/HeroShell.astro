@@ -15,11 +15,23 @@ import CathedralMonument from '../visualization/CathedralMonument.astro';
 
 <style>
   .hero-monument-zone {
-    padding: clamp(0.35rem, 1.2vw, 1rem);
+    height: 27.5rem;
+    aspect-ratio: auto;
+    padding: 0;
     background: #f4f5f2;
   }
 
   .hero-monument-zone::before {
     content: none;
+  }
+
+  @media (max-width: 51.25rem) {
+    .hero-monument-zone { height: 16.25rem; }
+  }
+
+  @media (max-width: 35rem) {
+    .hero-monument-zone {
+      height: 10.75rem;
+    }
   }
 </style>
