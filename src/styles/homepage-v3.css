@@ -1,0 +1,862 @@
+/* Homepage V3 — final owner-approved Prompt 66 Current state.
+   This file is imported by / only, so these exact visual overrides do not change case-study routes. */
+
+body {
+  min-width: 0;
+  background: #f3f5f4;
+  color: #0f2026;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Homepage header/footer framing visible in the approved Current state. */
+.site-header,
+.site-footer-inner {
+  width: min(calc(100% - 40px), 1400px);
+  max-width: none;
+  margin-inline: auto;
+}
+
+.site-header {
+  padding: 18px 0;
+  gap: 1.5rem;
+}
+.site-header .wordmark {
+  min-height: 0;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.site-header .site-nav {
+  gap: 32px;
+}
+.site-header .site-nav a {
+  min-height: 0;
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 600;
+}
+
+/* HERO */
+.home-page .hero {
+  width: min(calc(100% - 40px), 1400px);
+  max-width: 1400px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 54px 30px 54px 32px;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.88fr);
+  gap: 44px;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 82% 18%, rgb(17 125 115 / 0.18), transparent 28%),
+    linear-gradient(90deg, #084b46 0%, #053e39 48%, #084b46 100%);
+  color: #f6faf9;
+}
+.home-page .hero-copy {
+  max-width: none;
+  padding: 8px 6px 8px 10px;
+}
+.home-page .hero h1 {
+  max-width: 8.8ch;
+  margin: 0;
+  color: #f6faf9;
+  font-size: 92px;
+  line-height: 0.95;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.home-page .hero h1 .h1-line { display: inline; }
+.home-page .hero-lede {
+  max-width: 35rem;
+  margin: 34px 0 0;
+  color: rgb(246 250 249 / 0.94);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.home-page .credential {
+  margin: 28px 0 0;
+  color: rgb(246 250 249 / 0.92);
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.home-page .hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 52px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(247 251 250 / 0.4);
+  color: #f7fbfa;
+  font-size: 15px;
+  line-height: normal;
+  font-weight: 700;
+  text-decoration: none;
+}
+/* Preserve the separately owner-approved Cathedral component itself; only size its stage to Current. */
+.home-page .hero-visual-zone {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  justify-self: stretch;
+}
+
+/* SHARED HOMEPAGE SECTIONS */
+.home-page .work-section,
+.home-page .more-section,
+.home-page .about-section,
+.home-page .contact-band {
+  width: min(calc(100% - 40px), 1400px);
+  max-width: 1400px;
+  margin-inline: auto;
+}
+.home-page .work-section,
+.home-page .more-section {
+  padding: 0;
+  margin-top: 84px;
+}
+.home-page .section-heading {
+  display: block;
+  margin: 0 0 28px;
+}
+.home-page .section-heading h2 {
+  margin: 0;
+  color: #0f2026;
+  font-size: 62px;
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.home-page .featured-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.home-page .secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* CARD FOUNDATION */
+.home-page .project-card {
+  position: relative;
+  min-height: 100%;
+  background: #f8faf9;
+  border: 1px solid #d2dcdd;
+  border-radius: 24px;
+  color: #0f2026;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.home-page .featured-card[data-kind='askwill'] { background: #eef4f5; }
+.home-page .project-card:hover {
+  border-color: #afbec0;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(17 36 40 / 0.06);
+}
+.home-page .project-meta {
+  display: block;
+  margin: 0;
+}
+.home-page .project-number {
+  color: #168d8a;
+  font-size: 12px;
+  line-height: normal;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.home-page .project-card h3 {
+  margin: 0;
+  color: #0f2026;
+  font-size: 22px;
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+.home-page .project-premise {
+  margin: 0;
+  color: #4c6168;
+  font-size: 15px;
+  line-height: 1.58;
+}
+.home-page .project-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: #4c6168;
+  font-size: 12px;
+  line-height: normal;
+  font-weight: 700;
+  list-style: none;
+}
+.home-page .project-metadata li {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+.home-page .project-metadata li:not(:last-child)::after {
+  content: '·';
+  margin-left: 10px;
+  color: #8b999d;
+  font-weight: 600;
+}
+.home-page .project-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid #d2dcdd;
+  color: #0f2026;
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 700;
+  text-decoration: none;
+}
+.home-page .project-link span:last-child {
+  color: #0d6a65;
+  font-size: 24px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+/* FEATURED PROJECTS — desktop equal-row composition and final media framing. */
+.home-page .featured-card {
+  min-height: 0;
+  padding: 30px 24px 20px;
+  display: grid;
+  grid-template-rows: 1.2rem 3.2rem 4.9rem 2.7rem 20.5rem auto;
+  row-gap: 14px;
+  align-items: start;
+}
+.home-page .featured-card > .project-meta,
+.home-page .featured-card > h3,
+.home-page .featured-card > .project-premise,
+.home-page .featured-card > .project-metadata,
+.home-page .featured-card > .project-media,
+.home-page .featured-card > .project-link {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.home-page .featured-card .project-media {
+  width: min(100%, 24.1rem);
+  height: 20.5rem;
+  min-height: 20.5rem;
+  min-width: 0;
+  margin-inline: auto;
+  align-self: stretch;
+  overflow: visible;
+}
+.home-page .featured-card .project-link { align-self: end; }
+
+/* Compound Growth Homepage-only media: approved polished table + clean graph. */
+.home-page .compound-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: 380 / 325;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #edf3f1;
+}
+.home-page .compound-media figure {
+  position: absolute;
+  margin: 0;
+  transform-origin: center;
+}
+.home-page .compound-media .table-figure {
+  z-index: 1;
+  left: 0.5%;
+  top: -0.5%;
+  width: 82%;
+  transform: rotate(-0.7deg);
+}
+.home-page .compound-media .graph-figure {
+  z-index: 2;
+  right: 0.5%;
+  bottom: 5%;
+  width: 80%;
+  transform: rotate(0.8deg);
+}
+.home-page .compound-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  aspect-ratio: 1672 / 941;
+  object-fit: contain;
+  object-position: center;
+  border: 1px solid #c7d1cf;
+  border-radius: 12px;
+  background: #f7f3e9;
+  box-shadow: 0 6px 14px rgb(13 38 41 / 0.09);
+}
+
+/* Design Day: keep the owner-approved native 384:323 media proportion. */
+.home-page .design-day-media {
+  width: 100%;
+  height: auto;
+  max-height: 20.5rem;
+  aspect-ratio: 384 / 323;
+  margin: 0;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #eef3f4;
+}
+.home-page .design-day-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* AskWill: exact approved desktop screenshot, cropped only from the right. */
+.home-page .askwill-composition {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.home-page .askwill-browser {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #bcc9cb;
+  border-radius: 14px;
+  background: #f8faf9;
+  box-shadow: 0 5px 16px rgb(16 36 40 / 0.05);
+}
+.home-page .askwill-browser .browser-bar {
+  height: 1.85rem;
+  padding: 0 0.58rem;
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
+  border-bottom: 1px solid #d2dcdd;
+  background: #f6f8f7;
+}
+.home-page .askwill-browser .browser-bar i {
+  width: 0.36rem;
+  height: 0.36rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #c3cecc;
+}
+.home-page .askwill-browser .browser-bar span {
+  margin-left: 0.35rem;
+  color: #6d7d83;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.home-page .askwill-browser > img {
+  display: block;
+  width: 100%;
+  height: calc(100% - 1.85rem);
+  min-height: 0;
+  object-fit: cover;
+  object-position: left top;
+}
+
+/* MORE WORK */
+.home-page .secondary-card {
+  min-height: 0;
+  padding: 24px 22px 16px;
+  display: grid;
+  grid-template-rows: 1rem 3.25rem 5.8rem 2.5rem 9.125rem auto;
+  row-gap: 10px;
+  align-items: start;
+}
+.home-page .secondary-card > .project-meta,
+.home-page .secondary-card > h3,
+.home-page .secondary-card > .project-premise,
+.home-page .secondary-card > .project-metadata,
+.home-page .secondary-card > .secondary-visual,
+.home-page .secondary-card > .project-link {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.home-page .secondary-card .secondary-visual {
+  width: 100%;
+  height: 9.125rem;
+  min-height: 9.125rem;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #eef3f4;
+}
+.home-page .secondary-card .secondary-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.home-page .secondary-card .project-link { align-self: end; }
+
+/* ABOUT */
+.home-page .about-section {
+  margin-top: 72px;
+  padding: 72px 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 24px;
+  align-items: start;
+  border-top: 1px solid #d2dcdd;
+}
+.home-page .about-statement h2 {
+  max-width: none;
+  margin: 19.92px 0;
+  color: #0f2026;
+  font-size: 24px;
+  line-height: normal;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+.home-page .about-copy {
+  max-width: 34rem;
+  margin-top: 4px;
+  justify-self: end;
+  color: #284047;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.home-page .about-copy p { margin: 0; }
+
+/* CONTACT BAND — exact Current state: horizontal through tablet, stacked on mobile. */
+.home-page .contact-band {
+  margin-top: 42px;
+  margin-bottom: 0;
+  padding: 42px 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'eyebrow actions' 'title actions';
+  column-gap: 28px;
+  row-gap: 16px;
+  align-items: center;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #0a4f4a 0%, #084843 100%);
+  color: #f8fbfa;
+}
+.home-page .contact-band > .eyebrow {
+  grid-area: eyebrow;
+  margin: 0;
+  color: #9fd1ca;
+  font-size: 12px;
+  line-height: normal;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.home-page .contact-band > h2 {
+  grid-area: title;
+  margin: 0;
+  max-width: none;
+  color: #f8fbfa;
+  font-size: 74px;
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.home-page .contact-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+}
+.home-page .contact-action,
+.home-page .contact-action.primary {
+  min-width: 126px;
+  min-height: 44px;
+  padding: 11px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #f4f7f4;
+  color: #0a4f4a;
+  box-shadow: none;
+  font-size: 15px;
+  line-height: normal;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.home-page .contact-action:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  color: #073f3b;
+}
+.home-page .contact-action span:last-child {
+  color: currentColor;
+  font-size: 22px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.site-footer {
+  padding: 30px 0 46px;
+}
+.site-footer-inner {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  color: #6d7d83;
+  font-size: 12px;
+  line-height: normal;
+}
+
+@media (max-width: 1180px) {
+  .home-page .hero h1 { font-size: 80px; }
+  .home-page .contact-band > h2 { font-size: 64px; }
+}
+
+@media (max-width: 980px) {
+  .site-header .site-nav { gap: 20px; }
+  .site-header .site-nav a { font-size: 12px; }
+
+  .home-page .hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 24px 18px 20px;
+    border-radius: 22px;
+  }
+  .home-page .hero-copy { padding: 0 2px; }
+  .home-page .hero h1 {
+    max-width: none;
+    font-size: 54px;
+    line-height: 0.98;
+  }
+  .home-page .hero-lede {
+    max-width: 38rem;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  .home-page .credential {
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .home-page .hero-link {
+    margin-top: 18px;
+    padding-bottom: 7px;
+    font-size: 12px;
+  }
+  .home-page .hero-visual-zone {
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .home-page .hero-monument-zone {
+    height: 16.25rem !important;
+  }
+
+  .home-page .work-section,
+  .home-page .more-section {
+    margin-top: 28px;
+  }
+  .home-page .section-heading { margin-bottom: 18px; }
+  .home-page .section-heading h2 {
+    font-size: 30px;
+    letter-spacing: -0.045em;
+  }
+
+  .home-page .featured-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .home-page .featured-card {
+    width: min(100%, 650px);
+    min-height: 0;
+    padding: 18px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+  }
+  .home-page .project-number { font-size: 10px; }
+  .home-page .featured-card .project-meta { margin-bottom: 12px; }
+  .home-page .featured-card h3 { font-size: 20px; }
+  .home-page .featured-card .project-premise {
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .home-page .featured-card .project-metadata {
+    margin-top: 12px;
+    font-size: 10px;
+  }
+  .home-page .featured-card .project-media {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin-top: 18px;
+    align-self: center;
+  }
+  .home-page .featured-card .compound-media {
+    width: 82%;
+    height: auto;
+    margin-inline: auto;
+    aspect-ratio: 380 / 325;
+  }
+  .home-page .design-day-media {
+    width: 100%;
+    max-height: none;
+    aspect-ratio: 384 / 323;
+  }
+  .home-page .askwill-composition {
+    width: 82%;
+    height: auto;
+    margin-inline: auto;
+    aspect-ratio: 386 / 328;
+  }
+  .home-page .askwill-browser {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 386 / 328;
+  }
+  .home-page .featured-card .project-link {
+    width: 100%;
+    margin-top: 0;
+    padding-top: 10px;
+    font-size: 10px;
+  }
+  .home-page .featured-card .project-link span:last-child { font-size: 18px; }
+
+  .home-page .secondary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .home-page .secondary-card {
+    min-height: 0;
+    padding: 14px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 14px;
+  }
+  .home-page .secondary-card .project-meta { margin: 0 0 10px; }
+  .home-page .secondary-card h3 { font-size: 20px; }
+  .home-page .secondary-card .project-premise {
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .home-page .secondary-card .project-metadata {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+  .home-page .secondary-card .secondary-visual {
+    width: 100%;
+    height: 7.5rem;
+    min-height: 7.5rem;
+    margin-top: 14px;
+    padding: 0;
+  }
+  .home-page .secondary-card .project-link {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 10px;
+  }
+  .home-page .secondary-card .project-link span:last-child { font-size: 18px; }
+
+  .home-page .about-section {
+    margin-top: 46px;
+    padding: 36px 12px 0;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .home-page .about-copy {
+    width: 100%;
+    max-width: 34rem;
+    margin-top: 0;
+    justify-self: start;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .home-page .contact-band {
+    margin-top: 28px;
+    padding: 18px 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'eyebrow actions' 'title actions';
+    row-gap: 10px;
+    align-items: center;
+    border-radius: 16px;
+  }
+  .home-page .contact-band > .eyebrow {
+    margin: 0;
+    font-size: 10px;
+  }
+  .home-page .contact-band > h2 { font-size: 28px; }
+  .home-page .contact-action,
+  .home-page .contact-action.primary {
+    min-width: 126px;
+    min-height: 44px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 11px;
+  }
+  .home-page .contact-action span:last-child { font-size: 16px; }
+
+  .site-footer { padding: 16px 0 28px; }
+  .site-footer-inner { font-size: 8px; }
+}
+
+@media (max-width: 480px) {
+  .site-header,
+  .site-footer-inner,
+  .home-page .hero,
+  .home-page .work-section,
+  .home-page .more-section,
+  .home-page .about-section,
+  .home-page .contact-band {
+    width: calc(100% - 16px);
+  }
+
+  .site-header { padding: 10px 0; }
+  .site-header .wordmark { font-size: 8px; }
+  .site-header .site-nav { gap: 10px; }
+  .site-header .site-nav a { font-size: 8px; }
+
+  .home-page .hero {
+    gap: 14px;
+    padding: 16px 12px;
+    border-radius: 16px;
+  }
+  .home-page .hero h1 {
+    max-width: 15rem;
+    font-size: clamp(2.75rem, 12.5vw, 3.05rem);
+    line-height: 0.98;
+    letter-spacing: -0.052em;
+  }
+  .home-page .hero h1 .h1-line {
+    display: block;
+    white-space: nowrap;
+  }
+  .home-page .hero-lede {
+    width: 100%;
+    max-width: 15rem;
+    margin-top: 14px;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .home-page .credential {
+    margin-top: 16px;
+    font-size: 8px;
+  }
+  .home-page .hero-link {
+    margin-top: 16px;
+    padding-bottom: 7px;
+    font-size: 9px;
+  }
+  .home-page .hero-monument-zone {
+    height: 10.75rem !important;
+  }
+
+  .home-page .work-section,
+  .home-page .more-section {
+    margin-top: 24px;
+  }
+  .home-page .section-heading { margin-bottom: 14px; }
+  .home-page .section-heading h2 { font-size: 21px; }
+
+  .home-page .featured-grid,
+  .home-page .secondary-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-page .featured-card {
+    width: 100%;
+  }
+  .home-page .featured-card h3 { font-size: 18px; }
+  .home-page .featured-card .project-premise { font-size: 10px; }
+  .home-page .featured-card .project-metadata {
+    gap: 4px 0;
+    font-size: 8px;
+  }
+  .home-page .featured-card .project-metadata li { margin-right: 8px; }
+  .home-page .featured-card .project-metadata li:not(:last-child)::after { margin-left: 8px; }
+  .home-page .featured-card .project-media { margin-top: 16px; }
+  .home-page .featured-card .compound-media { width: 100%; }
+  .home-page .compound-media .table-figure { left: 0; width: 83%; }
+  .home-page .compound-media .graph-figure { right: 0; bottom: 5%; width: 81%; }
+  .home-page .askwill-composition { width: 100%; }
+
+  .home-page .secondary-card h3 { font-size: 20px; }
+  .home-page .secondary-card .project-premise {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+  .home-page .secondary-card .project-metadata {
+    margin-top: 12px;
+    gap: 4px 0;
+    font-size: 8px;
+  }
+  .home-page .secondary-card .project-metadata li { margin-right: 8px; }
+  .home-page .secondary-card .project-metadata li:not(:last-child)::after { margin-left: 8px; }
+  .home-page .secondary-card .secondary-visual {
+    height: auto;
+    min-height: 108px;
+    margin-top: 18px;
+    aspect-ratio: 580 / 292;
+  }
+
+  .home-page .about-section {
+    margin-top: 28px;
+    padding: 28px 12px 0;
+  }
+  .home-page .about-statement h2 {
+    margin: 19.92px 0;
+    font-size: 24px;
+  }
+  .home-page .about-copy {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  .home-page .contact-band {
+    margin-top: 18px;
+    padding: 18px 16px;
+    grid-template-columns: 1fr;
+    grid-template-areas: 'eyebrow' 'title' 'actions';
+    row-gap: 0;
+    align-items: start;
+  }
+  .home-page .contact-band > .eyebrow {
+    margin: 0 0 10px;
+    font-size: 10px;
+  }
+  .home-page .contact-band > h2 { font-size: 18px; }
+  .home-page .contact-actions { width: auto; margin-top: 28px; }
+  .home-page .contact-action,
+  .home-page .contact-action.primary {
+    width: 118px;
+    min-width: 118px;
+    min-height: 44px;
+    padding: 10px 13px;
+    border-radius: 11px;
+  }
+
+  .site-footer-inner {
+    flex-direction: row;
+    gap: 16px;
+    font-size: 6px;
+  }
+}

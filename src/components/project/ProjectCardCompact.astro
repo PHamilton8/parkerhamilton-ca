@@ -4,14 +4,21 @@ import ProjectMetadata from './ProjectMetadata.astro';
 interface Props { project: Project }
 const { project } = Astro.props;
 const mediaPath = `/assets/projects/${project.slug}/${project.mediaKind === 'reporting' ? 'workflow' : project.mediaKind}.svg`;
+const homepageTitle = project.slug === 'coast-fi' ? 'Coast FI Calculator' : project.title;
+const homepagePremise = project.slug === 'coast-fi'
+  ? "A planning model that connects today's savings, future contributions, and investment growth to retirement targets."
+  : project.premise;
+const homepageTags = (project.slug === 'smith-manoeuvre' || project.slug === 'coast-fi')
+  ? project.tags.filter((tag) => tag !== 'Builds and Systems')
+  : project.tags;
 ---
 <article class="project-card secondary-card">
   <div class="project-meta">
     <span class="project-number">{project.number}</span>
   </div>
-  <h3>{project.title}</h3>
-  <p class="project-premise">{project.premise}</p>
-  <ProjectMetadata tags={project.tags} />
+  <h3>{homepageTitle}</h3>
+  <p class="project-premise">{homepagePremise}</p>
+  <ProjectMetadata tags={homepageTags} />
   <figure class="secondary-visual">
     <img src={mediaPath} alt="" loading="lazy" />
   </figure>

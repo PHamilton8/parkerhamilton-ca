@@ -3,36 +3,39 @@ import type { Project } from '../../data/projects';
 import ProjectMetadata from './ProjectMetadata.astro';
 interface Props { project: Project }
 const { project } = Astro.props;
+const homepagePremise = project.slug === 'askwill'
+  ? 'A website rethink for a family-run water-service business, covering structure, content, SEO, and QA.'
+  : project.premise;
 ---
 <article class="project-card featured-card" data-kind={project.mediaKind}>
   <div class="project-meta">
     <span class="project-number">{project.number}</span>
   </div>
   <h3>{project.title}</h3>
-  <p class="project-premise">{project.premise}</p>
+  <p class="project-premise">{homepagePremise}</p>
   <ProjectMetadata tags={project.tags} />
   <div class="project-media">
     {project.mediaKind === 'thesis' && (
-      <div class="thesis-layered" aria-label="The same compound-growth projection shown as a numerical table and a line graph.">
+      <div class="thesis-layered compound-media" aria-label="The same compound-growth projection shown as a numerical table and a line graph.">
         <figure class="table-figure">
-          <img src="/assets/projects/compound-growth/table.webp" alt="Numerical table showing a 40-year compound-growth projection." loading="lazy" />
+          <img src="/assets/projects/compound-growth/homepage-table-v3.webp" alt="Polished numerical table showing the 40-year compound-growth projection." loading="lazy" />
         </figure>
         <figure class="graph-figure">
-          <img src="/assets/projects/compound-growth/graph.webp" alt="Line graph showing the same 40-year compound-growth projection." loading="lazy" />
+          <img src="/assets/projects/compound-growth/homepage-graph-v3.webp" alt="Clean line graph showing the same 40-year compound-growth projection." loading="lazy" />
         </figure>
       </div>
     )}
     {project.mediaKind === 'design-day' && (
-      <figure class="photo-frame">
+      <figure class="photo-frame design-day-media">
         <img src="/assets/projects/design-day/final-circular-instrument.webp" alt="Circular light-based electronic musical instrument prototype on a workbench." loading="lazy" />
       </figure>
     )}
     {project.mediaKind === 'askwill' && (
-      <div class="askwill-composition" aria-label="AskWill mobile screenshot.">
-        <div class="browser-frame">
+      <div class="askwill-composition" aria-label="AskWill desktop homepage preview.">
+        <figure class="browser-frame askwill-browser">
           <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>askwill.ca</span></div>
-          <img src="/assets/projects/askwill/home-mobile.webp" alt="AskWill mobile homepage screenshot." loading="lazy" />
-        </div>
+          <img src="/assets/projects/askwill/homepage-v3.webp" alt="AskWill homepage with the Water Problems? Ask Will hero and water-service navigation." loading="lazy" />
+        </figure>
       </div>
     )}
   </div>
