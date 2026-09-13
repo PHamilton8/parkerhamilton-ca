@@ -1,10 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" role="img" aria-labelledby="t d">
-<title id="t">Coast FI and net worth planning curve</title><desc id="d">A conceptual investment portfolio curve rising over time and crossing a dashed Coast FI threshold before retirement.</desc>
-<rect width="700" height="360" rx="28" fill="#F1F4EE"/>
-<g font-family="Arial,Helvetica,sans-serif"><text x="42" y="52" font-size="18" font-weight="700" fill="#182125">LONG-HORIZON PLANNING</text><text x="42" y="78" font-size="13" fill="#56615B">Conceptual curve — private assumptions removed</text></g>
-<line x1="64" y1="282" x2="650" y2="282" stroke="#AAB4AE" stroke-width="1.5"/><line x1="64" y1="112" x2="64" y2="282" stroke="#AAB4AE" stroke-width="1.5"/>
-<line x1="64" y1="202" x2="650" y2="202" stroke="#788B82" stroke-width="2" stroke-dasharray="7 7"/><text x="510" y="190" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">COAST THRESHOLD</text>
-<path d="M70 270 C160 260 230 248 300 222 C375 194 428 158 482 127 C535 96 586 78 644 65" fill="none" stroke="#0A7774" stroke-width="5" stroke-linecap="round"/>
-<circle cx="355" cy="202" r="7" fill="#fff" stroke="#0A7774" stroke-width="4"/><line x1="355" y1="202" x2="355" y2="282" stroke="#0A7774" stroke-width="1.5" stroke-dasharray="4 5"/><text x="321" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">COAST POINT</text>
-<text x="64" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">NOW</text><text x="586" y="309" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56615B">RETIREMENT</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 292" role="img" aria-labelledby="coast-fi-thumb-title coast-fi-thumb-desc" preserveAspectRatio="xMidYMid meet">
+<title id="coast-fi-thumb-title">Coast FI exponential curve thumbnail</title><desc id="coast-fi-thumb-desc">A simple exponential compounding curve beginning at Today, passing a Coast point near the middle, and ending at Goal near the top. It is an editorial planning cue, not a guaranteed outcome or account-specific projection.</desc>
+<rect width="580" height="292" fill="#eef3f4"/>
+
+<g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <path d="M70 246H510" stroke="#d2dcdd" stroke-width="2"/>
+  <path d="M 70.00,220.00 L 75.50,219.58 L 81.00,219.14 L 86.50,218.69 L 92.00,218.23 L 97.50,217.75 L 103.00,217.25 L 108.50,216.74 L 114.00,216.20 L 119.50,215.65 L 125.00,215.08 L 130.50,214.49 L 136.00,213.88 L 141.50,213.25 L 147.00,212.60 L 152.50,211.93 L 158.00,211.23 L 163.50,210.51 L 169.00,209.76 L 174.50,208.99 L 180.00,208.19 L 185.50,207.37 L 191.00,206.51 L 196.50,205.63 L 202.00,204.72 L 207.50,203.77 L 213.00,202.79 L 218.50,201.78 L 224.00,200.74 L 229.50,199.65 L 235.00,198.54 L 240.50,197.38 L 246.00,196.18 L 251.50,194.94 L 257.00,193.66 L 262.50,192.34 L 268.00,190.97 L 273.50,189.55 L 279.00,188.09 L 284.50,186.57 L 290.00,185.00 L 295.50,183.38 L 301.00,181.70 L 306.50,179.97 L 312.00,178.17 L 317.50,176.32 L 323.00,174.40 L 328.50,172.41 L 334.00,170.36 L 339.50,168.23 L 345.00,166.04 L 350.50,163.76 L 356.00,161.41 L 361.50,158.98 L 367.00,156.47 L 372.50,153.86 L 378.00,151.17 L 383.50,148.39 L 389.00,145.51 L 394.50,142.53 L 400.00,139.46 L 405.50,136.27 L 411.00,132.98 L 416.50,129.57 L 422.00,126.04 L 427.50,122.40 L 433.00,118.63 L 438.50,114.73 L 444.00,110.69 L 449.50,106.52 L 455.00,102.20 L 460.50,97.74 L 466.00,93.12 L 471.50,88.35 L 477.00,83.41 L 482.50,78.30 L 488.00,73.02 L 493.50,67.55 L 499.00,61.90 L 504.50,56.05 L 510.00,50.00" fill="none" stroke="#0d6a65" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M298.8 206.4V246" stroke="#0d6a65" stroke-width="2.5" stroke-dasharray="5 7" opacity=".85"/>
+  <circle cx="70" cy="220" r="25" fill="#f8faf9" stroke="#0f2026" stroke-width="3"/>
+  <text x="70" y="225" text-anchor="middle" font-size="14" font-weight="800" fill="#0f2026">TODAY</text>
+  <circle cx="298.8" cy="182.4" r="27" fill="#0d6a65"/>
+  <text x="298.8" y="187.4" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">COAST</text>
+  <circle cx="510" cy="50" r="25" fill="#f8faf9" stroke="#0f2026" stroke-width="3"/>
+  <text x="510" y="55" text-anchor="middle" font-size="14" font-weight="800" fill="#0f2026">GOAL</text>
+</g>
 </svg>

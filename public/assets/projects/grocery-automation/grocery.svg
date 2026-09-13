@@ -1,20 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" role="img" aria-labelledby="t d">
-<title id="t">Weekly grocery planning automation</title><desc id="d">A four stage pipeline from flyer data to structured deals, planning rules, and an Excel-ready weekly menu and grocery list.</desc>
-<rect width="700" height="360" rx="28" fill="#EAF5F3"/>
-<g font-family="Arial,Helvetica,sans-serif" fill="#112124">
- <text x="42" y="52" font-size="20" font-weight="700">WEEKLY PLANNING PIPELINE</text>
- <text x="42" y="78" font-size="13" fill="#506064">Live sale data → rules → usable output</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 292" role="img" aria-labelledby="grocery-automation-thumb-title grocery-automation-thumb-desc" preserveAspectRatio="xMidYMid meet">
+<title id="grocery-automation-thumb-title">Grocery automation thumbnail</title><desc id="grocery-automation-thumb-desc">A simplified three-step diagram showing JSON, planning rules, and menu output. It reflects the real grocery automation pipeline without implying live pricing, cheapest-basket optimization, ordering, or savings.</desc>
+<rect width="580" height="292" fill="#eef3f4"/>
+
+<g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <g transform="translate(56 70)">
+    <rect x="0" y="0" width="118" height="118" rx="14" fill="#f8faf9" stroke="#bfcacc" stroke-width="2"/>
+    <text x="59" y="55" text-anchor="middle" font-size="48" font-weight="500" fill="#0d6a65">{ }</text>
+    <text x="59" y="95" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">JSON</text>
+  </g>
+  <path d="M190 129H219" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round"/>
+  <path d="M211 120L221 129L211 138" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(238 70)">
+    <rect x="0" y="0" width="118" height="118" rx="14" fill="#e3eeec" stroke="#0d6a65" stroke-width="2"/>
+    <g transform="translate(28 23)" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round">
+      <circle cx="6" cy="8" r="4" fill="#0d6a65" stroke="none"/><path d="M18 8H62"/>
+      <circle cx="6" cy="28" r="4" fill="#0d6a65" stroke="none"/><path d="M18 28H55"/>
+      <circle cx="6" cy="48" r="4" fill="#0d6a65" stroke="none"/><path d="M18 48H60"/>
+    </g>
+    <text x="59" y="95" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">RULES</text>
+  </g>
+  <path d="M372 129H401" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round"/>
+  <path d="M393 120L403 129L393 138" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(420 70)">
+    <rect x="0" y="0" width="118" height="118" rx="14" fill="#f8faf9" stroke="#bfcacc" stroke-width="2"/>
+    <g transform="translate(28 21)" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="31" cy="27" r="23"/>
+      <path d="M0 5V49M8 5V23M0 22H8M62 5V49M62 5C51 12 52 28 62 31"/>
+    </g>
+    <text x="59" y="95" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">MENU</text>
+  </g>
 </g>
-<g stroke="#0A7774" stroke-width="2" fill="#F9FBFA">
- <rect x="42" y="124" width="130" height="112" rx="16"/><rect x="205" y="124" width="130" height="112" rx="16"/><rect x="368" y="124" width="130" height="112" rx="16"/><rect x="531" y="124" width="130" height="112" rx="16"/>
-</g>
-<g font-family="Arial,Helvetica,sans-serif" fill="#112124" text-anchor="middle">
- <text x="107" y="162" font-size="14" font-weight="700">FLYER DATA</text><text x="107" y="188" font-size="12">items + prices</text><text x="107" y="210" font-size="12">by store</text>
- <text x="270" y="162" font-size="14" font-weight="700">STRUCTURE</text><text x="270" y="188" font-size="12">clean + group</text><text x="270" y="210" font-size="12">candidate deals</text>
- <text x="433" y="162" font-size="14" font-weight="700">HOUSE RULES</text><text x="433" y="188" font-size="12">preferences</text><text x="433" y="210" font-size="12">exclusions + pantry</text>
- <text x="596" y="162" font-size="14" font-weight="700">OUTPUT</text><text x="596" y="188" font-size="12">menu + list</text><text x="596" y="210" font-size="12">Excel-ready</text>
-</g>
-<g stroke="#0A7774" stroke-width="2" fill="none" stroke-linecap="round"><path d="M177 180h20"/><path d="M340 180h20"/><path d="M503 180h20"/></g>
-<g fill="#0A7774"><path d="M197 180l-8-5v10z"/><path d="M360 180l-8-5v10z"/><path d="M523 180l-8-5v10z"/></g>
-<g font-family="Arial,Helvetica,sans-serif" fill="#506064" font-size="12"><text x="42" y="292">Human review stays in the loop before purchasing.</text></g>
 </svg>
