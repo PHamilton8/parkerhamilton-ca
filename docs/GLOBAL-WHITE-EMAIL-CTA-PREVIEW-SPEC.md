@@ -1,12 +1,18 @@
-# Global White Email CTA — Preview Spec
+# Global Homepage-Style ContactBand + White Email CTA — Preview Spec
 
-Authority: Parker's global owner decision of 2026-09-13, using the final owner-approved Homepage V3 ContactBand Email treatment as the site-wide standard. Homepage owner-approval record: Drive `1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28`.
+Authority: Parker's global owner decision of 2026-09-13, clarified after visual QA: every ParkerHamilton.ca route must use the complete final owner-approved Homepage V3 ContactBand treatment, not merely its white Email button. Homepage owner-approval record: Drive `1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28`.
 
 Canonical implementation source: `src/components/layout/ContactBand.astro`.
 
+## Global rule
+
+All routes use the same shared ContactBand as the Homepage. Do not retain the older tall case-study ContactBand on non-Homepage routes. At desktop and tablet widths the band is short and horizontal, with `CONTACT` and `Have a question?` on the left and the white Email CTA on the right. At mobile it stacks exactly as the Homepage does.
+
+This is a shared/global normalization only. It does not reopen any route-specific page design, copy, calculator, research, graph, or workbook decision.
+
 ## Required markup and behavior
 
-- Use the shared ContactBand Email anchor with class `contact-email-action`.
+- Use the shared ContactBand component.
 - Visible treatment remains `Email ↗`.
 - Render the arrow as the canonical inline SVG `.contact-email-arrow`; do not render the arrow as a separate text/glyph chip or give it its own background, border, radius, shadow, or transformed painted box.
 - Keep the arrow SVG `aria-hidden="true"` and `focusable="false"`, so the accessible name remains `Email`.
@@ -14,7 +20,50 @@ Canonical implementation source: `src/components/layout/ContactBand.astro`.
 - Do not emit the legacy `contact-action primary` classes for the ContactBand Email CTA.
 - Do not show a green/teal filled Email button as an alternative state or route variant.
 
-## Canonical visual treatment
+## Canonical ContactBand layout
+
+Desktop / wider than 980px:
+
+```css
+width: min(calc(100% - 40px), 1400px);
+max-width: 1400px;
+margin: 42px auto 0;
+padding: 42px 36px;
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+grid-template-areas: 'eyebrow actions' 'title actions';
+column-gap: 28px;
+row-gap: 16px;
+align-items: center;
+border-radius: 26px;
+background: linear-gradient(180deg, #0a4f4a 0%, #084843 100%);
+color: #f8fbfa;
+```
+
+Desktop typography:
+- Eyebrow: `12px`, weight `800`, letter-spacing `0.16em`, color `#9fd1ca`.
+- Heading: `74px`, line-height `0.98`, weight `800`, letter-spacing `-0.055em`, color `#f8fbfa`.
+- At 1180px and below, heading becomes `64px`.
+
+Tablet / 980px and below:
+- Preserve the same horizontal left-copy/right-CTA composition.
+- `margin-top: 28px`.
+- `padding: 18px 16px`.
+- `row-gap: 10px`.
+- `border-radius: 16px`.
+- Eyebrow `10px`.
+- Heading `28px`.
+
+Mobile / 480px and below:
+- Band width `calc(100% - 16px)`.
+- `margin-top: 18px`.
+- `padding: 18px 16px`.
+- Stack in this order: eyebrow, heading, actions.
+- Eyebrow bottom margin `10px`.
+- Heading `18px`.
+- Actions begin `28px` below the heading.
+
+## Canonical Email CTA
 
 Desktop / wider than 980px:
 
@@ -37,7 +86,6 @@ line-height: normal;
 font-weight: 700;
 text-decoration: none;
 white-space: nowrap;
-transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 ```
 
 Arrow at desktop: a single transparent 15×15px inline SVG, `flex: 0 0 15px`, using a 1.8px `currentColor` stroke with round caps/joins. The SVG itself must have `background: transparent`, `border: 0`, `border-radius: 0`, and `box-shadow: none`. It must remain fully inside the Email button's single rounded white box.
@@ -52,6 +100,6 @@ Keyboard focus remains the site's existing global `:focus-visible` treatment: a 
 
 ## Standalone-preview rule
 
-Standalone route previews must copy this Email CTA treatment exactly even when the rest of the route preview predates the global decision. Keep the route's governing ContactBand layout, copy, spacing, and other visual decisions unchanged; normalize only the Email CTA. An older green Email button in a standalone preview is stale evidence, not an alternative owner-approved state.
+Standalone route previews must copy the complete Homepage-style ContactBand exactly even when the rest of the route preview predates this global decision. An older tall ContactBand or green Email button in a standalone preview is stale evidence, not an alternative owner-approved state.
 
-At minimum, preview specialists must check 1440px, 820px, and 390px widths, confirm the visible `Email ↗` treatment is contained within one uninterrupted white rounded rectangle, confirm there is no arrow chip/protrusion/extra white border, confirm the accessible name is `Email`, confirm the mailto target is preserved, and confirm keyboard focus remains visible.
+At minimum, preview specialists must check 1440px, 820px, and 390px widths on Home, Design Day, Reporting Workflow, Grocery Automation, AskWill, Coast FI, Compound Growth, and Smith Manoeuvre. Confirm that all eight ContactBands share the same geometry at each width; the Email CTA is one uninterrupted white rounded rectangle; the arrow stays contained; the accessible name is `Email`; the mailto target is preserved; and keyboard focus remains visible.
