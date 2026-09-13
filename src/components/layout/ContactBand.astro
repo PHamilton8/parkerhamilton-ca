@@ -5,7 +5,12 @@ import { site } from '../../data/site';
   <p class="eyebrow">Contact</p>
   <h2 id="contact-title">Have a question?</h2>
   <div class="contact-actions">
-    <a class="contact-email-action" href={`mailto:${site.email}`}><span>Email</span><span aria-hidden="true">↗</span></a>
+    <a class="contact-email-action" href={`mailto:${site.email}`}>
+      <span>Email</span>
+      <svg class="contact-email-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M4.75 11.25 11.25 4.75M6.25 4.75h5v5" />
+      </svg>
+    </a>
   </div>
 </section>
 
@@ -19,6 +24,7 @@ import { site } from '../../data/site';
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    overflow: hidden;
     border: 0;
     border-radius: 12px;
     background: #f4f7f4;
@@ -38,11 +44,28 @@ import { site } from '../../data/site';
     color: #073f3b;
   }
 
-  .contact-email-action span:last-child {
+  .contact-email-arrow {
+    display: block;
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     color: currentColor;
-    font-size: 22px;
-    line-height: 1;
-    transform: translateY(-1px);
+  }
+
+  .contact-email-arrow path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
   }
 
   @media (max-width: 980px) {
@@ -54,8 +77,10 @@ import { site } from '../../data/site';
       font-size: 11px;
     }
 
-    .contact-email-action span:last-child {
-      font-size: 16px;
+    .contact-email-arrow {
+      width: 12px;
+      height: 12px;
+      flex-basis: 12px;
     }
   }
 
