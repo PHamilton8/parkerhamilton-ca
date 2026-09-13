@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "base": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "candidateTimestamp": "REPLACE_WITH_FIXED_ISO_8601_TIMESTAMP",
+  "homepage": "REPLACE_WITH_FINAL_HOMEPAGE_TIP_SHA_OR_NULL",
+  "reporting": "REPLACE_WITH_FINAL_REPORTING_TIP_SHA_OR_NULL",
+  "designDay": null,
+  "askWill": null,
+  "grocery": null,
+  "coast": null,
+  "compound": null,
+  "smith": null,
+  "qaHarness": "REPLACE_WITH_FINAL_QA_HARNESS_TIP_SHA_OR_NULL",
+  "releaseInfra": "REPLACE_WITH_FINAL_RELEASE_INFRA_TIP_SHA_OR_NULL",
+  "authorities": {
+    "homepage": ["REPLACE_WITH_DURABLE_OWNER_AUTHORITY_ID"],
+    "reporting": ["REPLACE_WITH_DURABLE_OWNER_AUTHORITY_ID"],
+    "designDay": [],
+    "askWill": [],
+    "grocery": [],
+    "coast": [],
+    "compound": [],
+    "smith": []
+  },
+  "execution": {
+    "authorizedIntegrationBranch": "integration/final-rc-v1"
+  }
+}

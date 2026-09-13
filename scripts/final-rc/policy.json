@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "repository": "PHamilton8/parkerhamilton-ca",
+  "authorizedBase": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "integrationBranchPrefix": "integration/",
+  "forbiddenIntegrationBranches": [
+    "main",
+    "master",
+    "production",
+    "integration/copy-locked-visual-review-v1",
+    "prep/final-rc-assembler-v1"
+  ],
+  "laneOrder": [
+    "homepage",
+    "reporting",
+    "designDay",
+    "askWill",
+    "grocery",
+    "coast",
+    "compound",
+    "smith",
+    "qaHarness",
+    "releaseInfra"
+  ],
+  "globalFrozen": [
+    "src/lib/cathedralMonument.ts",
+    "src/lib/calculators/coastFi.ts",
+    "public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx",
+    "src/data/compound-growth/**",
+    "src/lib/calculators/compoundGrowth.ts",
+    "src/lib/calculators/smithManoeuvre.ts",
+    "public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx",
+    "tests/fixtures/**",
+    "scripts/public-safety-scan.mjs"
+  ],
+  "lanes": {
+    "homepage": {
+      "label": "Homepage / shared owner-approved V3",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28"],
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/index.astro",
+        "src/components/layout/HeroShell.astro",
+        "src/components/project/ProjectCardFeatured.astro",
+        "src/components/project/ProjectCardCompact.astro",
+        "src/components/visualization/CathedralMonument.astro",
+        "src/data/hero/final-config.json",
+        "src/styles/global.css",
+        "src/styles/homepage-v3.css",
+        "public/assets/projects/compound-growth/table.webp",
+        "public/assets/projects/compound-growth/graph.webp",
+        "public/assets/projects/compound-growth/homepage-*.webp",
+        "public/assets/projects/askwill/homepage-*.webp",
+        "public/assets/projects/smith-manoeuvre/smith.svg",
+        "public/assets/projects/reporting-workflow/workflow.svg",
+        "public/assets/projects/coast-fi/coast.svg",
+        "public/assets/projects/grocery-automation/grocery.svg"
+      ],
+      "denied": [
+        "src/lib/cathedralMonument.ts",
+        "src/pages/work/**"
+      ]
+    },
+    "reporting": {
+      "label": "Reporting Workflow V3",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"],
+      "testProfile": "source",
+      "allowed": ["src/pages/work/reporting-workflow.astro"],
+      "denied": ["tests/**", "src/styles/global.css", "src/data/projects.ts"]
+    },
+    "designDay": {
+      "label": "Design Day conditional route",
+      "requiresAuthority": true,
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/design-day.astro",
+        "public/assets/projects/design-day/**"
+      ],
+      "denied": ["tests/**", "src/styles/global.css", "src/data/projects.ts"]
+    },
+    "askWill": {
+      "label": "AskWill conditional route",
+      "requiresAuthority": true,
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/askwill.astro",
+        "src/styles/askwill.css",
+        "public/assets/projects/askwill/**"
+      ],
+      "denied": [
+        "tests/**",
+        "src/styles/global.css",
+        "src/data/projects.ts",
+        "public/assets/projects/askwill/homepage-*.webp"
+      ]
+    },
+    "grocery": {
+      "label": "Grocery Automation conditional route",
+      "requiresAuthority": true,
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/grocery-automation.astro",
+        "src/data/grocery-demo.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/styles/global.css",
+        "src/data/projects.ts",
+        "public/assets/projects/grocery-automation/grocery.svg"
+      ]
+    },
+    "coast": {
+      "label": "Coast FI conditional page lane",
+      "requiresAuthority": true,
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/coast-fi.astro",
+        "src/components/calculators/CoastFiCalculator.astro",
+        "src/scripts/coastFiCalculator.ts",
+        "src/types/coast-fi-root.d.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/lib/calculators/coastFi.ts",
+        "public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "compound": {
+      "label": "Compound Growth conditional route",
+      "requiresAuthority": true,
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/compound-growth.astro",
+        "src/components/compound-growth/**",
+        "src/styles/compound-growth.css",
+        "src/styles/compound-growth-page.css"
+      ],
+      "denied": [
+        "tests/**",
+        "src/data/compound-growth/**",
+        "src/lib/calculators/compoundGrowth.ts",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "smith": {
+      "label": "Smith Manoeuvre conditional route",
+      "requiresAuthority": true,
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/smith-manoeuvre.astro",
+        "src/components/calculators/SmithManoeuvreCalculator.astro",
+        "src/components/calculators/SmithManoeuvreCalculatorBase.astro",
+        "src/lib/calculators/smithManoeuvreView.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/lib/calculators/smithManoeuvre.ts",
+        "public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "qaHarness": {
+      "label": "Final shared QA harness",
+      "requiresAuthority": false,
+      "testProfile": "qa",
+      "allowed": [
+        "tests/browser/**",
+        "tests/source-contract.test.mjs",
+        "tests/route-contract.test.mjs",
+        "tests/contrast_check.py"
+      ],
+      "denied": [
+        "tests/fixtures/**",
+        "src/**",
+        "public/downloads/**",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "releaseInfra": {
+      "label": "Release infrastructure",
+      "requiresAuthority": false,
+      "testProfile": "infra",
+      "allowed": [
+        ".github/workflows/cloudflare-infrastructure-qa.yml",
+        ".github/workflows/cloudflare-preview.yml",
+        ".github/workflows/cloudflare-production-release.yml",
+        "package.json",
+        "package-lock.json",
+        "public/_headers",
+        "public/_redirects",
+        "scripts/validate-cloudflare-infra.mjs",
+        "scripts/validate-release-dist.mjs",
+        "wrangler.jsonc"
+      ],
+      "denied": [
+        "src/**",
+        "tests/**",
+        "scripts/public-safety-scan.mjs",
+        "public/downloads/**"
+      ]
+    }
+  }
+}
