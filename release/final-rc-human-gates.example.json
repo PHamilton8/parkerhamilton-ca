@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "designDayAudioReview": {
+    "status": "PASS",
+    "evidence": "Replace with the durable Drive ID / review record proving the required beginning-to-end human audio listen was completed.",
+    "reviewedAt": "YYYY-MM-DDTHH:MM:SSZ"
+  }
+}
