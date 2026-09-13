@@ -141,16 +141,16 @@ DRY-RUN does the real local assembly and test sequence; it differs from EXECUTE 
 
 ## Expected future manifest
 
-Copy `scripts/final-rc/manifest.template.json` to an operator-owned final manifest and replace every placeholder only after owner decisions are durable. `null` is a valid explicit choice for a route that remains excluded from the RC. Do not “fill in” a conditional lane from a specialist recommendation.
+Copy `scripts/final-rc/manifest.template.json` to an operator-owned manifest **outside the repository checkout**, for example `../parkerhamilton-final-rc-manifest.json`, and replace every placeholder only after owner decisions are durable. `null` is a valid explicit choice for a route that remains excluded from the RC. Do not “fill in” a conditional lane from a specialist recommendation.
 
 `qaHarness` and `releaseInfra` can be supplied as exact tips. The currently known prepared inputs are `e62fc9002080cf876b5365bfa460b4e094f3f8ca` and `9034eae2e072eefb14c33fee94c5b20dc94579ed`, respectively, but the operator should use the final validated tips at assembly time rather than assume those historical values remain current.
 
 ## Exact final operator command
 
-After all owner decisions are complete and `scripts/final-rc/final-manifest.json` contains the final explicit SHAs and durable authority IDs, Parker can run exactly:
+After all owner decisions are complete and `../parkerhamilton-final-rc-manifest.json` contains the final explicit SHAs and durable authority IDs, Parker can run exactly:
 
 ```bash
-node scripts/final-rc/assemble.mjs --manifest scripts/final-rc/final-manifest.json --mode EXECUTE --integration-branch integration/final-rc-v1 --output-dir ../parkerhamilton-final-rc-output
+node scripts/final-rc/assemble.mjs --manifest ../parkerhamilton-final-rc-manifest.json --mode EXECUTE --integration-branch integration/final-rc-v1 --output-dir ../parkerhamilton-final-rc-output
 ```
 
 The manifest must also set `execution.authorizedIntegrationBranch` to exactly `integration/final-rc-v1`. If it does not, EXECUTE fails before assembly.
