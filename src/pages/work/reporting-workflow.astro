@@ -6,6 +6,9 @@ import { projects } from '../../data/projects';
 const project = projects.find((item) => item.slug === 'reporting-workflow');
 if (!project) throw new Error('Reporting Workflow project data is unavailable.');
 
+const problemTitle = 'Too much repeated work';
+const problemTitleLines = problemTitle.split(/ (?=repeated)/);
+
 const stages = [
   {
     label: '1. Select',
@@ -39,53 +42,78 @@ const stages = [
       <p class="reporting-label">Excel/VBA · Internal reporting</p>
       <h1>Automating a Reporting Workflow</h1>
       <div class="reporting-result" aria-label="Report preparation reduced from 45 plus minutes to less than 10 minutes">
-        <strong>45+ min <span aria-hidden="true">→</span> &lt; 10 min</strong>
+        <strong>45+ min<span class="reporting-result-arrow" aria-hidden="true">→</span>&lt; 10 min</strong>
         <div class="reporting-result-copy"><p>Recurring report preparation time.</p><p>Built for and used by a 12-person team.</p></div>
       </div>
       <p class="reporting-lede">I redesigned a repetitive internal reporting process around structured lookup, auto-populated fields, reusable text, and user-triggered preparation actions.</p>
     </header>
 
-    <section class="reporting-section reporting-demo" aria-labelledby="demo-title">
-      <div class="reporting-heading">
-        <p class="eyebrow">Demo</p>
-        <h2 id="demo-title">How the workflow worked</h2>
+    <section class="reporting-section reporting-problem" aria-labelledby="problem-title">
+      <div class="reporting-editorial-split">
+        <div class="reporting-heading reporting-heading--single">
+          <h2 id="problem-title">{problemTitleLines.map((line) => <span>{line}</span>)}</h2>
+        </div>
+        <div class="reporting-reading">
+          <p>Each report required the same information to be found, re-entered, reformatted, and rewritten. A lot of the time was spent moving information between steps rather than doing anything new with it.</p>
+          <p>I started by mapping that repetition, then structured the lookup data and made the predictable parts available from one guided dashboard.</p>
+        </div>
       </div>
-      <p class="reporting-intro">The real workbook contains confidential workplace information, so I rebuilt this demo from scratch with fictional data.</p>
-      <div class="reporting-demo-layout">
-        <figure class="reporting-figure">
-          <img id="reporting-demo-image" src={stages[0].image} alt={stages[0].alt} width="1404" height="1645" />
-          <figcaption id="reporting-demo-status">{stages[0].summary}</figcaption>
-        </figure>
-        <div class="reporting-demo-controls" aria-label="Synthetic dashboard stages">
-          <p class="reporting-control-label">View the sequence</p>
+    </section>
+
+    <section class="reporting-section reporting-demo" aria-labelledby="demo-title">
+      <div class="reporting-editorial-split reporting-demo-intro">
+        <div class="reporting-heading reporting-heading--single">
+          <p class="eyebrow">Demo</p>
+          <h2 id="demo-title">How the workflow worked</h2>
+        </div>
+        <p class="reporting-intro">The real workbook contains confidential workplace information, so I rebuilt this demo from scratch with fictional data.</p>
+      </div>
+      <div class="reporting-demo-module">
+        <div class="reporting-demo-controls" role="group" aria-labelledby="reporting-demo-control-label">
+          <p class="reporting-control-label" id="reporting-demo-control-label">View the sequence</p>
           {stages.map((stage, index) => (
-            <button class="reporting-demo-button" type="button" data-demo-stage={index} data-image={stage.image} data-alt={stage.alt} data-summary={stage.summary} aria-pressed={index === 0 ? 'true' : 'false'}>{stage.label}</button>
+            <button
+              class="reporting-demo-button"
+              type="button"
+              data-demo-stage={index}
+              data-image={stage.image}
+              data-alt={stage.alt}
+              data-summary={stage.summary}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+            >
+              {stage.label}
+            </button>
           ))}
         </div>
+        <p class="reporting-demo-status" id="reporting-demo-status">{stages[0].summary}</p>
+        <figure class="reporting-workbook-frame">
+          <div class="reporting-workbook-viewport" id="reporting-workbook-viewport" data-stage="0">
+            <img id="reporting-demo-image" src={stages[0].image} alt={stages[0].alt} width="1404" height="1645" />
+          </div>
+        </figure>
       </div>
       <div class="sr-only" aria-live="polite" id="reporting-demo-live">{stages[0].summary}</div>
     </section>
 
-    <section class="reporting-section reporting-problem" aria-labelledby="problem-title">
-      <div class="reporting-heading reporting-heading--single"><h2 id="problem-title">Too much repeated work</h2></div>
-      <div class="reporting-reading">
-        <p>Each report required the same information to be found, re-entered, reformatted, and rewritten. A lot of the time was spent moving information between steps rather than doing anything new with it.</p>
-        <p>I started by mapping that repetition, then structured the lookup data and made the predictable parts available from one guided dashboard.</p>
-      </div>
-    </section>
-
     <section class="reporting-section" aria-labelledby="flow-title">
-      <div class="reporting-heading"><p class="eyebrow">Process design</p><h2 id="flow-title">Simplifying the workflow</h2></div>
+      <div class="reporting-editorial-split reporting-flow-intro">
+        <div class="reporting-heading">
+          <p class="eyebrow">Process design</p>
+          <h2 id="flow-title">Simplifying the workflow</h2>
+        </div>
+        <div class="reporting-reading"><p>The workbook used Excel formulas and lookups to populate repeated fields and generate the reporting text. VBA handled the user-triggered actions, including copying information to the clipboard and automatically creating the prefilled email draft.</p></div>
+      </div>
       <div class="reporting-flow-grid">
         <div class="reporting-flow reporting-before"><h3>Before</h3><p class="reporting-flow-sequence">Retrieve from paper files → type → format → fill in paragraph templates → submit report → fill in email templates → find relevant recipients in files → prepare email → submit</p></div>
         <div class="reporting-flow reporting-after"><h3>After</h3><p class="reporting-flow-sequence">Select → auto-populate → review → submit to portal → create prefilled email → send</p></div>
       </div>
-      <div class="reporting-reading"><p>The workbook used Excel formulas and lookups to populate repeated fields and generate the reporting text. VBA handled the user-triggered actions, including copying information to the clipboard and automatically creating the prefilled email draft.</p></div>
     </section>
 
-    <section class="reporting-section reporting-human" aria-labelledby="human-title">
-      <div class="reporting-heading reporting-heading--single"><h2 id="human-title">What stayed manual</h2></div>
-      <div class="reporting-reading"><p>The tool prepared the repetitive parts so that the user could simply review the information, submit the report, and send the final email.</p></div>
+    <section class="reporting-human" aria-labelledby="human-title">
+      <div class="reporting-human-inner">
+        <div class="reporting-heading reporting-heading--single"><h2 id="human-title">What stayed manual</h2></div>
+        <div class="reporting-reading"><p>The tool prepared the repetitive parts so that the user could simply review the information, submit the report, and send the final email.</p></div>
+      </div>
     </section>
   </article>
   <ContactBand />
@@ -95,16 +123,18 @@ const stages = [
   const image = document.querySelector('#reporting-demo-image');
   const status = document.querySelector('#reporting-demo-status');
   const liveRegion = document.querySelector('#reporting-demo-live');
+  const viewport = document.querySelector('#reporting-workbook-viewport');
   const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-demo-stage]')];
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
       const stage = button.dataset;
-      if (!stage.image || !stage.alt || !stage.summary || !(image instanceof HTMLImageElement) || !status || !liveRegion) return;
+      if (!stage.image || !stage.alt || !stage.summary || stage.demoStage === undefined || !(image instanceof HTMLImageElement) || !status || !liveRegion || !(viewport instanceof HTMLElement)) return;
       image.src = stage.image;
       image.alt = stage.alt;
       status.textContent = stage.summary;
       liveRegion.textContent = stage.summary;
+      viewport.dataset.stage = stage.demoStage;
       buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
     });
   });
@@ -117,26 +147,45 @@ const stages = [
   .reporting-hero h1 { margin: 0; max-width: 52rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
   .reporting-result { display: grid; grid-template-columns: auto minmax(0, 20rem); align-items: end; gap: 1.2rem 2rem; margin-top: clamp(2rem, 4vw, 3.25rem); padding: 1.25rem 0; border-block: 1px solid var(--color-line-strong); }
   .reporting-result strong { color: var(--color-teal); font-size: clamp(2rem, 4.7vw, 4rem); line-height: 1; letter-spacing: -.055em; white-space: nowrap; }
+  .reporting-result-arrow { display: inline-block; margin-inline: .72em; letter-spacing: 0; }
   .reporting-result-copy { display: grid; gap: .35rem; }
   .reporting-result p { margin: 0; color: var(--color-muted); font-size: .86rem; font-weight: 650; }
   .reporting-lede { max-width: 45rem; margin: 1.7rem 0 0; color: var(--color-text); font-size: clamp(1.08rem, 1.6vw, 1.3rem); line-height: 1.55; }
   .reporting-section { padding-top: clamp(4rem, 8vw, 7rem); }
-  .reporting-heading { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 2rem; align-items: start; }
-  .reporting-heading--single { grid-template-columns: 1fr; }
-  .reporting-heading .eyebrow { margin: .5rem 0 0; }
+  .reporting-heading { display: block; }
+  .reporting-heading--single { display: block; }
+  .reporting-heading .eyebrow { margin: 0 0 .9rem; }
   .reporting-heading h2 { max-width: 42rem; margin: 0; font-size: clamp(2.25rem, 4.6vw, 4.35rem); line-height: 1; letter-spacing: -.052em; }
   .reporting-intro, .reporting-reading { max-width: var(--content-reading); margin: 1.75rem 0 0 auto; color: var(--color-text); }
   .reporting-reading p { margin: 0; font-size: 1.04rem; }
   .reporting-reading p + p { margin-top: 1rem; }
-  .reporting-demo-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(13rem, 16rem); gap: clamp(1.1rem, 3vw, 2.4rem); align-items: start; margin-top: 1.6rem; }
-  .reporting-figure { margin: 0; padding: clamp(.55rem, 1.4vw, .9rem); border: 1px solid var(--color-line-strong); background: var(--color-surface); box-shadow: var(--shadow-media); }
-  .reporting-figure img { width: 100%; height: auto; }
-  .reporting-figure figcaption { margin-top: .8rem; color: var(--color-muted); font-size: .8rem; line-height: 1.45; }
-  .reporting-demo-controls { display: grid; gap: .55rem; padding: 1rem; border: 1px solid var(--color-line); background: var(--color-surface-soft); }
-  .reporting-control-label { margin: 0 0 .25rem; color: var(--color-muted); font-size: .76rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-  .reporting-demo-button { width: 100%; min-height: 2.75rem; padding: .65rem .75rem; border: 1px solid var(--color-line-strong); border-radius: .55rem; background: var(--color-surface); color: var(--color-ink); cursor: pointer; font: inherit; font-size: .87rem; font-weight: 760; text-align: left; }
+
+  .reporting-editorial-split { display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: clamp(2rem, 4.2vw, 4rem); align-items: start; }
+  .reporting-editorial-split .reporting-intro, .reporting-editorial-split .reporting-reading { max-width: none; margin: 0; }
+  .reporting-problem .reporting-heading { grid-column: 1; align-self: end; }
+  .reporting-problem .reporting-reading { grid-column: 2; align-self: end; }
+  .reporting-problem .reporting-heading h2 { font-size: clamp(2.25rem, 4.25vw, 4.05rem); }
+  .reporting-problem .reporting-heading h2 span { display: block; }
+  .reporting-demo-intro .reporting-heading { grid-column: 2; grid-row: 1; align-self: end; }
+  .reporting-demo-intro .reporting-intro { grid-column: 1; grid-row: 1; padding-top: .05rem; align-self: end; }
+  .reporting-demo-intro .reporting-heading h2 { white-space: nowrap; }
+  .reporting-flow-intro .reporting-heading { grid-column: 1; align-self: end; }
+  .reporting-flow-intro .reporting-reading { grid-column: 2; align-self: end; }
+
+  .reporting-demo-module { margin-top: 1.6rem; }
+  .reporting-demo-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; padding: 1rem; border: 1px solid var(--color-line); background: var(--color-surface-soft); }
+  .reporting-control-label { grid-column: 1 / -1; margin: 0 0 .25rem; color: var(--color-muted); font-size: .76rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .reporting-demo-button { width: 100%; min-height: 2.75rem; padding: .65rem .75rem; border: 1px solid var(--color-line-strong); border-radius: .45rem; background: var(--color-surface); color: var(--color-ink); cursor: pointer; font: inherit; font-size: .87rem; font-weight: 760; text-align: left; }
   .reporting-demo-button[aria-pressed='true'] { border-color: var(--color-teal); background: var(--color-deep-teal); color: white; }
-  .reporting-demo-button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+  .reporting-demo-status { margin: .85rem 0 .9rem; padding-left: .85rem; border-left: 2px solid var(--color-teal); color: var(--color-muted); font-size: .88rem; line-height: 1.45; }
+  .reporting-workbook-frame { margin: 0; padding: clamp(.55rem, 1.4vw, .9rem); border: 1px solid var(--color-line-strong); background: var(--color-surface); box-shadow: var(--shadow-media); }
+  .reporting-workbook-viewport { position: relative; height: clamp(25rem, 40vw, 33rem); overflow: hidden; background: #fff; border: 1px solid var(--color-line); --x: 0%; --y: 0%; }
+  .reporting-workbook-viewport img { position: absolute; top: 0; left: 0; width: 100%; max-width: none; height: auto; transform: translate(var(--x), var(--y)); transform-origin: top left; }
+  .reporting-workbook-viewport[data-stage='0'] { --x: 0%; --y: 0%; }
+  .reporting-workbook-viewport[data-stage='1'] { --x: 0%; --y: -15%; }
+  .reporting-workbook-viewport[data-stage='2'] { --x: 0%; --y: -31%; }
+  .reporting-workbook-viewport[data-stage='3'] { --x: 0%; --y: -48%; }
+
   .reporting-flow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.8rem; }
   .reporting-flow { padding: clamp(1.25rem, 2.5vw, 2rem); border: 1px solid var(--color-line); }
   .reporting-flow h3 { margin: 0; font-size: 1.45rem; letter-spacing: -.035em; }
@@ -144,22 +193,41 @@ const stages = [
   .reporting-before { background: var(--color-surface); }
   .reporting-after { background: var(--color-pale-teal); }
   .reporting-after h3 { color: var(--color-teal); }
-  .reporting-human { padding: clamp(3rem, 6vw, 5rem); background: var(--color-deep-teal); color: white; }
-  .reporting-human .reporting-heading h2 { color: white; }
-  .reporting-human .reporting-reading { color: #dbe9e7; }
+
+  .reporting-human { margin-top: clamp(2.75rem, 5vw, 4rem); padding: 1.35rem 0 .2rem; border-top: 1px solid var(--color-line-strong); background: transparent; }
+  .reporting-human-inner { display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: clamp(2rem, 4.2vw, 4rem); align-items: start; }
+  .reporting-human .reporting-heading h2 { color: var(--color-ink); font-size: clamp(1.35rem, 2vw, 1.7rem); line-height: 1.12; letter-spacing: -.035em; }
+  .reporting-human .reporting-reading { max-width: none; margin: 0; color: var(--color-text); }
+  .reporting-human .reporting-reading p { font-size: .95rem; }
+  .reporting-human .reporting-heading h2::after { content: ''; display: block; width: 2.2rem; height: 2px; margin-top: .55rem; background: var(--color-teal); }
+
   @media (max-width: 51.25rem) {
-    .reporting-heading, .reporting-result { grid-template-columns: 1fr; }
-    .reporting-heading .eyebrow { margin: 0; }
+    .reporting-result { grid-template-columns: 1fr; }
+    .reporting-editorial-split { grid-template-columns: 1fr; gap: 1.35rem; }
+    .reporting-demo-intro .reporting-heading, .reporting-demo-intro .reporting-intro, .reporting-problem .reporting-heading, .reporting-problem .reporting-reading, .reporting-flow-intro .reporting-heading, .reporting-flow-intro .reporting-reading { grid-column: 1; grid-row: auto; }
+    .reporting-demo-intro .reporting-heading h2 { white-space: normal; }
+    .reporting-heading .eyebrow { margin: 0 0 .8rem; }
     .reporting-intro, .reporting-reading { margin-left: 0; }
-    .reporting-demo-layout { grid-template-columns: 1fr; }
     .reporting-demo-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .reporting-control-label { grid-column: 1 / -1; }
+    .reporting-workbook-viewport { height: 24rem; }
+    .reporting-flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .reporting-human-inner { grid-template-columns: 1fr; gap: .75rem; }
   }
   @media (max-width: 35rem) {
     .reporting-case { padding-inline: 1.125rem; }
     .reporting-hero h1 { font-size: clamp(3.1rem, 15vw, 4.3rem); }
     .reporting-result strong { white-space: normal; }
-    .reporting-demo-controls, .reporting-flow-grid { grid-template-columns: 1fr; }
+    .reporting-demo-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: .8rem; gap: .45rem; }
+    .reporting-demo-button { min-height: 2.75rem; padding: .6rem .6rem; font-size: .81rem; }
+    .reporting-demo-status { margin-top: .75rem; font-size: .82rem; }
+    .reporting-workbook-viewport { height: 18.5rem; }
+    .reporting-workbook-viewport img { width: 175%; }
+    .reporting-workbook-viewport[data-stage='0'] { --x: 0%; --y: 0%; }
+    .reporting-workbook-viewport[data-stage='1'] { --x: 0%; --y: -15%; }
+    .reporting-workbook-viewport[data-stage='2'] { --x: -2%; --y: -30%; }
+    .reporting-workbook-viewport[data-stage='3'] { --x: -2%; --y: -48%; }
+    .reporting-flow-grid { grid-template-columns: 1fr; }
+    .reporting-human { margin-top: 2.5rem; padding: 1.15rem 0 .1rem; }
+    .reporting-human .reporting-heading h2::after { margin-top: .5rem; }
   }
-  @media (prefers-reduced-motion: reduce) { .reporting-demo-button { transition: none; } }
 </style>
