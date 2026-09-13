@@ -1,0 +1,71 @@
+name: final-rc-qa-harness-v2
+
+on:
+  push:
+    branches: ['prep/final-rc-qa-harness-v2']
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: SHA/ref to test
+        required: false
+        default: ''
+      profile:
+        description: baseline | homepage-v3 | reporting-v3 | final-rc
+        required: false
+        default: 'final-rc'
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  prepared-matrix:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: 5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e
+            profile: baseline
+          - target: impl/homepage-v3-final
+            profile: homepage-v3
+          - target: impl/reporting-workflow-v3
+            profile: reporting-v3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+      - name: Run V2 harness against target
+        run: node scripts/final-rc-qa.mjs '${{ matrix.target }}' --profile='${{ matrix.profile }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-rc-qa-${{ matrix.profile }}-${{ github.sha }}
+          path: artifacts/final-rc/
+          if-no-files-found: warn
+          retention-days: 14
+
+  dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target_ref != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+      - run: node scripts/final-rc-qa.mjs '${{ inputs.target_ref }}' --profile='${{ inputs.profile }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-rc-qa-dispatch-${{ github.sha }}
+          path: artifacts/final-rc/
+          if-no-files-found: warn
+          retention-days: 14
