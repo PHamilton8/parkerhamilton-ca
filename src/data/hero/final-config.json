@@ -30,7 +30,7 @@
       0,
       1
     ],
-    "k": 2.0,
+    "k": 3.8,
     "A": 324.1696,
     "amplitude_relationship": "A_HIGHEST = A_CURRENT * 1.36",
     "x0": 64.34,
