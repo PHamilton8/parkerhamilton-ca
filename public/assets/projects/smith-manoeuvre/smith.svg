@@ -1,15 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" role="img" aria-labelledby="t d">
-<title id="t">Smith Manoeuvre scenario model</title><desc id="d">A simplified educational flow from mortgage balance to readvanceable credit, investing, tax effects, and comparison against a non-leveraged baseline.</desc>
-<rect width="700" height="360" rx="28" fill="#E9F1F6"/>
-<g font-family="Arial,Helvetica,sans-serif"><text x="42" y="52" font-size="18" font-weight="700" fill="#182125">SCENARIO MODEL</text><text x="42" y="78" font-size="13" fill="#56646C">Educational decision support · simplified public view</text></g>
-<g font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#182125" text-anchor="middle">
- <g><rect x="35" y="138" width="112" height="78" rx="14" fill="#fff" stroke="#7FA6B7"/><text x="91" y="172" font-weight="700">MORTGAGE</text><text x="91" y="194">balance</text></g>
- <g><rect x="165" y="138" width="112" height="78" rx="14" fill="#fff" stroke="#7FA6B7"/><text x="221" y="168" font-weight="700">HELOC</text><text x="221" y="190">capacity</text></g>
- <g><rect x="295" y="138" width="112" height="78" rx="14" fill="#fff" stroke="#7FA6B7"/><text x="351" y="168" font-weight="700">INVEST</text><text x="351" y="190">allocation</text></g>
- <g><rect x="425" y="138" width="112" height="78" rx="14" fill="#fff" stroke="#7FA6B7"/><text x="481" y="168" font-weight="700">TAX</text><text x="481" y="190">effect</text></g>
- <g><rect x="555" y="124" width="112" height="106" rx="14" fill="#0A7774"/><text x="611" y="163" font-weight="700" fill="#fff">COMPARE</text><text x="611" y="187" fill="#fff">leveraged vs.</text><text x="611" y="207" fill="#fff">baseline</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 292" role="img" aria-labelledby="smith-manoeuvre-thumb-title smith-manoeuvre-thumb-desc" preserveAspectRatio="xMidYMid meet">
+<title id="smith-manoeuvre-thumb-title">Smith Manoeuvre thumbnail schematic</title><desc id="smith-manoeuvre-thumb-desc">A simplified editorial schematic inspired by the supplied reference: one flat line, one rising curve, and two declining curves. It is a conceptual thumbnail, not a numeric output chart.</desc>
+<rect width="580" height="292" fill="#eef3f4"/>
+
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M64 36V238H532" stroke="#9fb0b3" stroke-width="2"/>
+  <path d="M64 138H520" stroke="#d2a638" stroke-width="3"/>
+  <path d="M64 238 C180 228 360 199 520 38" stroke="#c94a43" stroke-width="4"/>
+  <path d="M64 138 C170 143 300 168 405 238" stroke="#0a5853" stroke-width="4"/>
+  <path d="M64 138 C190 148 395 179 520 238" stroke="#2c9a83" stroke-width="4"/>
 </g>
-<g stroke="#506C78" stroke-width="2" fill="none"><path d="M147 177h18"/><path d="M277 177h18"/><path d="M407 177h18"/><path d="M537 177h18"/></g>
-<g fill="#506C78"><path d="M165 177l-7-5v10z"/><path d="M295 177l-7-5v10z"/><path d="M425 177l-7-5v10z"/><path d="M555 177l-7-5v10z"/></g>
-<text x="42" y="292" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#56646C">Not financial, tax, or legal advice.</text>
 </svg>

@@ -1,11 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" role="img" aria-labelledby="t d">
-<title id="t">Reporting workflow time reduction</title><desc id="d">A synthetic visual showing a recurring workflow reduced from more than 45 minutes to under 10 minutes through an Excel and VBA redesign.</desc>
-<rect width="700" height="360" rx="28" fill="#F3F1EA"/>
-<g font-family="Arial,Helvetica,sans-serif"><text x="42" y="54" font-size="18" font-weight="700" fill="#182125">RECURRING REPORTING WORKFLOW</text><text x="42" y="82" font-size="13" fill="#5C6568">Synthetic process view — no confidential data</text></g>
-<text x="42" y="180" font-family="Arial,Helvetica,sans-serif" font-size="66" font-weight="800" fill="#182125">45+</text>
-<text x="196" y="180" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#5C6568">minutes</text>
-<path d="M302 158h95" stroke="#0A7774" stroke-width="4" stroke-linecap="round"/><path d="M397 158l-15-9v18z" fill="#0A7774"/>
-<text x="438" y="180" font-family="Arial,Helvetica,sans-serif" font-size="66" font-weight="800" fill="#0A7774">&lt;10</text>
-<text x="582" y="180" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#5C6568">minutes</text>
-<g transform="translate(42,248)"><rect width="616" height="18" rx="9" fill="#DADDD9"/><rect width="122" height="18" rx="9" fill="#0A7774"/><text x="0" y="48" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#5C6568">Manual consolidation</text><text x="496" y="48" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#5C6568">Automated workflow</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 292" role="img" aria-labelledby="reporting-workflow-thumb-title reporting-workflow-thumb-desc" preserveAspectRatio="xMidYMid meet">
+<title id="reporting-workflow-thumb-title">Automating a reporting workflow thumbnail</title><desc id="reporting-workflow-thumb-desc">A simplified three-step diagram: spreadsheet grid, VBA run, and a ready output file. The 45-plus minute to under 10 minute preparation reduction is owner-reported; external submission remains manual.</desc>
+<rect width="580" height="292" fill="#eef3f4"/>
+
+<g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <g transform="translate(42 67)">
+    <rect x="0" y="0" width="112" height="116" rx="14" fill="#f8faf9" stroke="#bfcacc" stroke-width="2"/>
+    <g transform="translate(23 21)" fill="none" stroke="#0d6a65" stroke-width="2.5" stroke-linecap="round">
+      <rect x="0" y="0" width="66" height="43" rx="4"/>
+      <path d="M0 14H66M0 29H66M22 0V43M44 0V43" stroke="#bfcacc" stroke-width="1.6"/>
+    </g>
+    <text x="56" y="93" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">GRID</text>
+  </g>
+  <path d="M171 125H206" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round"/>
+  <path d="M198 116L208 125L198 134" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(225 67)">
+    <rect x="0" y="0" width="130" height="116" rx="14" fill="#e3eeec" stroke="#0d6a65" stroke-width="2"/>
+    <rect x="33" y="19" width="64" height="52" rx="8" fill="#0d6a65"/>
+    <text x="65" y="52" text-anchor="middle" font-size="20" font-weight="800" fill="#fff">VBA</text>
+    <text x="65" y="93" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">RUN</text>
+  </g>
+  <path d="M372 125H407" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round"/>
+  <path d="M399 116L409 125L399 134" fill="none" stroke="#0d6a65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(426 67)">
+    <rect x="0" y="0" width="112" height="116" rx="14" fill="#f8faf9" stroke="#bfcacc" stroke-width="2"/>
+    <g transform="translate(30 20)" fill="none" stroke="#0d6a65" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M0 0H42L52 10V52H0Z"/>
+      <path d="M42 0V10H52"/>
+      <path d="M13 30l7 7 17-18"/>
+    </g>
+    <text x="56" y="93" text-anchor="middle" font-size="18" font-weight="800" fill="#0f2026">READY</text>
+  </g>
+  <text x="290" y="223" text-anchor="middle" font-size="18" font-weight="700" fill="#5d7076">45+ min → &lt;10 min prep</text>
+</g>
 </svg>
