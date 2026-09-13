@@ -15,7 +15,53 @@ import { site } from '../../data/site';
 </section>
 
 <style>
-  /* Canonical site-wide Email CTA: final owner-approved Homepage V3 treatment. */
+  /* Canonical site-wide ContactBand: exact final owner-approved Homepage V3 treatment. */
+  .contact-band {
+    width: min(calc(100% - 40px), 1400px);
+    max-width: 1400px;
+    margin: 42px auto 0;
+    padding: 42px 36px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'eyebrow actions' 'title actions';
+    column-gap: 28px;
+    row-gap: 16px;
+    align-items: center;
+    border-radius: 26px;
+    background: linear-gradient(180deg, #0a4f4a 0%, #084843 100%);
+    color: #f8fbfa;
+  }
+
+  .contact-band > .eyebrow {
+    grid-area: eyebrow;
+    margin: 0;
+    color: #9fd1ca;
+    font-size: 12px;
+    line-height: normal;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .contact-band > h2 {
+    grid-area: title;
+    margin: 0;
+    max-width: none;
+    color: #f8fbfa;
+    font-size: 74px;
+    line-height: 0.98;
+    font-weight: 800;
+    letter-spacing: -0.055em;
+  }
+
+  .contact-actions {
+    grid-area: actions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0;
+  }
+
   .contact-email-action {
     min-width: 126px;
     min-height: 44px;
@@ -68,7 +114,28 @@ import { site } from '../../data/site';
     vector-effect: non-scaling-stroke;
   }
 
+  @media (max-width: 1180px) {
+    .contact-band > h2 { font-size: 64px; }
+  }
+
   @media (max-width: 980px) {
+    .contact-band {
+      margin-top: 28px;
+      padding: 18px 16px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: 'eyebrow actions' 'title actions';
+      row-gap: 10px;
+      align-items: center;
+      border-radius: 16px;
+    }
+
+    .contact-band > .eyebrow {
+      margin: 0;
+      font-size: 10px;
+    }
+
+    .contact-band > h2 { font-size: 28px; }
+
     .contact-email-action {
       min-width: 126px;
       min-height: 44px;
@@ -85,6 +152,28 @@ import { site } from '../../data/site';
   }
 
   @media (max-width: 480px) {
+    .contact-band {
+      width: calc(100% - 16px);
+      margin-top: 18px;
+      padding: 18px 16px;
+      grid-template-columns: 1fr;
+      grid-template-areas: 'eyebrow' 'title' 'actions';
+      row-gap: 0;
+      align-items: start;
+    }
+
+    .contact-band > .eyebrow {
+      margin: 0 0 10px;
+      font-size: 10px;
+    }
+
+    .contact-band > h2 { font-size: 18px; }
+
+    .contact-actions {
+      width: auto;
+      margin-top: 28px;
+    }
+
     .contact-email-action {
       width: 118px;
       min-width: 118px;
