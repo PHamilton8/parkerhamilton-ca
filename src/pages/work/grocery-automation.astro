@@ -2,118 +2,137 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactBand from '../../components/layout/ContactBand.astro';
 import { groceryOptions } from '../../data/grocery-demo';
-import { projects } from '../../data/projects';
 
 const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Walmart Grocery\"],\n  \"Independent\": [\"Your Independent Grocer\"],\n}\n\nresponse = requests.get(\n  FLIPP_SEARCH_URL, params=params,\n  headers=headers, timeout=timeout_seconds\n)", "response = client.models.generate_content(\n  model=model_name,\n  contents=prompt,\n  config=types.GenerateContentConfig(\n    response_mime_type=\"application/json\"\n  ),\n)\npayload = json.loads(response.text)"];
-
-const project = projects.find((item) => item.slug === 'grocery-automation');
-if (!project) throw new Error('Grocery Automation project data is unavailable.');
 ---
-<BaseLayout title="Grocery Automation" description="To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists." canonicalPath={project.route}>
-  <article class="grocery-case">
-    <header class="grocery-hero">
-      <p class="grocery-meta">Python · Flipp/Wishabi · Gemini API · JSON · Excel</p>
-      <h1>Grocery Automation</h1>
-      <p class="grocery-lede">I built this to automate a recurring meal-planning task at work. It used weekly grocery sales and client preferences to build cost-conscious menus with more variety, so tacos and burgers did not have to carry the whole week. The workflow then planned the dinners and produced a grocery list for ordering.</p>
-    </header>
+<BaseLayout title="Grocery Automation" description="To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists." canonicalPath="/work/grocery-automation">
+<article class="grocery-case" data-house-rules="C">
+<header class="grocery-hero">
+<p class="grocery-meta">Python · Flipp/Wishabi · Gemini API · JSON · Excel</p>
+<h1>Grocery Automation</h1>
+<p class="grocery-lede">I built this to automate a recurring meal-planning task at work. It used weekly grocery sales and client preferences to build cost-conscious menus with more variety, so tacos and burgers did not have to carry the whole week. The workflow then planned the dinners and produced a grocery list for ordering.</p>
+</header>
+<section aria-labelledby="pipeline-title" class="grocery-section grocery-pipeline">
+<div class="workflow-intro editorial-right-intro"><div class="section-heading-block"><p class="eyebrow">At a glance</p><h2 id="pipeline-title">The workflow</h2></div><div class="section-copy"><p>The task was to plan six dinners for nine people using that week's grocery sales, while accounting for food restrictions, preferences, and what was already in the pantry. The final Excel file gave my supervisor two store-based options to review for ordering.</p></div></div>
+<ol class="grocery-pipeline-list workflow-diagram"><li>Flyer data</li><li>Python extraction</li><li>structured product data</li><li>Gemini API + rules</li><li>JSON</li><li>Excel</li><li>human review</li></ol>
 
-    <section class="grocery-section grocery-pipeline" aria-labelledby="pipeline-title">
-      <div class="grocery-heading"><p class="eyebrow">At a glance</p><h2 id="pipeline-title">How the workflow works</h2></div>
-      <ol class="grocery-pipeline-list">
-        <li>Flyer data</li><li>Python extraction</li><li>structured product data</li><li>Gemini API + rules</li><li>JSON</li><li>Excel</li><li>human review</li>
-      </ol>
-      <div class="grocery-reading"><p>The task was to plan six dinners for nine people using that week's grocery sales, while accounting for food restrictions, preferences, and what was already in the pantry. The final Excel file gave my supervisor two store-based options to review for ordering.</p></div>
-    </section>
+</section>
+<section aria-labelledby="pivot-title" class="grocery-section">
+<div class="editorial-split split-left-heading"><div class="section-heading-block split-heading"><p class="eyebrow">Data source</p><h2 id="pivot-title">The bot detector won. I changed tactics.</h2></div><div class="evidence-column"><div class="section-copy"><p>I started with browser automation, but retailer bot protection quickly made it unreliable. Instead of fighting the websites, I switched to the structured flyer data available through Flipp/Wishabi.</p><p>That gave Python structured product and price records to work with instead of trying to read information from a webpage.</p></div><pre aria-label="Approved code excerpt showing the final store query groups" class="grocery-code"><code>{codeExcerpts[0]}</code></pre></div></div>
 
-    <section class="grocery-section" aria-labelledby="pivot-title">
-      <div class="grocery-heading"><p class="eyebrow">Data source</p><h2 id="pivot-title">The bot detector won. I changed tactics.</h2></div>
-      <div class="grocery-reading"><p>I started with browser automation, but retailer bot protection quickly made it unreliable. Instead of fighting the websites, I switched to the structured flyer data available through Flipp/Wishabi.</p><p>That gave Python structured product and price records to work with instead of trying to read information from a webpage.</p></div>
-      <pre class="grocery-code" aria-label="Approved code excerpt showing the final store query groups"><code>{codeExcerpts[0]}</code></pre>
-    </section>
 
-    <section class="grocery-section" aria-labelledby="rules-title">
-      <div class="grocery-heading"><p class="eyebrow">Planning rules</p><h2 id="rules-title">Giving the model some house rules</h2></div>
-      <div class="grocery-rule-grid">
-        <div><h3>Scale</h3><p>Exactly 6 dinners for 9 adult portions.</p></div>
-        <div><h3>Preferences</h3><p>Chicken thighs, ground beef, tacos, smash burgers, Greek and Mexican flavours.</p></div>
-        <div><h3>Constraints</h3><p>Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale. Sorry beef tenderloin, $2 off per kilo still does not make you a budget protein.</p></div>
-        <div><h3>Pantry</h3><p>Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.</p></div>
+</section>
+<section aria-labelledby="rules-title" class="grocery-section">
+<div class="house-rules-intro"><div class="house-rules-heading"><p class="eyebrow">Planning rules</p><h2 id="rules-title">Giving the model some house rules</h2></div><div class="house-rules-copy"><p>The Gemini API was given the actual planning rules we used at work: serving size, restrictions, preferred meals, pantry assumptions, and opportunities to reuse ingredients across dinners.</p></div></div>
+<div aria-label="House Rules treatment C" aria-live="polite" class="grocery-rule-grid"><div class="rule-card"><h3>Scale</h3><p>Exactly 6 dinners for 9 adult portions.</p></div><div class="rule-card"><h3>Preferences</h3><p>Chicken thighs, ground beef, tacos, smash burgers, Greek and Mexican flavours.</p></div><div class="rule-card"><h3>Constraints</h3><p>Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale (sorry beef tenderloin, $2 off per kilo still doesn't make you a budget protein).</p></div><div class="rule-card"><h3>Pantry</h3><p>Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.</p></div></div>
+
+</section>
+<section aria-labelledby="json-title" class="grocery-section">
+<div class="editorial-split split-right-heading json-split"><div class="section-heading-block split-heading"><p class="eyebrow">Structured output</p><h2 id="json-title">Switching the output to JSON</h2></div><div class="evidence-column"><div class="section-copy"><p>The first Gemini version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.</p><p>Python could then check that the expected fields were present before using the response to generate the Excel workbook.</p></div><pre aria-label="Approved code excerpt showing structured JSON output" class="grocery-code"><code>{codeExcerpts[1]}</code></pre></div></div>
+
+
+</section>
+<section aria-labelledby="sample-title" class="grocery-section grocery-sample">
+<div class="sample-intro"><div class="sample-heading-lockup"><p class="eyebrow">Sample output</p><h2 id="sample-title">Two six-dinner menu options, ready for review.</h2></div><div class="sample-reading"><p>This is a sample version of the final output, with six dinners for nine people and two store options to compare.</p></div></div>
+
+
+<div aria-label="Sample six-dinner options by store. Scroll horizontally if needed." class="grocery-table-wrap grocery-primary-table" role="region" tabindex="0">
+  <table>
+    <thead><tr><th scope="col">Dinner</th>{groceryOptions.map((option) => <th scope="col">{option.store}</th>)}</tr></thead>
+    <tbody>{Array.from({ length: 6 }, (_, index) => <tr><th scope="row">Day {index + 1}</th>{groceryOptions.map((option) => <td>{option.meals[index]}<small class="meal-cost">{option.costs[index]}</small></td>)}</tr>)}</tbody>
+    <tfoot><tr><th scope="row">Demo total</th>{groceryOptions.map((option) => <td>{option.total}</td>)}</tr></tfoot>
+  </table>
+</div>
+<div class="grocery-details-grid grocery-desktop-details">
+  {groceryOptions.map((option) => <details class="grocery-details">
+    <summary>{option.store} sample ingredient detail</summary>
+    <p><strong>{option.spotlight.meal}</strong><br />{option.spotlight.instructions}</p>
+    <div aria-label={`${option.store} sample ingredient details. Scroll horizontally if needed.`} class="grocery-table-wrap" role="region" tabindex="0">
+      <table><thead><tr><th scope="col">Ingredient</th><th scope="col">Size</th><th scope="col">Units</th><th scope="col">Sample total</th></tr></thead><tbody>{option.spotlight.ingredients.map((ingredient) => <tr><th scope="row">{ingredient.item}</th><td>{ingredient.size}</td><td>{ingredient.units}</td><td>{ingredient.total}</td></tr>)}</tbody></table>
+    </div>
+  </details>)}
+</div>
+<div aria-label="Sample six-dinner options by store" class="grocery-mobile-compare">
+  {groceryOptions.map((option, index) => <section aria-labelledby={`grocery-store-${index}`} class="store-compare">
+    <h3 id={`grocery-store-${index}`}>{option.store}</h3>
+    <ol class="store-days">{option.meals.map((meal, day) => <li><strong>Day {day + 1}</strong><p>{meal}<small class="meal-cost">{option.costs[day]}</small></p></li>)}</ol>
+    <p class="store-total"><strong>Demo total</strong><span>{option.total}</span></p>
+    <details class="grocery-details">
+      <summary>{option.store} sample ingredient detail</summary>
+      <p><strong>{option.spotlight.meal}</strong><br />{option.spotlight.instructions}</p>
+      <div aria-label={`${option.store} sample ingredient details. Scroll horizontally if needed.`} class="grocery-table-wrap" role="region" tabindex="0">
+        <table><thead><tr><th scope="col">Ingredient</th><th scope="col">Size</th><th scope="col">Units</th><th scope="col">Sample total</th></tr></thead><tbody>{option.spotlight.ingredients.map((ingredient) => <tr><th scope="row">{ingredient.item}</th><td>{ingredient.size}</td><td>{ingredient.units}</td><td>{ingredient.total}</td></tr>)}</tbody></table>
       </div>
-      <div class="grocery-reading"><p>The Gemini API was given the actual planning rules we used at work: serving size, restrictions, preferred meals, pantry assumptions, and opportunities to reuse ingredients across dinners.</p></div>
-    </section>
-
-    <section class="grocery-section" aria-labelledby="json-title">
-      <div class="grocery-heading"><p class="eyebrow">Structured output</p><h2 id="json-title">Switching the output to JSON</h2></div>
-      <div class="grocery-reading"><p>The first Gemini version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.</p><p>Python could then check that the expected fields were present before using the response to generate the Excel workbook.</p></div>
-      <pre class="grocery-code" aria-label="Approved code excerpt showing structured JSON output"><code>{codeExcerpts[1]}</code></pre>
-    </section>
-
-    <section class="grocery-section grocery-sample" aria-labelledby="sample-title">
-      <div class="grocery-heading"><p class="eyebrow">Sample output</p><h2 id="sample-title">Two six-dinner options, ready for review</h2></div>
-      <p class="grocery-sample-label">Sample data</p>
-      <div class="grocery-reading"><p>This is a sample version of the final output, with six dinners for nine people and two store options to compare.</p></div>
-      <div class="grocery-table-wrap" tabindex="0" aria-label="Sample six-dinner options by store. Scroll horizontally if needed.">
-        <table>
-          <thead><tr><th scope="col">Dinner</th>{groceryOptions.map((option) => <th scope="col">{option.store}</th>)}</tr></thead>
-          <tbody>{Array.from({ length: 6 }, (_, index) => <tr><th scope="row">Day {index + 1}</th>{groceryOptions.map((option) => <td>{option.meals[index]}<small class="meal-cost">{option.costs[index]}</small></td>)}</tr>)}</tbody>
-          <tfoot><tr><th scope="row">Demo total</th>{groceryOptions.map((option) => <td>{option.total}</td>)}</tr></tfoot>
-        </table>
-      </div>
-      <div class="grocery-details-grid">
-        {groceryOptions.map((option) => (
-          <details class="grocery-details">
-            <summary>{option.store} sample ingredient detail</summary>
-            <p><strong>{option.spotlight.meal}</strong><br />{option.spotlight.instructions}</p>
-            <div class="grocery-table-wrap" tabindex="0" aria-label={`${option.store} sample ingredient details. Scroll horizontally if needed.`}>
-              <table><thead><tr><th scope="col">Ingredient</th><th scope="col">Size</th><th scope="col">Units</th><th scope="col">Sample total</th></tr></thead><tbody>{option.spotlight.ingredients.map((ingredient) => <tr><th scope="row">{ingredient.item}</th><td>{ingredient.size}</td><td>{ingredient.units}</td><td>{ingredient.total}</td></tr>)}</tbody></table>
-            </div>
-          </details>
-        ))}
-      </div>
-    </section>
-  </article>
-  <ContactBand />
+    </details>
+  </section>)}
+</div>
+</section>
+</article>
+<ContactBand />
 </BaseLayout>
 
 <style>
-  .grocery-case { max-width: var(--content-main); margin-inline: auto; padding: clamp(3.5rem, 8vw, 7rem) clamp(1.125rem, 3vw, 2.25rem) clamp(4.5rem, 8vw, 7rem); }
-  .grocery-hero { max-width: 67rem; padding-bottom: clamp(3.5rem, 7vw, 6rem); border-bottom: 1px solid var(--color-line); }
-  .grocery-meta { margin: 0 0 1.1rem; color: var(--color-muted); font-size: .8rem; font-weight: 760; letter-spacing: .08em; text-transform: uppercase; }
-  .grocery-hero h1 { margin: 0; max-width: 51rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
-  .grocery-lede { max-width: 46rem; margin: 1.65rem 0 0; color: var(--color-text); font-size: clamp(1.08rem, 1.65vw, 1.3rem); line-height: 1.55; }
-  .grocery-section { padding-top: clamp(4rem, 8vw, 7rem); }
-  .grocery-heading { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 2rem; align-items: start; }
-  .grocery-heading .eyebrow { margin: .5rem 0 0; }
-  .grocery-heading h2 { max-width: 44rem; margin: 0; font-size: clamp(2.2rem, 4.6vw, 4.3rem); line-height: 1; letter-spacing: -.052em; }
-  .grocery-reading { max-width: var(--content-reading); margin: 1.75rem 0 0 auto; color: var(--color-text); }
-  .grocery-reading p { margin: 0; font-size: 1.04rem; }
-  .grocery-reading p + p { margin-top: 1rem; }
-  .grocery-pipeline-list { display: flex; flex-wrap: wrap; gap: .7rem .95rem; margin: 1.9rem 0 0; padding: 0; list-style: none; }
-  .grocery-pipeline-list li { display: inline-flex; align-items: center; gap: .95rem; color: var(--color-ink); font-size: .9rem; font-weight: 780; }
-  .grocery-pipeline-list li:not(:last-child)::after { content: '→'; color: var(--color-teal); }
-  .grocery-code { max-width: var(--content-reading); margin: 1.5rem 0 0 auto; padding: 1.1rem 1.2rem; overflow-x: auto; border-left: .25rem solid var(--color-teal); background: #e9f0ee; color: #1d3635; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .81rem; line-height: 1.55; }
-  .meal-cost { display: block; margin-top: .4rem; font-size: .78rem; color: var(--color-muted); }
-  .grocery-code code { font: inherit; }
-  .grocery-rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 1.9rem; border: 1px solid var(--color-line); background: var(--color-line); }
-  .grocery-rule-grid > div { padding: 1.15rem 1.25rem; background: var(--color-surface); }
-  .grocery-rule-grid h3 { margin: 0; color: var(--color-teal); font-size: 1rem; }
-  .grocery-rule-grid p { margin: .45rem 0 0; color: var(--color-text); font-size: .91rem; }
-  .grocery-sample-label { display: inline-block; margin: 1.8rem 0 0; padding: .5rem .7rem; background: var(--color-pale-teal); color: var(--color-deep-teal); font-size: .76rem; font-weight: 820; letter-spacing: .06em; }
-  .grocery-table-wrap { max-width: 100%; margin-top: 1.5rem; overflow-x: auto; border: 1px solid var(--color-line); background: var(--color-surface); }
-  .grocery-table-wrap:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
-  .grocery-table-wrap table { width: 100%; min-width: 44rem; border-collapse: collapse; text-align: left; }
-  .grocery-table-wrap th, .grocery-table-wrap td { padding: .85rem .9rem; border-bottom: 1px solid var(--color-line); vertical-align: top; font-size: .86rem; line-height: 1.4; }
-  .grocery-table-wrap th { color: var(--color-ink); font-weight: 800; }
-  .grocery-table-wrap thead th { background: var(--color-deep-teal); color: white; }
-  .grocery-table-wrap tbody tr:nth-child(even) { background: #f7faf9; }
-  .grocery-table-wrap tfoot { background: var(--color-surface-soft); }
-  .grocery-details-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
-  .grocery-details { border: 1px solid var(--color-line); background: var(--color-surface); }
-  .grocery-details summary { min-height: 2.75rem; padding: .9rem 1rem; cursor: pointer; color: var(--color-ink); font-size: .92rem; font-weight: 800; }
-  .grocery-details summary:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
-  .grocery-details p { margin: 0; padding: 0 1rem; color: var(--color-text); font-size: .86rem; line-height: 1.5; }
-  .grocery-details .grocery-table-wrap { margin: 1rem; }
-  @media (max-width: 51.25rem) { .grocery-heading { grid-template-columns: 1fr; } .grocery-heading .eyebrow { margin: 0; } .grocery-reading, .grocery-code { margin-left: 0; } }
-  @media (max-width: 40rem) { .grocery-rule-grid, .grocery-details-grid { grid-template-columns: 1fr; } }
-  @media (max-width: 35rem) { .grocery-case { padding-inline: 1.125rem; } .grocery-hero h1 { font-size: clamp(3rem, 15vw, 4.25rem); } .grocery-pipeline-list { display: grid; gap: .6rem; } .grocery-pipeline-list li:not(:last-child)::after { content: none; } .grocery-code { max-width: 100%; } }
+.grocery-case .eyebrow{margin:0 0 1rem;color:var(--color-teal);font-size:.75rem;line-height:1.35;font-weight:820;letter-spacing:.13em;text-transform:uppercase}
+.grocery-case{max-width:var(--content-main);margin-inline:auto;padding:clamp(3.5rem,8vw,7rem) clamp(1.125rem,3vw,2.25rem) clamp(4.5rem,8vw,7rem)}
+.grocery-hero{max-width:67rem;padding-bottom:clamp(3.5rem,7vw,6rem);border-bottom:1px solid var(--color-line)}
+.grocery-meta{margin:0 0 1.1rem;color:var(--color-muted);font-size:.8rem;font-weight:760;letter-spacing:.08em;text-transform:uppercase}
+.grocery-hero h1{margin:0;max-width:51rem;font-size:clamp(3.25rem,7vw,6.3rem);line-height:.96;letter-spacing:-.06em}
+.grocery-lede{max-width:46rem;margin:1.65rem 0 0;color:var(--color-text);font-size:clamp(1.08rem,1.65vw,1.3rem);line-height:1.55}
+.grocery-section{padding-top:clamp(4.4rem,7vw,6.2rem)}
+.section-heading-block h2,.house-rules-heading h2,.sample-heading-lockup h2{margin:0;font-size:clamp(2.35rem,4.35vw,4.05rem);line-height:1;letter-spacing:-.052em}
+.section-copy{max-width:var(--content-reading);color:var(--color-text)}.section-copy p{margin:0;font-size:1.04rem}.section-copy p+p{margin-top:1rem}
+
+
+.workflow-intro{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:4rem;align-items:start}.workflow-intro>.section-heading-block{grid-column:1}.workflow-intro>.section-heading-block h2{font-size:clamp(2.35rem,3.85vw,3.45rem);white-space:nowrap}.workflow-intro>.section-copy{grid-column:2;margin-top:.35rem;max-width:39rem}
+.grocery-pipeline-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;margin:2.65rem 0 0;padding:0;list-style:none}
+.grocery-pipeline-list li{position:relative;min-width:0;padding:1.38rem .35rem 0;text-align:center;color:var(--color-ink);font-size:.82rem;font-weight:780;line-height:1.3}
+.grocery-pipeline-list li::before{content:"";position:absolute;top:.05rem;left:50%;width:.52rem;height:.52rem;transform:translateX(-50%);border-radius:50%;background:var(--color-teal);z-index:2}
+.grocery-pipeline-list li:not(:last-child)::after{content:"";position:absolute;top:.29rem;left:calc(50% + .34rem);width:calc(100% - .68rem);height:1px;background:var(--color-line-strong);z-index:1}
+
+
+.editorial-split{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:clamp(2.5rem,5vw,4.5rem);align-items:start}.split-heading{max-width:31rem}.split-heading .eyebrow{margin-bottom:1rem}.evidence-column{min-width:0}.evidence-column .section-copy{max-width:39rem;margin:0}.grocery-code{width:100%;max-width:40rem;margin:1.55rem 0 0;padding:1.1rem 1.2rem;overflow-x:auto;border-left:.25rem solid var(--color-teal);background:#e9f0ee;color:#1d3635;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.81rem;line-height:1.55}.grocery-code code{font:inherit}.split-right-heading .split-heading{grid-column:2;grid-row:1}.split-right-heading .evidence-column{grid-column:1;grid-row:1}
+
+.json-split{grid-template-columns:minmax(0,1.25fr) minmax(21rem,.75fr);gap:clamp(2.75rem,4.5vw,4rem)}.json-split .split-heading{max-width:26rem}.json-split .split-heading h2{font-size:clamp(2.35rem,4vw,3.8rem)}.json-split .evidence-column .section-copy,.json-split .grocery-code{max-width:47rem}
+
+
+.house-rules-intro{text-align:center}.house-rules-heading .eyebrow{margin-bottom:1rem}.house-rules-heading h2{white-space:nowrap}.house-rules-copy{max-width:48rem;margin:1.35rem auto 0;color:var(--color-text)}.house-rules-copy p{margin:0;font-size:1.04rem}
+.grocery-rule-grid{width:min(100%,60rem);min-height:18.5rem;margin:2rem auto 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));align-items:stretch;transition:none}.rule-card{min-width:0;padding:1.15rem 1.25rem}.grocery-rule-grid h3{margin:0;color:var(--color-teal);font-size:1rem}.grocery-rule-grid p{margin:.45rem 0 0;color:var(--color-text);font-size:.91rem;line-height:1.55}
+
+
+.grocery-rule-grid{gap:.9rem 1.5rem;border:0;background:transparent;height:auto;min-height:0;grid-template-rows:auto auto;align-content:start}.rule-card{border:0;border-top:1px solid var(--color-line-strong);border-radius:0;background:transparent;padding-inline:.35rem}
+
+
+.sample-intro{text-align:center}.sample-heading-lockup{width:max-content;max-width:100%;margin-inline:auto;text-align:left}.sample-heading-lockup .eyebrow{margin-bottom:.9rem;text-align:left}.sample-heading-lockup h2{font-size:clamp(2.1rem,3.35vw,3.6rem);white-space:nowrap;text-align:center}.sample-reading{max-width:68rem;margin:1.3rem auto 0;color:var(--color-text);text-align:center}.sample-reading p{margin:0;font-size:1.04rem}
+.meal-cost{display:block;margin-top:.4rem;font-size:.78rem;color:var(--color-muted)}
+.grocery-table-wrap{max-width:100%;margin-top:1.5rem;overflow-x:auto;border:1px solid var(--color-line);background:var(--color-surface)}.grocery-table-wrap:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}.grocery-table-wrap table{width:100%;min-width:44rem;border-collapse:collapse;text-align:left}.grocery-table-wrap th,.grocery-table-wrap td{padding:.85rem .9rem;border-bottom:1px solid var(--color-line);vertical-align:top;font-size:.86rem;line-height:1.4}.grocery-table-wrap th{color:var(--color-ink);font-weight:800}.grocery-table-wrap thead th{background:var(--color-deep-teal);color:white}.grocery-table-wrap tbody tr:nth-child(even){background:#f7faf9}.grocery-table-wrap tfoot{background:var(--color-surface-soft)}
+.grocery-details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}.grocery-details{border:1px solid var(--color-line);background:var(--color-surface)}.grocery-details summary{min-height:2.75rem;padding:.9rem 1rem;cursor:pointer;color:var(--color-ink);font-size:.92rem;font-weight:800}.grocery-details summary:focus-visible{outline:3px solid var(--color-focus);outline-offset:-3px}.grocery-details p{margin:0;padding:0 1rem;color:var(--color-text);font-size:.86rem;line-height:1.5}.grocery-details .grocery-table-wrap{margin:1rem}.grocery-mobile-compare{display:none}
+
+
+
+@media (max-width:56.25rem){
+  .grocery-section{padding-top:clamp(4rem,8vw,5.5rem)}
+  .workflow-intro,.editorial-split{display:block}.workflow-intro>.section-heading-block h2{font-size:clamp(2.35rem,4.35vw,4.05rem);white-space:normal}.workflow-intro>.section-copy,.evidence-column .section-copy{margin-top:1.25rem}.split-heading,.json-split .split-heading{max-width:44rem}.split-right-heading .split-heading,.split-right-heading .evidence-column{grid-column:auto;grid-row:auto}
+  .grocery-code,.json-split .grocery-code{max-width:var(--content-reading)}.json-split .evidence-column .section-copy{max-width:var(--content-reading)}
+  .house-rules-heading h2,.sample-heading-lockup h2{white-space:normal}.grocery-rule-grid{height:21rem}.house-rules-copy{max-width:42rem}.sample-heading-lockup{width:auto;text-align:center}.sample-heading-lockup .eyebrow{text-align:center}.sample-heading-lockup h2{text-align:center}.sample-reading{max-width:44rem}
+}
+@media (max-width:44.99rem){
+  .grocery-pipeline-list{grid-template-columns:1fr;gap:0;margin-top:1.8rem}
+  .grocery-pipeline-list li{padding:0 0 1.15rem 1.65rem;text-align:left;font-size:.9rem}.grocery-pipeline-list li::before{top:.34rem;left:.28rem;width:.5rem;height:.5rem;transform:none}.grocery-pipeline-list li:not(:last-child)::after{display:block;top:.92rem;left:.515rem;right:auto;width:1px;height:calc(100% - .3rem);background:var(--color-line-strong)}.grocery-pipeline-list li:last-child{padding-bottom:0}.grocery-pipeline-list li:last-child::after{display:none}
+}
+@media (min-width:56.26rem) and (max-width:68.75rem){.grocery-pipeline-list li{font-size:.76rem;padding-inline:.22rem}}
+@media (max-width:40rem){
+  .grocery-rule-grid,.grocery-details-grid{grid-template-columns:1fr}.grocery-rule-grid{grid-template-rows:repeat(4,auto);height:auto;min-height:0}.grocery-rule-grid{gap:.7rem}.rule-card{padding-inline:1.25rem}
+}
+@media (max-width:35rem){
+
+  .grocery-case{padding-inline:1.125rem}.grocery-hero h1{font-size:clamp(3rem,15vw,4.25rem)}
+  .section-heading-block h2,.house-rules-heading h2,.sample-heading-lockup h2{font-size:clamp(2.15rem,11vw,3rem)}
+  .grocery-code{max-width:100%;overflow-x:hidden;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}
+  .grocery-table-wrap.grocery-primary-table,.grocery-details-grid.grocery-desktop-details{display:none}.grocery-mobile-compare{display:grid;gap:1.15rem;margin-top:1.5rem}.store-compare{border:1px solid var(--color-line);background:var(--color-surface)}.store-compare>h3{margin:0;padding:.9rem 1rem;background:var(--color-deep-teal);color:white;font-size:1rem;line-height:1.25}.store-days{margin:0;padding:0;list-style:none}.store-days li{display:grid;grid-template-columns:3.3rem minmax(0,1fr);gap:.7rem;padding:.82rem 1rem;border-bottom:1px solid var(--color-line)}.store-days li:nth-child(even){background:#f7faf9}.store-days strong{font-size:.82rem}.store-days p{margin:0;color:var(--color-text);font-size:.86rem;line-height:1.4}.store-days .meal-cost{margin-top:.32rem}.store-total{display:grid;grid-template-columns:5.2rem minmax(0,1fr);gap:.75rem;margin:0;padding:.9rem 1rem;background:var(--color-surface-soft);font-size:.86rem}.store-total strong{font-weight:800}.store-total span{font-weight:700}.store-compare .grocery-details{border-width:1px 0 0}.store-compare .grocery-details .grocery-table-wrap{overflow-x:auto}
+
+}
+
+@media (max-width:56.25rem){.grocery-rule-grid{height:auto;min-height:0;grid-template-rows:auto auto}}
+
+.grocery-details, .store-compare { min-width: 0; }
 </style>
