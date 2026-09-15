@@ -1,0 +1,86 @@
+name: final-release-tooling-v3-validation
+
+on:
+  push:
+    branches: ['prep/final-release-tooling-v3-reviewed-replacement']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  complete-replacement-tooling-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - name: Exact runtime and clean locked install
+        run: |
+          node -e "if(process.version !== 'v24.19.0') process.exit(1)"
+          npm ci
+      - name: Readable source and wrapper syntax
+        run: |
+          node --check scripts/final-rc-preview-exec.mjs
+          node --check scripts/final-rc-preview-remote.mjs
+          node --check scripts/final-rc-preview.mjs
+          node --check scripts/validate-release-dist.mjs
+      - name: Reviewed readable source hash verification
+        run: |
+          node scripts/final-rc-preview.mjs --verify-only
+          node scripts/final-rc-preview.mjs help
+      - name: Complete deterministic runner, integrity, and release-dist tests
+        run: node --test tests/final-rc-preview-v3.test.mjs tests/preview-v3-integrity.test.mjs tests/release-dist-v3.test.mjs tests/preview-v3-static-safety.test.mjs
+      - name: Current final-RC QA harness self-check
+        run: |
+          node --check scripts/final-rc-qa.mjs
+          node --check tests/final-rc-contract.test.mjs
+          node --check tests/built-route-contract.mjs
+          QA_AUTHORITY_PROFILE=final-rc npx playwright test \
+            tests/browser/authority-global.spec.ts \
+            tests/browser/authority-home.spec.ts \
+            tests/browser/authority-reporting.spec.ts \
+            tests/browser/authority-coast-fi.spec.ts \
+            tests/browser/authority-compound-growth.spec.ts \
+            tests/browser/authority-pending-routes.spec.ts --list
+      - name: Validate current Cloudflare infrastructure safeguards
+        run: npm run infra:validate
+      - name: Exercise release-dist CLI on synthetic validation fixture
+        run: |
+          node tests/preview-v3-dist-fixture.mjs .release-preview/tooling-validation-fixture
+          node scripts/validate-release-dist.mjs --dist .release-preview/tooling-validation-fixture
+      - name: Build frozen source substrate for infrastructure dry run
+        run: npm run build
+      - name: Wrangler unpublished preview dry run
+        run: npm run infra:preview-dry-run
+      - name: High-severity dependency audit
+        run: npm audit --audit-level=high
+      - name: Record exact tooling identity and clean tracked source
+        run: |
+          git diff --exit-code
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const integrity = JSON.parse(fs.readFileSync('release/preview-runner-v3-integrity.json','utf8'));
+          fs.mkdirSync('artifacts/tooling-v3',{recursive:true});
+          fs.writeFileSync('artifacts/tooling-v3/validation-identity.json', JSON.stringify({status:'PASS',scope:'replacement tooling validation, not final candidate certification',sha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),tree:execFileSync('git',['rev-parse','HEAD^{tree}'],{encoding:'utf8'}).trim(),runId:process.env.GITHUB_RUN_ID,node:process.version,integrity,productionMutationPerformed:false},null,2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reviewed-preview-tooling-v3-${{ github.sha }}
+          path: |
+            artifacts/tooling-v3/
+            release/preview-runner-v3-integrity.json
+            docs/FINAL-PREVIEW-RUNNER-V3-CAPABILITY-REVIEW.md
+          if-no-files-found: error
+          retention-days: 30

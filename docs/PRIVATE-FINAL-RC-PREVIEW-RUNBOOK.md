@@ -91,3 +91,20 @@ The source RC must stay production-correct: portfolio routes indexable, Wealthsi
 This preview workflow does **not** merge, create a production tag/release, deploy production, bind a domain, change DNS/TLS, alter analytics, or make an owner decision. If any post-upload proof fails, delete the exact unpublished version when safe; if cleanup fails, persist the exact Worker/version IDs for manual cleanup and stop.
 
 After Parker's later `GO`, production must use the **same certified candidate reviewed in preview**. Do not rebuild from different source after approval.
+
+## Reviewed V3 source and integrity
+
+Parker authorized a deliberate readable replacement after the intended V2 source proved unrecoverable. The canonical source is `scripts/final-rc-preview-exec.mjs`, with the narrowly scoped Cloudflare adapter in `scripts/final-rc-preview-remote.mjs`. `scripts/validate-release-dist.mjs` is its release validation dependency. The wrapper verifies every exact SHA-256 in `release/preview-runner-v3-integrity.json` before importing the runner. No compressed payload is used by V3; historical V2 chunks remain unchanged as forensic evidence.
+
+```bash
+node scripts/final-rc-preview.mjs --verify-only
+node scripts/final-rc-preview.mjs help
+```
+
+The human-gates example is deliberately PENDING for Wealthsimple. A real final RC record must bind `videoSha256` and `vttSha256`, include durable transcription/review evidence and `reviewedAt`, and set `mediaCapableTranscription`, `verbatimReviewed`, and `timingReviewed` to true only after that work passes. `unresolvedWords` must be zero. Design Day must retain its linked equivalent visual description and closed owner sign-off.
+
+Required secure runtime environment for preview: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CF_ACCESS_CLIENT_ID`, and `CF_ACCESS_CLIENT_SECRET`. `PREVIEW_REVIEW_EMAIL` identifies the owner, or the runner requires one unambiguous public mailto address. The Access service token must already exist; credentials are never put in source or packets. The token requires read access for complete production snapshots and only the narrow preview operations documented in the capability review.
+
+A review packet includes explicit current production/LKG identity or verified absence, exact Worker/version IDs, source SHA/tree, every certified dist SHA-256, before/after production snapshots, guard evidence, remote smoke results, and the exact cleanup command. If an upload outcome is uncertain, the runner durably records its intent and reconciles exact version IDs. It never guesses which version to delete. Access protection remains in place during and after cleanup.
+
+Tooling validation uses a clearly labeled synthetic dist fixture to exercise the validator and frozen base output only for Wrangler dry run. Neither is an integrated candidate certification. The full exact-candidate QA and authenticated live proofs remain mandatory before the owner review gate.

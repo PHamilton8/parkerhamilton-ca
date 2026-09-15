@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       rc_ref:
-        description: 'Exact final RC SHA/ref'
+        description: 'Exact certified final RC SHA/ref'
         required: true
         type: string
       confirm:
@@ -24,6 +24,7 @@ env:
 
 jobs:
   preview:
+    if: github.ref == 'refs/heads/prep/final-release-tooling-v3-reviewed-replacement' || github.ref == 'refs/heads/integration/final-rc-v1'
     runs-on: ubuntu-latest
     steps:
       - name: Verify explicit authorization
@@ -37,9 +38,18 @@ jobs:
         with:
           node-version: 24.19.0
           cache: npm
+      - run: npm ci
+      - name: Install media and browser validation prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Verify reviewed readable tooling
+        run: node scripts/final-rc-preview.mjs --verify-only
       - name: Create authenticated immutable final-RC preview
-        run: node scripts/final-rc-preview.mjs preview --rc "${{ inputs.rc_ref }}" --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW
+        run: node scripts/final-rc-preview.mjs preview --rc "$RC_REF" --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW
         env:
+          RC_REF: ${{ inputs.rc_ref }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
@@ -49,7 +59,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: private-final-rc-preview-evidence
+          name: private-final-rc-preview-evidence-${{ github.sha }}
           path: .release-preview/
           include-hidden-files: true
           if-no-files-found: warn
+          retention-days: 30

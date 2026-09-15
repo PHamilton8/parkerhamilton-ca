@@ -63,6 +63,9 @@ assert.equal(
 );
 
 const releaseBuild = packageJson.scripts?.['release:build'] ?? '';
+assert.equal(packageJson.scripts?.['infra:preview-dry-run'], 'wrangler versions upload --dry-run', 'Preview dry run must not upload or activate a version');
+assert.equal(packageJson.scripts?.['infra:validate'], 'node scripts/validate-cloudflare-infra.mjs');
+assert.equal(packageJson.scripts?.['infra:validate-dist'], 'node scripts/validate-release-dist.mjs');
 const requiredReleaseSteps = [
   'npm run check',
   'npm test',
@@ -79,9 +82,15 @@ for (const step of requiredReleaseSteps) {
 
 const previewWorkflow = readText('.github/workflows/cloudflare-preview.yml');
 assert.match(previewWorkflow, /workflow_dispatch:/);
-assert.match(previewWorkflow, /refs\/heads\/main/);
-assert.match(previewWorkflow, /wrangler versions upload/);
-assert.doesNotMatch(previewWorkflow, /wrangler deploy(?:\s|$)/);
+// V3 supersedes the old main-only direct upload: the reviewed runner owns Access
+// proof, certification and unpublished upload; the dispatch accepts no production branch.
+assert.match(previewWorkflow, /refs\/heads\/prep\/final-release-tooling-v3-reviewed-replacement/);
+assert.match(previewWorkflow, /refs\/heads\/integration\/final-rc-v1/);
+assert.doesNotMatch(previewWorkflow, /refs\/heads\/(?:main|master|production)\b/);
+assert.match(previewWorkflow, /CREATE_PRIVATE_FINAL_RC_PREVIEW/);
+assert.match(previewWorkflow, /node scripts\/final-rc-preview\.mjs --verify-only/);
+assert.match(previewWorkflow, /node scripts\/final-rc-preview\.mjs preview --rc "\$RC_REF" --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW/);
+assert.doesNotMatch(previewWorkflow, /wrangler\s+(?:deploy|rollback)|versions\s+deploy|dns_records|custom_domains/);
 
 const productionWorkflow = readText('.github/workflows/cloudflare-production-release.yml');
 assert.match(productionWorkflow, /workflow_dispatch:/);

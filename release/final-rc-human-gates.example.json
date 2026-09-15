@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "designDayAudioReview": {
     "status": "PASS",
     "evidence": "1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0",
@@ -10,6 +10,12 @@
     "status": "PENDING",
     "evidence": "Replace with the final VTT/transcript QA record proving a synchronized verbatim caption track exists for the exact final 101.652-second MP4.",
     "reviewedAt": null,
-    "note": "FINAL-RC ACCESSIBILITY GATE — VERBATIM CAPTION TRACK REQUIRED. Owner verification is needed only if a media-capable transcription workflow leaves genuine uncertain words."
+    "note": "FINAL-RC ACCESSIBILITY GATE \u2014 VERBATIM CAPTION TRACK REQUIRED. Owner verification is needed only if a media-capable transcription workflow leaves genuine uncertain words.",
+    "videoSha256": "585bd8d3eb5d040f06bd82515fdcbbe9a8c55d696145405c09d6db3c4fcc5f14",
+    "vttSha256": null,
+    "mediaCapableTranscription": false,
+    "verbatimReviewed": false,
+    "timingReviewed": false,
+    "unresolvedWords": null
   }
 }
