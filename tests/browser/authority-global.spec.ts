@@ -31,13 +31,15 @@ test.describe('Final-RC global release gates', () => {
   });
 
   for (const route of publicRoutes) {
-    test(`${route}: canonical, skip-link, link safety, assets and console are clean`, async ({ page, request }) => {
+    test(`${route}: canonical, skip-link, link safety, assets and console are clean`, async ({ page, request, browserName }) => {
       const errors = await open(page, route, true);
       const canonical = page.locator('link[rel="canonical"]');
       await expect(canonical).toHaveCount(1);
       const href = await canonical.getAttribute('href');
       expect(href).toBe(`https://parkerhamilton.ca${route === '/' ? '/' : route}`);
-      await page.keyboard.press('Tab');
+      // Safari on macOS uses Option-Tab for links unless full keyboard access is enabled.
+    // https://support.apple.com/guide/safari/cpsh003/mac
+    await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
       const skip = page.getByRole('link', { name: 'Skip to main content' });
       await expect(skip).toBeFocused();
       await skip.press('Enter');

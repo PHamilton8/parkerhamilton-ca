@@ -1,0 +1,21 @@
+{
+  "designDayAudioReview": {
+    "status": "PASS",
+    "evidence": "https://drive.google.com/file/d/1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0/view",
+    "videoSha256": "fabce52ef316d6c2f7d6c3db546f6eb6a2fe9c1295ff0f64b30269c17adf1f5b",
+    "durationSeconds": 8.475,
+    "closedHumanGate": true
+  },
+  "wealthsimpleCaptionTrack": {
+    "status": "PASS",
+    "reviewedAt": "2026-09-15T07:16:30.329088+00:00",
+    "evidence": "https://drive.google.com/file/d/1gER2EoFJXMphwiWnbLPU_grs1u5ehqZv/view",
+    "videoSha256": "585bd8d3eb5d040f06bd82515fdcbbe9a8c55d696145405c09d6db3c4fcc5f14",
+    "vttSha256": "8e953f9c81b390376a0c64a3314f547e344faa44691bcc0f8fb60d23ee2e46cf",
+    "sourceCommitSha": "194c02b1e2f93b5d244334ca980a440f31da0dfa",
+    "mediaCapableTranscription": true,
+    "verbatimReviewed": true,
+    "timingReviewed": true,
+    "unresolvedWords": 0
+  }
+}

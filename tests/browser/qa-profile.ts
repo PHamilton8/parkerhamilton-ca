@@ -23,8 +23,10 @@ const profileSurfaces: Record<string, ReadonlySet<AuthoritySurface>> = {
   'final-rc': new Set(['home', 'designDay', 'reporting', 'grocery', 'askWill', 'coast', 'compound', 'smith', 'wealthsimple']),
 };
 
+if (!Object.hasOwn(profileSurfaces, QA_PROFILE)) throw new Error(`Unknown QA authority profile: ${QA_PROFILE}`);
+
 export function requiresAuthority(surface: AuthoritySurface): boolean {
-  return (profileSurfaces[QA_PROFILE] ?? profileSurfaces.baseline).has(surface);
+  return profileSurfaces[QA_PROFILE].has(surface);
 }
 
 export const routeAuthority = {

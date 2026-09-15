@@ -3,10 +3,10 @@
   "canonicalSource": "scripts/final-rc-preview-exec.mjs",
   "supersedesUnrecoverableV2SourceSha256": "46b2812a7d17dd50f2f4d0aedf748966df38ddf9570c11528ed8c3bc2d808e30",
   "derivedPayloads": [],
-  "review": "docs/FINAL-PREVIEW-RUNNER-V3-CAPABILITY-REVIEW.md",
+  "review": "docs/FINAL-PREVIEW-V3-RUNTIME-PRIVACY-REVIEW.md",
   "files": {
-    "scripts/final-rc-preview-exec.mjs": "6c03590af87d16e11d1cbdce96497a8f30134bc14ee87a72c80aeef8733184c0",
-    "scripts/final-rc-preview-remote.mjs": "38007e883cd1fc11294099393bd84856756c9c660043ed02091be00f24017eb2",
+    "scripts/final-rc-preview-exec.mjs": "c0eafd82a4e46ddaeb7c59f3d86ef89336acbee42d55bd764e0e6fe518b171ca",
+    "scripts/final-rc-preview-remote.mjs": "05e01c37b84da2fbc49e87bca55413f4e10943f0a54c674f66ea09bff4247bc7",
     "scripts/validate-release-dist.mjs": "e412bca399668d2e4106e5b8fea444b3eee7644d7c7c557cb42b46f257a068e7"
   }
 }

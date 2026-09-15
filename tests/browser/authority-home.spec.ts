@@ -127,17 +127,19 @@ test.describe('Homepage latest-authority locked contracts', () => {
   test('Homepage canonical copy overrides have not weakened locked content', async ({ page }) => {
     await open(page);
     const askwill = page.locator('.featured-card:has(a[href="/work/askwill"])');
-    await expect(askwill.locator('.project-premise')).toHaveText('A full website rethink for a family-run water-service business, covering structure, content, SEO, privacy, and QA.');
+    await expect(askwill.locator('.project-premise')).toHaveText('A website rethink for a family-run water-service business, covering structure, content, SEO, and QA.');
     const coast = page.locator('.secondary-card:has(a[href="/work/coast-fi"])');
-    await expect(coast.getByRole('heading', { level: 3 })).toHaveText('Coast FI / Net Worth Calculator');
-    await expect(coast.locator('.project-metadata')).toContainText('Builds and Systems');
+    await expect(coast.getByRole('heading', { level: 3 })).toHaveText('Coast FI Calculator');
+    await expect(coast.locator('.project-metadata li')).toHaveText(['Financial Decision-Making', 'Modelling']);
     const smith = page.locator('.secondary-card:has(a[href="/work/smith-manoeuvre"])');
-    await expect(smith.locator('.project-metadata')).toContainText('Builds and Systems');
+    await expect(smith.locator('.project-metadata li')).toHaveText(['Financial Decision-Making', 'Modelling']);
   });
 
-  test('skip link remains first-focus and transfers focus to main', async ({ page }) => {
+  test('skip link remains first-focus and transfers focus to main', async ({ page, browserName }) => {
     await open(page);
-    await page.keyboard.press('Tab');
+    // Safari on macOS uses Option-Tab for links unless full keyboard access is enabled.
+    // https://support.apple.com/guide/safari/cpsh003/mac
+    await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
     const skip = page.getByRole('link', { name: 'Skip to main content' });
     await expect(skip).toBeFocused();
     await skip.press('Enter');

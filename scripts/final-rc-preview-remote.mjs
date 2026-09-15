@@ -7,9 +7,9 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   WORKER_NAME, REQUIRED_NODE, REAL_ROUTES, AUXILIARY_ROUTE, ROUTE_ACCOUNTING,
-  CLEANUP_AUTHORIZATION, attributes, validateHtmlMetadata, validateSitemap,
+  CLEANUP_AUTHORIZATION, createRuntimeRedactor, attributes, validateHtmlMetadata, validateSitemap,
   assertNoindexHeader, assertAnonymousDenied, assertImmutablePreviewUrl,
-  assertBindingsUnchanged, assertSafeCleanup, assertSafeMutation, assertAccessPolicies,
+  assertBindingsUnchanged, bindingIdentitySha256, assertSafeCleanup, assertSafeMutation, assertAccessPolicies,
   assertUploadCommand, assertRouteResponse, findExistingCandidateVersions, findOwnedUploadVersions, sha256, run, writeJson, makeManifest, files, parseVtt, MEDIA,
 } from './final-rc-preview-exec.mjs';
 
@@ -18,7 +18,18 @@ const readJson = async (p) => JSON.parse(await fs.readFile(p, 'utf8'));
 const GUARD_TEXT = 'Private preview access guard. No release candidate content.';
 const GUARD_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Access guard</title></head><body>${GUARD_TEXT}</body></html>\n`;
 const GUARD_HEADERS = 'https://:version.:subdomain.workers.dev/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n';
-const KEY = (s) => { assert.match(s, /^[a-zA-Z0-9-]+$/, 'Safe exact resource identifier'); return s; };
+const KEY = (s) => { assert.ok(typeof s === 'string' && /^[a-zA-Z0-9-]+$/.test(s), 'Safe exact resource identifier'); return s; };
+
+/** Native WebKit reports this MP4's video-stream duration, not its audio/container duration. */
+export function assertBrowserMediaDuration({ engine, route, duration }) {
+  assert.ok(['chromium', 'firefox', 'webkit'].includes(engine), 'Known browser engine required');
+  assert.ok(['/work/design-day', AUXILIARY_ROUTE].includes(route), 'Known approved media route required');
+  const expected = route === AUXILIARY_ROUTE
+    ? (engine === 'webkit' ? 101.63486666666667 : MEDIA.wealthsimple.durationSeconds)
+    : MEDIA.designDay.durationSeconds;
+  assert.ok(Number.isFinite(duration) && Math.abs(duration - expected) <= 0.001, `${engine} ${route}: browser duration`);
+  return { engine, route, duration, expected, toleranceSeconds: 0.001 };
+}
 
 /** Runtime secrets are never written to evidence or passed as command-line arguments. */
 export async function createCloudflareClient({ root, rcSha, packet, certificate, fetchImpl = fetch, env = process.env }) {
@@ -27,8 +38,9 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
   const accountId = KEY(env.CLOUDFLARE_ACCOUNT_ID);
   const base = `/accounts/${accountId}`;
   const scope = { accountId };
+  const redact = createRuntimeRedactor(env);
   const headers = () => ({ 'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID, 'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET, 'Cache-Control': 'no-cache' });
-  const persist = (name, data) => writeJson(path.join(packet, name), data);
+  const persist = (name, data) => writeJson(path.join(packet, name), redact.value(data));
   async function api(endpoint, { method = 'GET', body, allow404 = false, context = {} } = {}) {
     assertSafeMutation({ method, path: endpoint, body }, { ...scope, ...context });
     const res = await fetchImpl(`https://api.cloudflare.com/client/v4${endpoint}`, {
@@ -37,7 +49,7 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
     });
     if (allow404 && res.status === 404) return null;
     let data; try { data = await res.json(); } catch { throw new Error(`Cloudflare ${method} ${endpoint}: invalid JSON HTTP ${res.status}`); }
-    assert.ok(res.ok && data.success === true, `Cloudflare ${method} ${endpoint}: HTTP ${res.status}; ${JSON.stringify(data.errors ?? [])}`);
+    assert.ok(res.ok && data.success === true, `Cloudflare ${method} ${endpoint}: HTTP ${res.status}; error codes ${JSON.stringify((data.errors ?? []).map((error) => error.code).filter((code) => Number.isInteger(code)))}`);
     return data;
   }
   async function list(endpoint) {
@@ -85,7 +97,9 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
     // API contract: first list entry is the latest deployment actively serving traffic.
     // https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/deployments/methods/list/
     const activeDeployment = deployments.length ? { status: 'CURRENT_PRODUCTION_LKG_SNAPSHOT', deploymentId: deployments[0].id, versions: deployments[0].versions, createdOn: deployments[0].created_on ?? null } : { status: 'NO_EXISTING_PRODUCTION_DEPLOYMENT', deploymentId: null, versions: [] };
-    return { workerName: WORKER_NAME, workerId: worker?.id ?? null, routes, domains, deployments, activeDeployment, workersDevEnabled: worker?.subdomain.enabled ?? false, snapshotAt: new Date().toISOString() };
+    const state = { workerName: WORKER_NAME, workerId: worker?.id ?? null, routes, domains, deployments, activeDeployment, workersDevEnabled: worker?.subdomain.enabled ?? false, snapshotAt: new Date().toISOString() };
+    // Preserve comparison of raw binding semantics even when private metadata is masked.
+    return redact.value({ ...state, bindingIdentitySha256: bindingIdentitySha256(state) });
   }
   async function ensureAccess() {
     // Determine the real identities before creating any infrastructure.
@@ -127,7 +141,7 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
     assert.deepEqual(app.destinations, [{ type: 'preview_worker', worker_id: worker.id }], 'Access cannot affect production or other Workers');
     const actualPolicies = await list(`${base}/access/apps/${KEY(app.id)}/policies`);
     assertAccessPolicies(actualPolicies, reviewEmail, token[0].id);
-    const evidence = { appId: app.id, workerId: worker.id, reviewEmail, serviceTokenId: token[0].id, identityProviders: providers.map(({ id, name, type }) => ({ id, name, type })), policies: actualPolicies.map(({ id, name, decision, include }) => ({ id, name, decision, include })) };
+    const evidence = redact.value({ appId: app.id, workerId: worker.id, reviewEmail, serviceTokenId: token[0].id, identityProviders: providers.map(({ id, name, type }) => ({ id, name, type })), policies: actualPolicies.map(({ id, name, decision, include }) => ({ id, name, decision, include })) });
     await persist('access-policy.json', evidence);
     return evidence;
   }
@@ -315,8 +329,7 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
               });
               await page.waitForFunction(() => [...document.querySelectorAll('video')].every((v) => [...v.textTracks].some((t) => t.cues?.length > 0)));
               const duration = await videos.first().evaluate((v) => v.duration);
-              const expected = route === AUXILIARY_ROUTE ? MEDIA.wealthsimple.durationSeconds : MEDIA.designDay.durationSeconds;
-              assert.ok(Math.abs(duration - expected) <= 0.001, `${route}: browser duration`);
+              assertBrowserMediaDuration({ engine, route, duration });
             }
             const broken = await page.locator('img').evaluateAll((images) => images.filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src));
             assert.deepEqual(broken, [], `${route}: no broken images`);
@@ -365,10 +378,13 @@ export async function createCloudflareClient({ root, rcSha, packet, certificate,
     const result = { status: 'PASS', rcSha, manifestSha256: manifest.manifestSha256, checkedAssets: checked, routes: routeResults, browsers, anonymousStatus: anonymous.status, xRobotsTag: 'noindex, nofollow, noarchive', productionUntouched: true };
     await persist('remote-smoke.json', result); return result;
   }
-  return { snapshot, ensureAccess, uploadGuard: () => upload('guard'), uploadCandidate: async (cert) => { assert.equal(cert.manifestSha256, certificate.manifestSha256); return upload('candidate'); }, proveBoundary, deleteVersion, smoke };
+  const expose = (operation) => async (...args) => {
+    try { return await operation(...args); } catch (error) { throw redact.error(error); }
+  };
+  return Object.fromEntries(Object.entries({ snapshot, ensureAccess, uploadGuard: () => upload('guard'), uploadCandidate: async (cert) => { assert.equal(cert.manifestSha256, certificate.manifestSha256); return upload('candidate'); }, proveBoundary, deleteVersion, smoke }).map(([name, operation]) => [name, expose(operation)]));
 }
 export async function writeOwnerPacket(packet, result) {
   const cleanup = `node scripts/final-rc-preview.mjs cleanup --rc ${result.rcSha} --authorize ${CLEANUP_AUTHORIZATION}`;
   const text = `# Final integrated private preview\n\nStatus: PASS\n\nReview URL: ${result.previewUrl}\n\n- Source SHA: \`${result.rcSha}\`\n- Tree: \`${result.treeSha}\`\n- Dist manifest SHA-256: \`${result.manifestSha256}\`\n- Worker ID: \`${result.workerId}\`\n- Unpublished version: \`${result.versionId}\`\n- ${ROUTE_ACCOUNTING}\n- Sitemap: eight portfolio routes only; production canonicals use https://parkerhamilton.ca.\n- Full integrated QA, three browsers, exact media/workbooks/captions, Access guard, anonymous denial, preview response noindex and every served asset SHA-256: PASS.\n- Production routes/custom domains/deployments unchanged. No DNS writes performed.\n\n## Cleanup and rollback identity\n\nCleanup: \`${cleanup}\`\n\nAccess protection is retained. Recorded production/LKG identity is the complete exact snapshot in production-before.json; no rollback target is inferred.\n\n\`\`\`json\n${JSON.stringify(result.rollbackIdentity, null, 2)}\n\`\`\`\n\nAWAITING PARKER FINAL INTEGRATED PREVIEW APPROVAL\n`;
-  await fs.writeFile(path.join(packet, 'OWNER-REVIEW-LINK-PACKET.md'), text, { mode: 0o600 });
+  await fs.writeFile(path.join(packet, 'OWNER-REVIEW-LINK-PACKET.md'), createRuntimeRedactor().text(text), { mode: 0o600 });
 }

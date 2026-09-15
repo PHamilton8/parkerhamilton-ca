@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "base": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "candidateTimestamp": "2026-09-13T05:56:00Z",
+  "homepage": "778724599ef18de15b59a19bdfa95fffe1b424de",
+  "reporting": "40bdfa5cd20d8feb569f2d500d678a3372d8aced",
+  "designDay": null,
+  "askWill": null,
+  "grocery": null,
+  "coast": null,
+  "compound": null,
+  "smith": null,
+  "qaHarness": null,
+  "releaseInfra": null,
+  "authorities": {
+    "homepage": ["1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28"],
+    "reporting": ["1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"]
+  },
+  "execution": {
+    "authorizedIntegrationBranch": null
+  }
+}

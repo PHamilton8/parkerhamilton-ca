@@ -191,7 +191,15 @@ function canonicalJson(value) {
   if (value && typeof value === 'object') return JSON.stringify(Object.fromEntries(Object.keys(value).sort().map((k) => [k, JSON.parse(canonicalJson(value[k]))])));
   return JSON.stringify(value);
 }
+export function bindingIdentitySha256(snapshot) {
+  return sha256(canonicalJson(Object.fromEntries(['routes', 'domains', 'deployments', 'activeDeployment', 'workersDevEnabled'].map((key) => [key, snapshot[key]]))));
+}
 export function assertBindingsUnchanged(before, after) {
+  if ('bindingIdentitySha256' in before || 'bindingIdentitySha256' in after) {
+    assert.match(before.bindingIdentitySha256 ?? '', /^[a-f0-9]{64}$/, 'Complete original binding identity required');
+    assert.match(after.bindingIdentitySha256 ?? '', /^[a-f0-9]{64}$/, 'Complete current binding identity required');
+    assert.equal(after.bindingIdentitySha256, before.bindingIdentitySha256, 'Original production binding state changed');
+  }
   for (const field of ['routes', 'domains', 'deployments']) {
     assert.ok(Array.isArray(before?.[field]) && Array.isArray(after?.[field]), `Complete ${field} snapshots required`);
     assert.equal(canonicalJson(after[field]), canonicalJson(before[field]), `Production ${field} changed`);
@@ -345,23 +353,83 @@ export async function runPreviewTransaction({ client, certificate, persist, auth
   }
 }
 
+/** Only these explicitly configured runtime values require output redaction. */
+export const PRIVATE_RUNTIME_KEYS = Object.freeze([
+  'CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'CF_ACCESS_CLIENT_ID',
+  'CF_ACCESS_CLIENT_SECRET', 'PREVIEW_REVIEW_EMAIL',
+]);
+export function createRuntimeRedactor(...environments) {
+  if (!environments.length) environments = [process.env];
+  const replacements = new Map();
+  for (const environment of environments) for (const key of PRIVATE_RUNTIME_KEYS) {
+    const value = environment?.[key];
+    if (typeof value !== 'string' || value.length === 0) continue;
+    // Error bodies may already contain JSON or URL-encoded runtime values.
+    for (const representation of [value, JSON.stringify(value).slice(1, -1), encodeURIComponent(value)]) {
+      replacements.set(representation, `[REDACTED:${key}]`);
+    }
+  }
+  const ordered = [...replacements].sort((a, b) => b[0].length - a[0].length);
+  const text = (input) => ordered.reduce((out, [value, marker]) => out.split(value).join(marker), String(input));
+  const value = (input) => {
+    const encoded = JSON.stringify(input);
+    if (encoded === undefined) return undefined;
+    const visit = (item) => {
+      if (typeof item === 'string') return text(item);
+      if (Array.isArray(item)) return item.map(visit);
+      if (item && typeof item === 'object') {
+        const entries = Object.entries(item).map(([key, child]) => [text(key), visit(child)]);
+        assert.equal(new Set(entries.map(([key]) => key)).size, entries.length, 'Redacted evidence keys must remain unambiguous');
+        return Object.fromEntries(entries);
+      }
+      return item;
+    };
+    return visit(JSON.parse(encoded));
+  };
+  const error = (original) => {
+    // Do not retain AssertionError.actual/expected, cause or other raw properties:
+    // Node includes those when an exception reaches the wrapper uncaught.
+    const safe = new Error(text(original?.message ?? original));
+    safe.name = text(original?.name ?? 'Error');
+    if (typeof original?.code === 'string' || typeof original?.code === 'number') safe.code = typeof original.code === 'string' ? text(original.code) : original.code;
+    if (typeof original?.stack === 'string') safe.stack = text(original.stack);
+    return safe;
+  };
+  return { text, value, error };
+}
+
 export async function run(command, args, { cwd = process.cwd(), env = {}, logFile, capture = false } = {}) {
-  const startedAt = new Date().toISOString();
-  const childEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(?:CLOUDFLARE_|CF_ACCESS_)/.test(key)));
-  const result = await new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, env: { ...childEnv, ASTRO_TELEMETRY_DISABLED: '1', CI: '1', ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
-    const out = [], err = [];
-    child.stdout.on('data', (b) => { out.push(b); if (!capture) process.stdout.write(b); });
-    child.stderr.on('data', (b) => { err.push(b); if (!capture) process.stderr.write(b); });
-    child.on('error', reject);
-    child.on('close', (code) => resolve({ code, stdout: Buffer.concat(out).toString(), stderr: Buffer.concat(err).toString() }));
-  });
-  if (logFile) await fs.appendFile(logFile, JSON.stringify({ startedAt, command, args, ...result }) + '\n');
-  assert.equal(result.code, 0, `Command failed: ${command} ${args.join(' ')}\n${result.stderr.slice(-3000)}`);
-  return result.stdout.trim();
+  const redact = createRuntimeRedactor(process.env, env);
+  try {
+    const startedAt = new Date().toISOString();
+    const childEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(?:CLOUDFLARE_|CF_ACCESS_)/.test(key) && key !== 'PREVIEW_REVIEW_EMAIL'));
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(command, args, { cwd, env: { ...childEnv, ASTRO_TELEMETRY_DISABLED: '1', CI: '1', ...env, WRANGLER_WRITE_LOGS: 'false', WRANGLER_LOG_SANITIZE: 'true' }, stdio: ['ignore', 'pipe', 'pipe'] });
+      const out = [], err = [];
+      let received = 0, overflow = false;
+      const collect = (chunks) => (bytes) => {
+        received += bytes.length;
+        if (received > 64 * 1024 * 1024) { overflow = true; child.kill('SIGKILL'); return; }
+        chunks.push(bytes);
+      };
+      // Redact only complete decoded output, including values split across chunks.
+      // Bounded buffering also prevents unbounded memory use or partial leaks.
+      child.stdout.on('data', collect(out));
+      child.stderr.on('data', collect(err));
+      child.on('error', reject);
+      child.on('close', (code) => overflow ? reject(new Error('Command output exceeded the 64 MiB safety limit')) : resolve({ code, stdout: Buffer.concat(out).toString(), stderr: Buffer.concat(err).toString() }));
+    });
+    if (!capture) { process.stdout.write(redact.text(result.stdout)); process.stderr.write(redact.text(result.stderr)); }
+    if (logFile) await fs.appendFile(logFile, JSON.stringify(redact.value({ startedAt, command, args, ...result })) + '\n', { mode: 0o600 });
+    assert.equal(result.code, 0, `Command failed: ${command} ${args.join(' ')}\n${result.stderr.slice(-3000)}`);
+    return result.stdout.trim(); // Operational capture stays internal; every output sink above is redacted.
+  } catch (error) { throw redact.error(error); }
 }
 const readJson = async (p) => JSON.parse(await fs.readFile(p, 'utf8'));
-export async function writeJson(p, value) { await fs.mkdir(path.dirname(p), { recursive: true }); await fs.writeFile(p, JSON.stringify(value, null, 2) + '\n', { mode: 0o600 }); }
+export async function writeJson(p, value) {
+  await fs.mkdir(path.dirname(p), { recursive: true });
+  await fs.writeFile(p, JSON.stringify(createRuntimeRedactor().value(value), null, 2) + '\n', { mode: 0o600 });
+}
 export async function files(dir) {
   const out = [];
   async function visit(d) {
@@ -524,7 +592,7 @@ export function parseArgs(argv) {
   }
   return args;
 }
-export async function main(argv = process.argv.slice(2)) {
+async function executeMain(argv = process.argv.slice(2)) {
   if (!argv.length || ['help', '--help'].includes(argv[0])) {
     console.log('Usage: node scripts/final-rc-preview.mjs <preflight|preview|smoke|cleanup> --rc <exact SHA/ref> [--authorize CREATE_PRIVATE_FINAL_RC_PREVIEW|DELETE_PRIVATE_FINAL_RC_PREVIEW] [--packet-root path]'); return;
   }
@@ -565,6 +633,9 @@ export async function main(argv = process.argv.slice(2)) {
     if (args.command === 'smoke') { const result = await client.smoke(state, certificate); await persist('repeat-smoke.json', result); return result; }
     const result = await client.deleteVersion(state); await persist('cleanup.json', result); return result;
   } finally { await lock.close(); await fs.rm(path.join(root, '.final-rc-preview.lock')); }
+}
+export async function main(argv = process.argv.slice(2)) {
+  try { return await executeMain(argv); } catch (error) { throw createRuntimeRedactor().error(error); }
 }
 export const runCli = main;
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main().catch((error) => { console.error(`FAIL CLOSED: ${error.message}`); process.exitCode = 1; });
