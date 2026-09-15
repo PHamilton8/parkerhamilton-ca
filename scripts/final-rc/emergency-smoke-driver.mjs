@@ -5,7 +5,7 @@ import net from 'node:net';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-const [candidate,sourceSha,treeSha,output]=process.argv.slice(2);
+const {PARKER_SMOKE_CANDIDATE_ROOT:candidate,PARKER_SMOKE_SOURCE_SHA:sourceSha,PARKER_SMOKE_TREE_SHA:treeSha,PARKER_SMOKE_OUTPUT:output}=process.env;
 assert.ok(candidate&&sourceSha&&treeSha&&output);
 const portOpen=()=>new Promise(resolve=>{const s=net.connect({host:'127.0.0.1',port:4321});s.once('connect',()=>{s.destroy();resolve(true)});s.once('error',()=>resolve(false));});
 assert.equal(await portOpen(),false,'Port4321 must be free; no existing server reuse');

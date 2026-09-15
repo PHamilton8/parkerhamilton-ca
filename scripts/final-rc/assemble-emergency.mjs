@@ -74,7 +74,7 @@ function runMinimumGates(worktree,summary,outputDir) {
   summary.buildArtifact=hashBuildArtifact(path.join(worktree,'dist'));
   const smokeOutput=path.join(outputDir,'emergency-public-smoke');
   const driver=path.join(path.dirname(fileURLToPath(import.meta.url)),'emergency-smoke-driver.mjs');
-  runGate(worktree,summary.tests,logDir,phase,'node',[driver,worktree,summary.finalCandidateSha,summary.finalTreeSha,smokeOutput],{QA_AUTHORITY_PROFILE:'final-rc'});
+  runGate(worktree,summary.tests,logDir,phase,'node',[driver],{QA_AUTHORITY_PROFILE:'final-rc',PARKER_SMOKE_CANDIDATE_ROOT:worktree,PARKER_SMOKE_SOURCE_SHA:summary.finalCandidateSha,PARKER_SMOKE_TREE_SHA:summary.finalTreeSha,PARKER_SMOKE_OUTPUT:smokeOutput});
   const report=readJson(path.join(smokeOutput,'result.json'));
   summary.browserCertification=assertFocusedSmokeReport(report,summary);
   summary.focusedSmoke={result:report,resultSha256:sha256Text(fs.readFileSync(path.join(smokeOutput,'result.json')))};
