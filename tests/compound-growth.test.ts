@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   CompoundGrowthInputError,
+  compoundGrowthDefaultInput,
   calculateCompoundGrowthProjection,
   calculateEstimatedGrowthRatio,
   selectCompoundGrowthDisplayPoints,
@@ -84,154 +85,92 @@ test('fixed recreation data has no dependency on the exploratory calculator', ()
   ]);
 });
 
-test('annual explorer matches an independently calculated ordinary annuity result', () => {
-  const projection = calculateCompoundGrowthProjection({
-    startingAge: 30,
-    retirementAge: 32,
-    startingPortfolio: 0,
-    annualContribution: 100,
-    annualReturn: 0.1,
-  });
-  assert.equal(projection.finalBalance, 210);
-  assert.equal(projection.totalContributions, 200);
-  assert.equal(projection.projectedInvestmentGrowth, 10);
+test('final defaults and monthly model match the exact approved 8% scenario', () => {
+  assert.deepEqual(compoundGrowthDefaultInput, { startingAge: 25, retirementAge: 65, startingPortfolio: 0, monthlyContribution: 100, annualReturn: 0.08 });
+  const projection = calculateCompoundGrowthProjection(compoundGrowthDefaultInput);
+  assert.equal(Math.round(projection.finalBalance), 322108);
+  assert.equal(projection.totalContributions, 48000);
+  assert.equal(Math.round(projection.projectedInvestmentGrowth), 274108);
+  assert.equal(projection.monthsInvested, 480);
+  assert.equal(projection.monthlyPoints.length, 481);
+  assertApproximatelyEqual((1 + projection.monthlyRate) ** 12, 1.08, 1e-14);
 });
 
-test('starting portfolio compounds independently of contributions', () => {
-  const projection = calculateCompoundGrowthProjection({
-    startingAge: 30,
-    retirementAge: 32,
-    startingPortfolio: 100,
-    annualContribution: 0,
-    annualReturn: 0.1,
-  });
-  assertApproximatelyEqual(projection.finalBalance, 121);
-  assert.equal(projection.totalContributions, 0);
+test('monthly projection agrees with independent ordinary-annuity formula across rates and horizons', () => {
+  for (const annualReturn of [-0.5, 0.03, 0.08, 0.2]) {
+    for (const years of [1, 7, 40, 60]) {
+      const monthlyContribution = 137.25;
+      const projection = calculateCompoundGrowthProjection({ startingAge: 18, retirementAge: 18 + years, monthlyContribution, annualReturn });
+      // Independent closed form; implementation instead advances each month.
+      const rate = Math.pow(1 + annualReturn, 1 / 12) - 1;
+      const expected = monthlyContribution * (Math.pow(1 + annualReturn, years) - 1) / rate;
+      assertApproximatelyEqual(projection.finalBalance, expected, Math.max(1e-7, Math.abs(expected) * 1e-11));
+    }
+  }
 });
 
-test('zero return uses the annual straight-line branch', () => {
-  const projection = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 28,
-    startingPortfolio: 50,
-    annualContribution: 100,
-    annualReturn: 0,
-  });
-  assert.equal(projection.finalBalance, 350);
-  assert.equal(projection.projectedInvestmentGrowth, 0);
+test('month-end timing credits the first contribution after growth and preserves every monthly ledger point', () => {
+  const result = calculateCompoundGrowthProjection({ startingAge: 25, retirementAge: 26, monthlyContribution: 100, annualReturn: 0.08 });
+  assert.equal(result.monthlyPoints[0].projectedBalance, 0);
+  assert.equal(result.monthlyPoints[1].projectedBalance, 100);
+  assertApproximatelyEqual(result.monthlyPoints[2].projectedBalance, 100 * Math.pow(1.08, 1 / 12) + 100, 1e-12);
+  assert.equal(result.monthlyPoints[1].monthsInvested, 1);
+  assert.equal(result.monthlyPoints[1].age, 25 + 1 / 12);
+  assert.equal(result.monthlyPoints.at(-1)?.age, 26);
+  assert.equal(result.totalContributions, 1200);
 });
 
-test('zero contribution and zero starting portfolio remain zero', () => {
-  const projection = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 65,
-    annualContribution: 0,
-    annualReturn: 0.1,
-  });
-  assert.equal(projection.finalBalance, 0);
-  assert.equal(projection.totalContributions, 0);
+test('doubling monthly contributions doubles the approved final balance without changing fixed research', () => {
+  const projection = calculateCompoundGrowthProjection({ ...compoundGrowthDefaultInput, monthlyContribution: 200 });
+  assert.equal(Math.round(projection.finalBalance), 644216);
+  assert.equal(projection.totalContributions, 96000);
+  assert.equal(fixedExperimentalProjectionRows.at(-1)?.total_account_balance_cad, 559461);
 });
 
-test('end-of-year contribution timing leaves the first contribution unearned in year one', () => {
-  const oneYear = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 26,
-    annualContribution: 100,
-    annualReturn: 0.1,
-  });
-  assert.equal(oneYear.annualPoints[0]?.projectedBalance, 0);
-  assert.equal(oneYear.annualPoints[1]?.projectedBalance, 100);
+test('zero return is straight-line monthly saving and zero contributions remain zero', () => {
+  const result = calculateCompoundGrowthProjection({ startingAge: 25, retirementAge: 28, monthlyContribution: 100, annualReturn: 0 });
+  assert.equal(result.finalBalance, 3600);
+  assert.equal(result.projectedInvestmentGrowth, 0);
+  assert.ok(result.monthlyPoints.every((point) => point.projectedBalance === point.monthsInvested * 100));
+  const zero = calculateCompoundGrowthProjection({ ...compoundGrowthDefaultInput, monthlyContribution: 0 });
+  assert.equal(zero.finalBalance, 0);
 });
 
-test('annual ledger and display selection preserve valid age timing', () => {
-  const projection = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 31,
-    annualContribution: 100,
-    annualReturn: 0,
-  });
-  assert.deepEqual(projection.annualPoints.map((point) => point.age), [25, 26, 27, 28, 29, 30, 31]);
-  assert.deepEqual(selectCompoundGrowthDisplayPoints(projection).map((point) => point.yearsInvested), [0, 5, 6]);
+test('optional headless balance remains separate from visible fixed-zero UI and contributions', () => {
+  const result = calculateCompoundGrowthProjection({ startingAge: 30, retirementAge: 32, startingPortfolio: 100, monthlyContribution: 0, annualReturn: 0.1 });
+  assertApproximatelyEqual(result.finalBalance, 121, 1e-10);
+  assert.equal(result.totalContributions, 0);
+  assertApproximatelyEqual(result.projectedInvestmentGrowth, 21, 1e-10);
 });
 
-test('invalid age, portfolio, and return inputs produce typed contract errors', () => {
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25,
-    retirementAge: 25,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'RETIREMENT_AGE_NOT_AFTER_STARTING_AGE');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25.5,
-    retirementAge: 65,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'AGE_NOT_WHOLE_YEAR');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 17,
-    retirementAge: 65,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'STARTING_AGE_OUT_OF_RANGE');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25,
-    retirementAge: 81,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'RETIREMENT_AGE_OUT_OF_RANGE');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 18,
-    retirementAge: 79,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'PROJECTION_HORIZON_EXCEEDS_MAXIMUM');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25,
-    retirementAge: 65,
-    startingPortfolio: -1,
-    annualContribution: 0,
-    annualReturn: 0,
-  }), 'NEGATIVE_STARTING_PORTFOLIO');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25,
-    retirementAge: 65,
-    annualContribution: -1,
-    annualReturn: 0,
-  }), 'NEGATIVE_ANNUAL_CONTRIBUTION');
-  assertInputError(() => validateCompoundGrowthInput({
-    startingAge: 25,
-    retirementAge: 65,
-    annualContribution: 0,
-    annualReturn: -1,
-  }), 'RETURN_NOT_GREATER_THAN_NEGATIVE_ONE');
+test('display intervals are exactly month zero, every five years and final month', () => {
+  for (const [years, expected] of [[1, [0, 12]], [5, [0, 60]], [6, [0, 60, 72]], [40, [0, 60, 120, 180, 240, 300, 360, 420, 480]]] as const) {
+    const result = calculateCompoundGrowthProjection({ ...compoundGrowthDefaultInput, retirementAge: 25 + years });
+    assert.deepEqual(selectCompoundGrowthDisplayPoints(result).map((point) => point.monthsInvested), expected);
+  }
 });
 
-test('valid negative and tiny returns produce finite output', () => {
-  const negative = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 27,
-    annualContribution: 100,
-    annualReturn: -0.5,
-  });
-  assert.equal(negative.finalBalance, 150);
-  const tiny = calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 27,
-    annualContribution: 100,
-    annualReturn: Number.MIN_VALUE,
-  });
-  assert.equal(tiny.finalBalance, 200);
-  assert.equal(Number.isFinite(tiny.finalBalance), true);
+test('invalid monthly inputs preserve typed age, contribution, range and finite-number gates', () => {
+  const base = { startingAge: 25, retirementAge: 65, monthlyContribution: 100, annualReturn: 0.08 };
+  const cases = [
+    [{ retirementAge: 25 }, 'RETIREMENT_AGE_NOT_AFTER_STARTING_AGE'],
+    [{ startingAge: 25.5 }, 'AGE_NOT_WHOLE_YEAR'],
+    [{ startingAge: 17 }, 'STARTING_AGE_OUT_OF_RANGE'],
+    [{ retirementAge: 81 }, 'RETIREMENT_AGE_OUT_OF_RANGE'],
+    [{ startingAge: 18, retirementAge: 79 }, 'PROJECTION_HORIZON_EXCEEDS_MAXIMUM'],
+    [{ startingPortfolio: -1 }, 'NEGATIVE_STARTING_PORTFOLIO'],
+    [{ monthlyContribution: -1 }, 'NEGATIVE_MONTHLY_CONTRIBUTION'],
+    [{ annualReturn: -1 }, 'RETURN_NOT_GREATER_THAN_NEGATIVE_ONE'],
+    [{ monthlyContribution: NaN }, 'NON_FINITE_INPUT'],
+    [{ annualReturn: Infinity }, 'NON_FINITE_INPUT'],
+  ] as const;
+  for (const [input, code] of cases) assertInputError(() => validateCompoundGrowthInput({ ...base, ...input }), code);
 });
 
-test('unrepresentable annual growth fails with a typed numeric-range error', () => {
-  assertInputError(() => calculateCompoundGrowthProjection({
-    startingAge: 25,
-    retirementAge: 27,
-    startingPortfolio: Number.MAX_VALUE,
-    annualContribution: 0,
-    annualReturn: 1,
-  }), 'NUMERIC_RESULT_NOT_REPRESENTABLE');
+test('tiny returns stay finite and unrepresentable monthly growth fails rather than leaking Infinity', () => {
+  const tiny = calculateCompoundGrowthProjection({ startingAge: 25, retirementAge: 27, monthlyContribution: 100, annualReturn: Number.MIN_VALUE });
+  assert.equal(tiny.finalBalance, 2400);
+  assertInputError(() => calculateCompoundGrowthProjection({ startingAge: 25, retirementAge: 27, startingPortfolio: Number.MAX_VALUE, monthlyContribution: 0, annualReturn: 1 }), 'NUMERIC_RESULT_NOT_REPRESENTABLE');
 });
 
 test('EGR presets remain neutral data and calculate the specified ratios', () => {

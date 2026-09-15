@@ -4,8 +4,8 @@ export const compoundGrowthDefaultInput = {
   startingAge: 25,
   retirementAge: 65,
   startingPortfolio: 0,
-  annualContribution: 1_200,
-  annualReturn: 0.1,
+  monthlyContribution: 100,
+  annualReturn: 0.08,
 } as const;
 
 export type CompoundGrowthInputErrorCode =
@@ -16,7 +16,7 @@ export type CompoundGrowthInputErrorCode =
   | 'RETIREMENT_AGE_NOT_AFTER_STARTING_AGE'
   | 'PROJECTION_HORIZON_EXCEEDS_MAXIMUM'
   | 'NEGATIVE_STARTING_PORTFOLIO'
-  | 'NEGATIVE_ANNUAL_CONTRIBUTION'
+  | 'NEGATIVE_MONTHLY_CONTRIBUTION'
   | 'RETURN_NOT_GREATER_THAN_NEGATIVE_ONE'
   | 'NUMERIC_RESULT_NOT_REPRESENTABLE';
 
@@ -30,7 +30,7 @@ export class CompoundGrowthInputError extends RangeError {
   }
 }
 
-/** Approved V2 exploratory-control bounds, used to keep the annual ledger finite. */
+/** Final owner-approved age bounds and finite monthly projection horizon. */
 export const compoundGrowthInputBounds = {
   minimumStartingAge: 18,
   maximumStartingAge: 70,
@@ -40,19 +40,20 @@ export const compoundGrowthInputBounds = {
 } as const;
 
 export interface CompoundGrowthExplorerInput {
-  /** Whole-year age at the start of the annual projection. */
+  /** Whole-year age at the start of the monthly projection. */
   readonly startingAge: number;
-  /** Whole-year age after the final annual cycle. */
+  /** Whole-year retirement age after the final monthly cycle. */
   readonly retirementAge: number;
   /** Headless-only optional initial balance; launch UI defaults and fixes this to zero. */
   readonly startingPortfolio?: number;
-  /** Amount credited after each year's growth. */
-  readonly annualContribution: number;
+  /** Amount credited after each month’s growth. */
+  readonly monthlyContribution: number;
   /** Effective annual return as a decimal, and strictly greater than -1. */
   readonly annualReturn: number;
 }
 
-export interface AnnualProjectionPoint {
+export interface MonthlyProjectionPoint {
+  readonly monthsInvested: number;
   readonly age: number;
   readonly yearsInvested: number;
   readonly cumulativeContributions: number;
@@ -65,8 +66,10 @@ export interface CompoundGrowthProjection {
   readonly finalBalance: number;
   readonly totalContributions: number;
   readonly projectedInvestmentGrowth: number;
-  /** Year 0 plus one point after each annual end-of-year contribution. */
-  readonly annualPoints: readonly AnnualProjectionPoint[];
+  readonly monthsInvested: number;
+  readonly monthlyRate: number;
+  /** Month 0 plus every month-end, independently generated from the research data. */
+  readonly monthlyPoints: readonly MonthlyProjectionPoint[];
 }
 
 export interface EstimatedGrowthRatioResult {
@@ -91,11 +94,7 @@ function assertFiniteResult(value: number, label: string): number {
   return value;
 }
 
-/**
- * Validates the approved V2 whole-year age range and 60-year horizon before
- * allocating the annual ledger. Return and contribution controls remain
- * headless-model inputs within their V2 mathematical contract.
- */
+/** Validate the final monthly model before allocating its bounded ledger. */
 export function validateCompoundGrowthInput(
   input: CompoundGrowthExplorerInput,
 ): Readonly<Required<CompoundGrowthExplorerInput>> {
@@ -107,7 +106,7 @@ export function validateCompoundGrowthInput(
   assertFinite(normalized.startingAge, 'Starting age');
   assertFinite(normalized.retirementAge, 'Retirement age');
   assertFinite(normalized.startingPortfolio, 'Starting portfolio');
-  assertFinite(normalized.annualContribution, 'Annual contribution');
+  assertFinite(normalized.monthlyContribution, 'Monthly contribution');
   assertFinite(normalized.annualReturn, 'Annual return');
 
   if (!Number.isSafeInteger(normalized.startingAge) || !Number.isSafeInteger(normalized.retirementAge)) {
@@ -130,8 +129,8 @@ export function validateCompoundGrowthInput(
   if (normalized.startingPortfolio < 0) {
     inputError('NEGATIVE_STARTING_PORTFOLIO', 'Starting portfolio must be zero or positive.');
   }
-  if (normalized.annualContribution < 0) {
-    inputError('NEGATIVE_ANNUAL_CONTRIBUTION', 'Annual contribution must be zero or positive.');
+  if (normalized.monthlyContribution < 0) {
+    inputError('NEGATIVE_MONTHLY_CONTRIBUTION', 'Monthly contribution must be zero or positive.');
   }
   if (normalized.annualReturn <= -1) {
     inputError('RETURN_NOT_GREATER_THAN_NEGATIVE_ONE', 'Annual return must be greater than -100%.');
@@ -141,42 +140,39 @@ export function validateCompoundGrowthInput(
 }
 
 /**
- * Generates the separate exploratory annual model. Existing balance grows once
- * per year and the annual contribution is then credited at year-end.
+ * Final approved simulator: convert the effective annual return to its equivalent
+ * monthly rate, grow the existing balance, then credit the month-end contribution.
+ * Research rows remain stored evidence and never depend on this function.
  */
 export function calculateCompoundGrowthProjection(
   input: CompoundGrowthExplorerInput,
 ): CompoundGrowthProjection {
   const normalized = validateCompoundGrowthInput(input);
   const yearsInvested = normalized.retirementAge - normalized.startingAge;
+  const monthsInvested = yearsInvested * 12;
+  const monthlyRate = normalized.annualReturn === 0
+    ? 0
+    : Math.expm1(Math.log1p(normalized.annualReturn) / 12);
   let projectedBalance = normalized.startingPortfolio;
   let cumulativeContributions = 0;
-  const annualPoints: AnnualProjectionPoint[] = [{
+  const monthlyPoints: MonthlyProjectionPoint[] = [{
     age: normalized.startingAge,
     yearsInvested: 0,
+    monthsInvested: 0,
     cumulativeContributions,
     projectedBalance,
   }];
 
-  for (let year = 1; year <= yearsInvested; year += 1) {
-    // The V2 contract defines an explicit zero-return branch.
-    const balanceAfterGrowth = normalized.annualReturn === 0
+  for (let month = 1; month <= monthsInvested; month += 1) {
+    const balanceAfterGrowth = monthlyRate === 0
       ? projectedBalance
-      : assertFiniteResult(
-        projectedBalance * (1 + normalized.annualReturn),
-        'Balance after annual growth',
-      );
-    projectedBalance = assertFiniteResult(
-      balanceAfterGrowth + normalized.annualContribution,
-      'Closing balance',
-    );
-    cumulativeContributions = assertFiniteResult(
-      cumulativeContributions + normalized.annualContribution,
-      'Cumulative contributions',
-    );
-    annualPoints.push({
-      age: normalized.startingAge + year,
-      yearsInvested: year,
+      : assertFiniteResult(projectedBalance * (1 + monthlyRate), 'Balance after monthly growth');
+    projectedBalance = assertFiniteResult(balanceAfterGrowth + normalized.monthlyContribution, 'Closing balance');
+    cumulativeContributions = assertFiniteResult(cumulativeContributions + normalized.monthlyContribution, 'Cumulative contributions');
+    monthlyPoints.push({
+      age: normalized.startingAge + month / 12,
+      yearsInvested: month / 12,
+      monthsInvested: month,
       cumulativeContributions,
       projectedBalance,
     });
@@ -185,25 +181,22 @@ export function calculateCompoundGrowthProjection(
   return {
     input: normalized,
     yearsInvested,
+    monthsInvested,
+    monthlyRate,
     finalBalance: projectedBalance,
     totalContributions: cumulativeContributions,
-    projectedInvestmentGrowth: assertFiniteResult(
-      projectedBalance - normalized.startingPortfolio - cumulativeContributions,
-      'Projected investment growth',
-    ),
-    annualPoints,
+    projectedInvestmentGrowth: assertFiniteResult(projectedBalance - normalized.startingPortfolio - cumulativeContributions, 'Projected investment growth'),
+    monthlyPoints,
   };
 }
 
-/** Returns display candidates: year 0, five-year intervals, and the final year. */
+/** Exact final preview selection: month zero, five-year intervals, and final month. */
 export function selectCompoundGrowthDisplayPoints(
   projection: CompoundGrowthProjection,
-): readonly AnnualProjectionPoint[] {
-  const points = projection.annualPoints;
-  if (projection.yearsInvested < 5) return points;
-  return points.filter((point) => point.yearsInvested === 0
-    || point.yearsInvested % 5 === 0
-    || point.yearsInvested === projection.yearsInvested);
+): readonly MonthlyProjectionPoint[] {
+  return projection.monthlyPoints.filter((point) => point.monthsInvested === 0
+    || point.monthsInvested % 60 === 0
+    || point.monthsInvested === projection.monthsInvested);
 }
 
 /** Formula-only helper for the EGR explainer; it has no experiment-result semantics. */
