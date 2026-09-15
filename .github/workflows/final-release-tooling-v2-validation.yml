@@ -1,0 +1,57 @@
+name: final-release-tooling-v2-validation
+
+on:
+  push:
+    branches: ['prep/final-release-tooling-v2']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  validate-prep-tooling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - name: Verify reconciled private-preview payload integrity and syntax
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import { gunzipSync } from 'node:zlib';
+          const names = ['scripts/final-rc-preview.payload-v2-a','scripts/final-rc-preview.payload-v2-b'];
+          const b64 = names.map((name) => fs.readFileSync(name, 'utf8')).join('');
+          const source = gunzipSync(Buffer.from(b64, 'base64'));
+          const sha = crypto.createHash('sha256').update(source).digest('hex');
+          const expected = '46b2812a7d17dd50f2f4d0aedf748966df38ddf9570c11528ed8c3bc2d808e30';
+          if (sha !== expected) throw new Error(`payload sha mismatch: ${sha}`);
+          fs.writeFileSync('/tmp/final-rc-preview-exec.mjs', source);
+          console.log(`preview payload sha256=${sha}`);
+          NODE
+          node --check /tmp/final-rc-preview-exec.mjs
+          node --check scripts/final-rc-preview.mjs
+      - name: Verify final-RC QA tooling syntax and authority-test load
+        run: |
+          node --check scripts/final-rc-qa.mjs
+          node --check tests/final-rc-contract.test.mjs
+          node --check tests/built-route-contract.mjs
+          QA_AUTHORITY_PROFILE=final-rc npx playwright test \
+            tests/browser/authority-global.spec.ts \
+            tests/browser/authority-home.spec.ts \
+            tests/browser/authority-reporting.spec.ts \
+            tests/browser/authority-coast-fi.spec.ts \
+            tests/browser/authority-compound-growth.spec.ts \
+            tests/browser/authority-pending-routes.spec.ts \
+            --list
+      - name: Validate Cloudflare release infrastructure source
+        run: npm run infra:validate
+      - name: Cloudflare preview dry-run
+        run: npm run infra:preview-dry-run

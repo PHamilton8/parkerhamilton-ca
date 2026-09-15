@@ -7,9 +7,12 @@ export default defineConfig({
   reporter: 'list',
   timeout: 120_000,
   expect: { timeout: 10_000 },
+  outputDir: 'test-results',
   use: {
     baseURL: 'http://127.0.0.1:4321',
     trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   webServer: {
     env: { ASTRO_TELEMETRY_DISABLED: '1' },
