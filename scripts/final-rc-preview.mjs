@@ -8,12 +8,11 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 
-const EXPECTED_SHA256 = 'fd9f1dcf3961c8968d9b71c46ddaea69641ea0e3d60b7c7b77951511ade25929';
+const EXPECTED_SHA256 = '46b2812a7d17dd50f2f4d0aedf748966df38ddf9570c11528ed8c3bc2d808e30';
 const here = path.dirname(fileURLToPath(import.meta.url));
-const partsDir = path.join(here, 'final-rc-preview.payload');
-const names = ['fixed-00a', 'fixed-00b', 'part-01', 'part-02', 'part-03', 'part-04', 'part-05', 'part-06'];
-for (const name of names) await fs.access(path.join(partsDir, name));
-const base64 = (await Promise.all(names.map((name) => fs.readFile(path.join(partsDir, name), 'utf8')))).join('');
+const names = ['final-rc-preview.payload-v2-a', 'final-rc-preview.payload-v2-b'];
+for (const name of names) await fs.access(path.join(here, name));
+const base64 = (await Promise.all(names.map((name) => fs.readFile(path.join(here, name), 'utf8')))).join('');
 const source = gunzipSync(Buffer.from(base64, 'base64'));
 const actual = createHash('sha256').update(source).digest('hex');
 if (actual !== EXPECTED_SHA256) throw new Error(`Preview automation payload integrity failure: expected ${EXPECTED_SHA256}, got ${actual}`);
