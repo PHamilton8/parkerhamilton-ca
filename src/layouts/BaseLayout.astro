@@ -4,8 +4,8 @@ import SkipLink from '../components/ui/SkipLink.astro';
 import SiteHeader from '../components/navigation/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
-interface Props { title?: string; description?: string; canonicalPath?: string }
-const { title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname } = Astro.props;
+interface Props { title?: string; description?: string; canonicalPath?: string; robots?: string }
+const { title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname, robots } = Astro.props;
 const canonical = new URL(canonicalPath, site.origin);
 const pageTitle = title === site.defaultTitle ? title : `${title} — ${site.name}`;
 const ogImage = new URL(site.ogImage, site.origin);
@@ -19,6 +19,7 @@ const ogImage = new URL(site.ogImage, site.origin);
     <meta name="theme-color" content="#0a3f3d" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
