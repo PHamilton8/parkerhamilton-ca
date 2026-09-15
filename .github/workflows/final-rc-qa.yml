@@ -1,0 +1,65 @@
+name: final-rc-qa-harness-v3
+
+on:
+  push:
+    branches: ['prep/final-rc-qa-harness-v2']
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Exact final-RC SHA/ref to certify
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  prep-self-check:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - name: Syntax-check prep-only QA runners and JS contracts
+        run: |
+          node --check scripts/final-rc-qa.mjs
+          node --check tests/final-rc-contract.test.mjs
+          node --check tests/built-route-contract.mjs
+      - name: Load final Playwright authority tests without executing them
+        run: |
+          npx playwright test \
+            tests/browser/authority-global.spec.ts \
+            tests/browser/authority-home.spec.ts \
+            tests/browser/authority-reporting.spec.ts \
+            tests/browser/authority-coast-fi.spec.ts \
+            tests/browser/authority-compound-growth.spec.ts \
+            tests/browser/authority-pending-routes.spec.ts \
+            --list
+
+  dispatch-final-sha:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target_ref != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - name: Certify exact final candidate
+        run: node scripts/final-rc-qa.mjs '${{ inputs.target_ref }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-rc-qa-${{ inputs.target_ref }}-${{ github.sha }}
+          path: artifacts/final-rc/
+          if-no-files-found: warn
+          retention-days: 30
