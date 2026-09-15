@@ -98,8 +98,11 @@ test('Compound simulator is the final owner-authorized monthly model, not the su
   assert.match(engine, /Math\.expm1\(Math\.log1p\(normalized\.annualReturn\) \/ 12\)/);
   assert.doesNotMatch(engine, /(?:import|require)[^\n]*(?:fixedExperimentalData|projection-data|experiment-4-results|experiment-summary)/);
   const fixed = readText('src/data/compound-growth/fixedExperimentalData.ts');
-  assert.match(fixed, /1248|1,248/);
-  assert.match(fixed, /five|5/i);
+  assert.match(fixed, /import experimentSummarySource from '\.\/sources\/experiment-summary\.json' with \{ type: 'json' \};/);
+  const summary = JSON.parse(readText('src/data/compound-growth/sources/experiment-summary.json'));
+  assert.equal(summary.program.number_of_experiments, 5, 'Frozen program contains exactly five experiments');
+  assert.equal(summary.program.final_analytic_n_total, 1248, 'Frozen final analytic sample totals1248');
+  assert.equal(summary.experiments.length, 5, 'Exactly five frozen experiment records');
 });
 
 test('Homepage and global ContactBand final source authority remain intact', () => {
