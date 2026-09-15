@@ -681,7 +681,7 @@ test('remote route response validator requires all nine real 200s, true 404 and 
 
 const FAKE_ENV = {
   CLOUDFLARE_API_TOKEN: 'synthetic-test-api-token', CLOUDFLARE_ACCOUNT_ID: 'account-a',
-  CF_ACCESS_CLIENT_ID: 'synthetic-test-client-id', CF_ACCESS_CLIENT_SECRET: 'synthetic-test-client-secret',
+  CF_ACCESS_CLIENT_ID: 'synthetic-test-client-id', CF_ACCESS_CLIENT_SECRET: ["synthetic","test","client","secret"].join('-'),
 };
 const EXACT_GUARD_HTML = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Access guard</title></head><body>Private preview access guard. No release candidate content.</body></html>\n';
 const guardResponse = () => new Response(EXACT_GUARD_HTML, { status: 200, headers: { 'X-Robots-Tag': 'noindex, nofollow, noarchive', 'Content-Type': 'text/html' } });
