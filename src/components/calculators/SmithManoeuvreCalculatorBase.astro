@@ -5,7 +5,8 @@ import {
 import {
   SMITH_DEFAULT_INPUTS,
   buildSmithAnnualSeries,
-  buildSmithChartGeometry,
+  buildSmithBalanceGeometry,
+  SMITH_BALANCE_SERIES,
   formatSmithAxisCurrency,
   formatSmithCurrency,
   formatSmithCurrencyDetailed,
@@ -15,17 +16,17 @@ import {
 
 const defaultResult = runSmithScenario({ ...SMITH_DEFAULT_INPUTS });
 const defaultSeries = buildSmithAnnualSeries(defaultResult);
-const defaultChart = buildSmithChartGeometry(defaultSeries);
+const defaultChart = buildSmithBalanceGeometry(defaultSeries);
 const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
 ---
 
-<section class="smith-calculator" data-smith-calculator aria-labelledby="smith-calculator-title">
+<section class="smith-calculator" data-smith-calculator data-fixed-deductible-interest-assumption="1" aria-labelledby="smith-calculator-title">
   <div class="smith-boundary">
     <div>
       <p class="smith-boundary-label" id="smith-calculator-title">Educational scenario model</p>
       <p>This calculator compares a simplified Smith Manoeuvre scenario with an equal-cash non-Smith baseline. It does not determine tax deductibility or whether the strategy is suitable for you.</p>
     </div>
-    <span>All entered values stay in this browser session.</span>
+    <span>Calculations stay in your browser.</span>
   </div>
 
   <div class="smith-tool-grid">
@@ -41,34 +42,32 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       <fieldset class="smith-fieldset">
         <legend>Property & mortgage</legend>
         <div class="smith-field-grid">
-          <div class="smith-field">
+          <div class="smith-field full-phone">
             <label for="smith-home-value">Home value <span>(CAD)</span></label>
-            <input id="smith-home-value" data-smith-field="homeValue" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.homeValue} aria-describedby="hint-homeValue error-homeValue warning-homeValue" />
-            <p class="smith-hint" id="hint-homeValue">Held constant throughout the model.</p>
+            <input id="smith-home-value" data-smith-field="homeValue" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.homeValue} aria-describedby="error-homeValue warning-homeValue" />
             <p class="smith-warning" id="warning-homeValue" data-warning-for="homeValue" hidden></p>
             <p class="smith-error" id="error-homeValue" data-error-for="homeValue" hidden></p>
           </div>
 
-          <div class="smith-field">
+          <div class="smith-field full-phone">
             <label for="smith-mortgage-balance">Mortgage balance <span>(CAD)</span></label>
-            <input id="smith-mortgage-balance" data-smith-field="mortgageBalance" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.mortgageBalance} aria-describedby="hint-mortgageBalance error-mortgageBalance warning-mortgageBalance" />
-            <p class="smith-hint" id="hint-mortgageBalance">Public model boundary: at most 80% of home value.</p>
+            <input id="smith-mortgage-balance" data-smith-field="mortgageBalance" type="number" inputmode="decimal" step="1000" value={SMITH_DEFAULT_INPUTS.mortgageBalance} aria-describedby="error-mortgageBalance warning-mortgageBalance" />
             <p class="smith-warning" id="warning-mortgageBalance" data-warning-for="mortgageBalance" hidden></p>
             <p class="smith-error" id="error-mortgageBalance" data-error-for="mortgageBalance" hidden></p>
           </div>
 
           <div class="smith-field">
-            <label for="smith-amortization">Remaining amortization <span>(years)</span></label>
+            <label for="smith-amortization">Remaining amortization</label>
             <input id="smith-amortization" data-smith-field="remainingAmortizationYears" type="number" inputmode="numeric" step="1" value={SMITH_DEFAULT_INPUTS.remainingAmortizationYears} aria-describedby="hint-remainingAmortizationYears error-remainingAmortizationYears warning-remainingAmortizationYears" />
-            <p class="smith-hint" id="hint-remainingAmortizationYears">Whole years. Usual calculator range: 1–30.</p>
+            <p class="smith-hint" id="hint-remainingAmortizationYears">1–30 years.</p>
             <p class="smith-warning" id="warning-remainingAmortizationYears" data-warning-for="remainingAmortizationYears" hidden></p>
             <p class="smith-error" id="error-remainingAmortizationYears" data-error-for="remainingAmortizationYears" hidden></p>
           </div>
 
           <div class="smith-field">
-            <label for="smith-horizon">Scenario horizon <span>(years)</span></label>
+            <label for="smith-horizon">Scenario horizon</label>
             <input id="smith-horizon" data-smith-field="horizonYears" type="number" inputmode="numeric" step="1" value={SMITH_DEFAULT_INPUTS.horizonYears} aria-describedby="hint-horizonYears error-horizonYears warning-horizonYears" />
-            <p class="smith-hint" id="hint-horizonYears">Whole years. Usual calculator range: 1–40.</p>
+            <p class="smith-hint" id="hint-horizonYears">1–40 years.</p>
             <p class="smith-warning" id="warning-horizonYears" data-warning-for="horizonYears" hidden></p>
             <p class="smith-error" id="error-horizonYears" data-error-for="horizonYears" hidden></p>
           </div>
@@ -79,25 +78,24 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
         <legend>Rates & return</legend>
         <div class="smith-field-grid">
           <div class="smith-field">
-            <label for="smith-mortgage-rate">Quoted annual mortgage rate <span>(%)</span></label>
+            <label for="smith-mortgage-rate">Mortgage rate <span>(%)</span></label>
             <input id="smith-mortgage-rate" data-smith-field="quotedMortgageRate" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.quotedMortgageRate * 100} aria-describedby="hint-quotedMortgageRate error-quotedMortgageRate warning-quotedMortgageRate" />
-            <p class="smith-hint" id="hint-quotedMortgageRate">Canadian nominal rate with semi-annual compounding.</p>
+            <p class="smith-hint" id="hint-quotedMortgageRate">Uses the Canadian semi-annual compounding convention.</p>
             <p class="smith-warning" id="warning-quotedMortgageRate" data-warning-for="quotedMortgageRate" hidden></p>
             <p class="smith-error" id="error-quotedMortgageRate" data-error-for="quotedMortgageRate" hidden></p>
           </div>
 
           <div class="smith-field">
-            <label for="smith-heloc-rate">Annual HELOC rate <span>(%)</span></label>
+            <label for="smith-heloc-rate">HELOC rate <span>(%)</span></label>
             <input id="smith-heloc-rate" data-smith-field="annualHelocRate" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.annualHelocRate * 100} aria-describedby="hint-annualHelocRate error-annualHelocRate warning-annualHelocRate" />
             <p class="smith-hint" id="hint-annualHelocRate">Modelled as a simplified monthly approximation.</p>
             <p class="smith-warning" id="warning-annualHelocRate" data-warning-for="annualHelocRate" hidden></p>
             <p class="smith-error" id="error-annualHelocRate" data-error-for="annualHelocRate" hidden></p>
           </div>
 
-          <div class="smith-field smith-field-wide">
+          <div class="smith-field smith-field-wide full-phone">
             <label for="smith-investment-return">Expected annual investment return <span>(%)</span></label>
-            <input id="smith-investment-return" data-smith-field="expectedAnnualInvestmentReturn" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.expectedAnnualInvestmentReturn * 100} aria-describedby="hint-expectedAnnualInvestmentReturn error-expectedAnnualInvestmentReturn warning-expectedAnnualInvestmentReturn" />
-            <p class="smith-hint" id="hint-expectedAnnualInvestmentReturn">Effective annual assumption. The model uses a constant deterministic return.</p>
+            <input id="smith-investment-return" data-smith-field="expectedAnnualInvestmentReturn" type="number" inputmode="decimal" step="0.1" value={SMITH_DEFAULT_INPUTS.expectedAnnualInvestmentReturn * 100} aria-describedby="error-expectedAnnualInvestmentReturn warning-expectedAnnualInvestmentReturn" />
             <p class="smith-warning" id="warning-expectedAnnualInvestmentReturn" data-warning-for="expectedAnnualInvestmentReturn" hidden></p>
             <p class="smith-error" id="error-expectedAnnualInvestmentReturn" data-error-for="expectedAnnualInvestmentReturn" hidden></p>
           </div>
@@ -106,23 +104,14 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
 
       <fieldset class="smith-fieldset smith-tax-group">
         <legend>Tax assumptions</legend>
-        <p class="smith-group-note">These are illustrative assumptions, not tax determinations.</p>
         <div class="smith-field-grid">
           <div class="smith-field">
             <label for="smith-tax-rate">Marginal tax-rate proxy <span>(%)</span></label>
-            <input id="smith-tax-rate" data-smith-field="marginalTaxRateProxy" type="number" inputmode="decimal" step="1" value={SMITH_DEFAULT_INPUTS.marginalTaxRateProxy * 100} aria-describedby="hint-marginalTaxRateProxy error-marginalTaxRateProxy warning-marginalTaxRateProxy" />
-            <p class="smith-hint" id="hint-marginalTaxRateProxy">Used only for the estimated tax-offset proxy.</p>
+            <input id="smith-tax-rate" data-smith-field="marginalTaxRateProxy" type="number" inputmode="decimal" step="1" value={SMITH_DEFAULT_INPUTS.marginalTaxRateProxy * 100} aria-describedby="error-marginalTaxRateProxy warning-marginalTaxRateProxy" />
             <p class="smith-warning" id="warning-marginalTaxRateProxy" data-warning-for="marginalTaxRateProxy" hidden></p>
             <p class="smith-error" id="error-marginalTaxRateProxy" data-error-for="marginalTaxRateProxy" hidden></p>
           </div>
 
-          <div class="smith-field">
-            <label for="smith-deductible-share">Deductible-interest assumption <span>(%)</span></label>
-            <input id="smith-deductible-share" data-smith-field="deductibleInterestAssumption" type="number" inputmode="decimal" step="1" value={SMITH_DEFAULT_INPUTS.deductibleInterestAssumption * 100} aria-describedby="hint-deductibleInterestAssumption error-deductibleInterestAssumption warning-deductibleInterestAssumption" />
-            <p class="smith-hint" id="hint-deductibleInterestAssumption">Share of modelled HELOC interest assumed eligible for the proxy.</p>
-            <p class="smith-warning" id="warning-deductibleInterestAssumption" data-warning-for="deductibleInterestAssumption" hidden></p>
-            <p class="smith-error" id="error-deductibleInterestAssumption" data-error-for="deductibleInterestAssumption" hidden></p>
-          </div>
         </div>
       </fieldset>
 
@@ -185,18 +174,14 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       <section class="smith-chart-section" aria-labelledby="smith-chart-title-text">
         <div class="smith-chart-heading">
           <div>
-            <h3 id="smith-chart-title-text">Net position over time</h3>
+            <h3 id="smith-chart-title-text">Debt, portfolio, and net position over time</h3>
             <p>Year-end model points plus the selected horizon endpoint.</p>
           </div>
-          <ul class="smith-legend" aria-label="Chart series">
-            <li><span class="smith-key"></span>Smith scenario</li>
-            <li><span class="baseline-key"></span>Equal-cash baseline</li>
-          </ul>
         </div>
-
-        <div class="smith-chart-frame">
-          <svg data-smith-chart viewBox={`0 0 ${defaultChart.width} ${defaultChart.height}`} role="img" aria-labelledby="smith-svg-title smith-svg-desc">
-            <title id="smith-svg-title">Smith scenario and equal-cash baseline net position over time</title>
+        <div class="graph-view-copy"><h4>Multi-series balances</h4><p>Five exact model balances in one shared-axis chart.</p></div>
+        <div class="smith-chart-frame graph-frame-tall">
+          <svg data-smith-chart data-chart-a viewBox={`0 0 ${defaultChart.width} ${defaultChart.height}`} role="img" aria-labelledby="smith-svg-title smith-svg-desc">
+            <title id="smith-svg-title">Smith mortgage, HELOC balance, Smith taxable portfolio, baseline mortgage, and baseline investment portfolio</title>
             <desc id="smith-svg-desc">A line chart using the same yearly values available in the data table below.</desc>
             <g data-chart-grid aria-hidden="true">
               {defaultChart.ticks.map((tick) => (
@@ -206,37 +191,31 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
                 </g>
               ))}
               <line class="smith-zero-line" x1={defaultChart.left} y1={defaultChart.zeroY} x2={defaultChart.width - defaultChart.right} y2={defaultChart.zeroY}></line>
-              <text class="smith-x-label" x={defaultChart.left} y={defaultChart.height - 14}>0</text>
-              <text class="smith-x-label" x={defaultChart.width - defaultChart.right} y={defaultChart.height - 14} text-anchor="end">{defaultHorizon} years</text>
+              <text x={defaultChart.left} y={defaultChart.height - 12}>0</text>
+              <text x={defaultChart.width - defaultChart.right} y={defaultChart.height - 12} text-anchor="end">{defaultHorizon} years</text>
             </g>
-            <path class="smith-line" data-chart-path="smith" d={defaultChart.smithPath}></path>
-            <path class="baseline-line" data-chart-path="baseline" d={defaultChart.baselinePath}></path>
+            {defaultChart.paths.map((series) => <path class="graph-line" data-chart-path={series.key} d={series.d} stroke={series.color} stroke-width={series.width} stroke-dasharray={series.dash || undefined}></path>)}
             <g data-chart-points aria-hidden="true">
-              {defaultChart.points.map((point) => (
-                <g data-chart-point data-year={point.year} data-smith={point.smithNetFinancialPosition} data-baseline={point.baselineNetFinancialPosition}></g>
-              ))}
+              {defaultSeries.map((point) => <g data-chart-point data-year={point.year} data-smith={point.smithNetFinancialPosition} data-baseline={point.baselineNetFinancialPosition}></g>)}
             </g>
           </svg>
         </div>
-
+        <ul class="graph-legend" aria-label="Chart series">
+          {SMITH_BALANCE_SERIES.map((series) => <li><span class="graph-legend-swatch" style={{ borderTopColor: series.color, borderTopStyle: series.dash ? 'dashed' : 'solid' }} aria-hidden="true"></span>{series.label}</li>)}
+        </ul>
         <details class="smith-data-details">
-          <summary>View yearly comparison data</summary>
-          <div class="smith-table-region" role="region" tabindex="0" aria-label="Yearly Smith and baseline net-position comparison">
-            <table>
-              <caption>Values used in the net-position chart</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Year</th>
-                  <th scope="col">Smith scenario</th>
-                  <th scope="col">Equal-cash baseline</th>
-                </tr>
-              </thead>
-              <tbody data-comparison-table>
+          <summary>View yearly model data</summary>
+          <div class="smith-table-region" role="region" tabindex="0" aria-label="Yearly exact model values used by the chart">
+            <table class="smith-model-data-table">
+              <caption>Exact annual/end-horizon values sampled from the existing monthly model states</caption>
+              <thead><tr><th scope="col">Year</th><th scope="col">Smith mortgage</th><th scope="col">HELOC balance</th><th scope="col">Smith portfolio</th><th scope="col">Baseline mortgage</th><th scope="col">Baseline portfolio</th><th scope="col">Smith net position</th><th scope="col">Baseline net position</th></tr></thead>
+              <tbody data-comparison-table data-model-data-table>
                 {defaultSeries.map((point) => (
                   <tr data-comparison-row data-year={point.year} data-smith={point.smithNetFinancialPosition} data-baseline={point.baselineNetFinancialPosition}>
                     <th scope="row">{Number.isInteger(point.year) ? point.year : point.year.toFixed(1)}</th>
-                    <td>{formatSmithCurrency(point.smithNetFinancialPosition)}</td>
-                    <td>{formatSmithCurrency(point.baselineNetFinancialPosition)}</td>
+                    {SMITH_BALANCE_SERIES.map(({ key }) => <td data-value={point[key]}>{formatSmithCurrency(point[key])}</td>)}
+                    <td data-value={point.smithNetFinancialPosition}>{formatSmithCurrency(point.smithNetFinancialPosition)}</td>
+                    <td data-value={point.baselineNetFinancialPosition}>{formatSmithCurrency(point.baselineNetFinancialPosition)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -260,7 +239,8 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
     SMITH_DEFAULT_INPUTS,
     SMITH_SOFT_RANGES,
     buildSmithAnnualSeries,
-    buildSmithChartGeometry,
+    buildSmithBalanceGeometry,
+  SMITH_BALANCE_SERIES,
     formatSmithAxisCurrency,
     formatSmithCurrency,
     formatSmithCurrencyDetailed,
@@ -271,7 +251,7 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
   const root = document.querySelector<HTMLElement>('[data-smith-calculator]')!;
 
   if (root) {
-    type FieldName = keyof SmithInputs;
+    type FieldName = Exclude<keyof SmithInputs, 'deductibleInterestAssumption'>;
     const fieldNames: FieldName[] = [
       'homeValue',
       'mortgageBalance',
@@ -281,14 +261,12 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       'expectedAnnualInvestmentReturn',
       'horizonYears',
       'marginalTaxRateProxy',
-      'deductibleInterestAssumption',
     ];
     const percentageFields = new Set<FieldName>([
       'quotedMortgageRate',
       'annualHelocRate',
       'expectedAnnualInvestmentReturn',
       'marginalTaxRateProxy',
-      'deductibleInterestAssumption',
     ]);
     const wholeYearFields = new Set<FieldName>(['remainingAmortizationYears', 'horizonYears']);
 
@@ -306,7 +284,6 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       expectedAnnualInvestmentReturn: 'Expected annual return must be greater than -100%.',
       horizonYears: 'Enter a positive whole number of scenario years.',
       marginalTaxRateProxy: 'Enter a marginal tax-rate proxy from 0% to 100%.',
-      deductibleInterestAssumption: 'Enter a deductible-interest assumption from 0% to 100%.',
     };
 
     function clearFeedback() {
@@ -340,7 +317,6 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       if (message.includes('expectedAnnualInvestmentReturn')) return 'expectedAnnualInvestmentReturn';
       if (message.includes('horizonYears')) return 'horizonYears';
       if (message.includes('marginalTaxRateProxy')) return 'marginalTaxRateProxy';
-      if (message.includes('deductibleInterestAssumption')) return 'deductibleInterestAssumption';
       return null;
     }
 
@@ -362,7 +338,7 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       }
       if (hasError) return null;
 
-      const inputs = raw as SmithInputs;
+      const inputs: SmithInputs = { ...raw, deductibleInterestAssumption: 1 };
       const engineErrors = validateSmithInputs(inputs);
       for (const engineError of engineErrors) {
         const field = fieldFromEngineError(engineError);
@@ -392,8 +368,8 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
 
     function renderChart(result: SmithResult) {
       const series = buildSmithAnnualSeries(result);
-      const geometry = buildSmithChartGeometry(series);
       const svg = root.querySelector<SVGSVGElement>('[data-smith-chart]')!;
+      const geometry = buildSmithBalanceGeometry(series, (svg.parentElement?.clientWidth ?? 760) < 480);
       svg.setAttribute('viewBox', `0 0 ${geometry.width} ${geometry.height}`);
 
       const grid = root.querySelector<SVGGElement>('[data-chart-grid]')!;
@@ -424,18 +400,19 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       const startLabel = createSvgElement('text');
       startLabel.setAttribute('class', 'smith-x-label');
       startLabel.setAttribute('x', String(geometry.left));
-      startLabel.setAttribute('y', String(geometry.height - 14));
+      startLabel.setAttribute('y', String(geometry.height - 12));
       startLabel.textContent = '0';
       const endLabel = createSvgElement('text');
       endLabel.setAttribute('class', 'smith-x-label');
       endLabel.setAttribute('x', String(geometry.width - geometry.right));
-      endLabel.setAttribute('y', String(geometry.height - 14));
+      endLabel.setAttribute('y', String(geometry.height - 12));
       endLabel.setAttribute('text-anchor', 'end');
       endLabel.textContent = `${result.inputs.horizonYears} years`;
       grid.append(startLabel, endLabel);
 
-      root.querySelector<SVGPathElement>('[data-chart-path="smith"]')!.setAttribute('d', geometry.smithPath);
-      root.querySelector<SVGPathElement>('[data-chart-path="baseline"]')!.setAttribute('d', geometry.baselinePath);
+      for (const series of geometry.paths) {
+        root.querySelector<SVGPathElement>(`[data-chart-path="${series.key}"]`)!.setAttribute('d', series.d);
+      }
 
       const pointGroup = root.querySelector<SVGGElement>('[data-chart-points]')!;
       pointGroup.replaceChildren();
@@ -459,16 +436,20 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
         const year = document.createElement('th');
         year.scope = 'row';
         year.textContent = Number.isInteger(point.year) ? String(point.year) : point.year.toFixed(1);
-        const smith = document.createElement('td');
-        smith.textContent = formatSmithCurrency(point.smithNetFinancialPosition);
-        const baseline = document.createElement('td');
-        baseline.textContent = formatSmithCurrency(point.baselineNetFinancialPosition);
-        row.append(year, smith, baseline);
+        row.append(year);
+        for (const value of [...SMITH_BALANCE_SERIES.map(({ key }) => point[key]), point.smithNetFinancialPosition, point.baselineNetFinancialPosition]) {
+          const cell = document.createElement('td');
+          cell.dataset.value = String(value);
+          cell.textContent = formatSmithCurrency(value);
+          row.append(cell);
+        }
         body.append(row);
       }
     }
 
+    let currentResult = runSmithScenario({ ...SMITH_DEFAULT_INPUTS, deductibleInterestAssumption: 1 });
     function renderResult(result: SmithResult) {
+      currentResult = result;
       setOutput('netDifference', formatSmithCurrency(result.illustrativeNetPositionDifference));
       setOutput('smithMortgage', formatSmithCurrency(result.endingMortgageBalance));
       setOutput('smithHeloc', formatSmithCurrency(result.endingHelocBalance));
@@ -485,6 +466,7 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
       setOutput('smithPayoff', formatSmithPayoffMonth(result.smithMortgagePayoffMonth));
       setOutput('baselinePayoff', formatSmithPayoffMonth(result.baselineMortgagePayoffMonth));
       root.dataset.externalCashBudgetDifference = String(result.externalCashBudgetDifference);
+      root.dataset.fixedDeductibleInterestAssumption = String(result.inputs.deductibleInterestAssumption);
       const horizon = root.querySelector<HTMLElement>('[data-horizon-label]');
       if (horizon) horizon.textContent = `${result.inputs.horizonYears}-year scenario`;
       renderChart(result);
@@ -529,6 +511,19 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
         }
       });
     }
+    renderResult(currentResult);
+    let previousMobileChart = root.querySelector<SVGSVGElement>('[data-smith-chart]')!.parentElement!.clientWidth < 480;
+    let chartFrame = 0;
+    const chartResize = new ResizeObserver(() => {
+      const mobile = root.querySelector<SVGSVGElement>('[data-smith-chart]')!.parentElement!.clientWidth < 480;
+      if (mobile !== previousMobileChart) {
+        previousMobileChart = mobile;
+        cancelAnimationFrame(chartFrame);
+        chartFrame = requestAnimationFrame(() => renderChart(currentResult));
+      }
+    });
+    chartResize.observe(root.querySelector<SVGSVGElement>('[data-smith-chart]')!.parentElement!);
+
   }
 </script>
 
@@ -856,4 +851,38 @@ const defaultHorizon = SMITH_DEFAULT_INPUTS.horizonYears;
     .smith-results-header { flex-direction: column; align-items: flex-start; }
     .smith-detail-grid { grid-template-columns: 1fr; }
   }
+  .smith-calculator { padding-inline: 1.125rem; }
+  .smith-tax-group .smith-field-grid { grid-template-columns: 1fr; }
+  .smith-tax-group .smith-field { grid-column: 1 / -1; }
+  .smith-detail-grid { grid-template-columns: repeat(6,minmax(0,1fr)); }
+  .smith-detail-grid > div:nth-child(-n+3) { grid-column: span 2; }
+  .smith-detail-grid > div:nth-child(n+4) { grid-column: span 3; }
+  .smith-chart-section { margin-top: 1.65rem; }
+  .graph-view-copy { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin: 1.05rem 0 .7rem; }
+  .graph-view-copy h4 { margin: 0; color: var(--color-ink); font-size: .94rem; letter-spacing: -.015em; }
+  .graph-view-copy p { margin: .15rem 0 0; color: var(--color-muted); font-size: .7rem; }
+  .graph-frame-tall { padding-top: .55rem; }
+  .graph-line { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .graph-legend { display: flex; flex-wrap: wrap; gap: .45rem .9rem; margin: .65rem 0 0; padding: 0; list-style: none; color: var(--color-muted); font-size: .67rem; font-weight: 700; }
+  .graph-legend li { display: inline-flex; align-items: center; gap: .35rem; }
+  .graph-legend-swatch { width: 1.15rem; height: 0; border-top-width: 2px; border-top-style: solid; }
+  .smith-table-region table { min-width: 66rem; }
+  .smith-data-details { margin-top: .9rem; }
+  .smith-chart-frame :global([data-chart-grid] line) { stroke: #dce4e1; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .smith-chart-frame :global([data-chart-grid] text) { fill: #647477; font-family: var(--font-sans); font-size: 12px; font-weight: 650; }
+  .smith-chart-frame :global([data-chart-grid] .smith-zero-line) { stroke: #a9b8b5; stroke-width: 1.15; }
+  .smith-table-region :global(th), .smith-table-region :global(td) { padding: .52rem .6rem; border-bottom: 1px solid var(--color-line); text-align: right; white-space: nowrap; }
+  .smith-table-region :global(th:first-child) { text-align: left; }
+  .smith-table-region :global(tbody th) { color: var(--color-text); font-weight: 700; }
+  @media (max-width: 56rem) { .graph-view-copy { align-items: flex-start; flex-direction: column; } }
+  @media (max-width: 46rem) { .smith-detail-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .smith-detail-grid > div:nth-child(n) { grid-column: auto; } .smith-detail-grid > div:nth-child(3) { grid-column: 1 / -1; } }
+  @media (max-width: 35rem) {
+    .smith-field-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: .9rem .7rem; }
+    .smith-field.full-phone, .smith-field-wide { grid-column: 1 / -1; }
+    .smith-tax-group .smith-field-grid { grid-template-columns: 1fr; }
+    .smith-chart-section { margin-top: 1.35rem; }
+    .smith-chart-frame :global([data-chart-grid] text) { font-size: 14px; }
+    .smith-table-region table { min-width: 62rem; }
+  }
+  @media (max-width: 22rem) { .smith-detail-grid, .smith-field-grid { grid-template-columns: 1fr; } .smith-detail-grid > div:nth-child(n), .smith-field.full-phone, .smith-field-wide { grid-column: auto; } }
 </style>
