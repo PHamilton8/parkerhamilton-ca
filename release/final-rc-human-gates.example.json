@@ -1,8 +1,15 @@
 {
-  "schema": 1,
+  "schema": 2,
   "designDayAudioReview": {
     "status": "PASS",
-    "evidence": "Replace with the durable Drive ID / review record proving the required beginning-to-end human audio listen was completed.",
-    "reviewedAt": "YYYY-MM-DDTHH:MM:SSZ"
+    "evidence": "1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0",
+    "reviewedAt": "2026-09-14T00:00:00Z",
+    "note": "Closed durable owner audio sign-off. Do not re-request human audio review. Automatic retiming/revalidation of the approved wording to the exact 8.475-second clip is authorized."
+  },
+  "wealthsimpleCaptionTrack": {
+    "status": "PENDING",
+    "evidence": "Replace with the final VTT/transcript QA record proving a synchronized verbatim caption track exists for the exact final 101.652-second MP4.",
+    "reviewedAt": null,
+    "note": "FINAL-RC ACCESSIBILITY GATE — VERBATIM CAPTION TRACK REQUIRED. Owner verification is needed only if a media-capable transcription workflow leaves genuine uncertain words."
   }
 }
