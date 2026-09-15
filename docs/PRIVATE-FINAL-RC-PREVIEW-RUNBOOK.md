@@ -1,142 +1,93 @@
 # ParkerHamilton.ca — Private Immutable Final-RC Preview Automation
 
-**Purpose:** create one authenticated, versioned, immutable Cloudflare preview of one exact final release-candidate SHA without deploying it to production, changing DNS, attaching a production route/custom domain, altering analytics, or changing route source.
+**Purpose:** create one authenticated, versioned, immutable Cloudflare preview of one exact final release-candidate SHA without deploying it to production, changing DNS, attaching a production route/custom domain, altering analytics, or changing visitor-facing source.
 
-**Infrastructure authority:** `prep/cloudflare-workers-release-infra-v1` @ `9034eae2e072eefb14c33fee94c5b20dc94579ed`.
+The workflow remains fail-closed. A failed gate stops before upload or deletes the exact unpublished RC version if upload already occurred. It never performs a production deployment, custom-domain bind, Worker-route write, or DNS write.
 
-This package is fail-closed. A failed gate stops before upload, or, if the RC version has already been uploaded, deletes that exact unpublished version. It never calls `wrangler deploy`, `wrangler versions deploy`, a Worker route/domain write API, or a DNS API.
+## Final route accounting
 
-## What must already be true about the final RC
+The only accepted final public HTML accounting is:
 
-The final RC must be frozen as one exact Git commit. The commit must descend from the immutable green baseline `5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e`. Direct ancestry from the reviewed Cloudflare infrastructure SHA `9034eae2e072eefb14c33fee94c5b20dc94579ed` is recorded when present; if integration carried that change set by cherry-pick/rebuild, the existing strict infrastructure validator and pinned Wrangler/config contracts must prove semantic compatibility instead.
+- **8 indexable portfolio routes:** `/`, `/work/design-day`, `/work/reporting-workflow`, `/work/grocery-automation`, `/work/askwill`, `/work/coast-fi`, `/work/compound-growth`, `/work/smith-manoeuvre`.
+- **1 noindex/noarchive auxiliary application route:** `/wealthsimple-2026`.
+- a true noindex 404 document.
 
-The RC must also contain `release/final-rc-human-gates.json`. Copy `release/final-rc-human-gates.example.json`, record the Design Day full-audio human-review disposition and durable evidence reference, commit it, and then freeze the RC SHA. This is deliberately inside the RC so Parker does not have to supply another runtime flag later.
+The Wealthsimple route must remain excluded from sitemap, homepage/work/project navigation, and other portfolio discovery. Its visible H1 must be `Wealthsimple 2027 - Parker Hamilton` even though its route remains `/wealthsimple-2026`.
 
-## Required local/runtime prerequisites
+## Final human/accessibility gates
 
-- Git clone of `PHamilton8/parkerhamilton-ca` with the RC ref fetchable.
-- Node **24.19.0** exactly.
-- npm and Git.
-- Enough disk/time for a clean install, clean Astro build, and Chromium/Firefox/WebKit Playwright release QA.
-- No Cloudflare credentials are needed for preflight.
+`release/final-rc-human-gates.json` is required in the frozen RC.
 
-Evidence is written under `.release-preview/<RC_SHA>/` and is ignored by Git.
+- **Design Day:** the owner audio gate is CLOSED by durable sign-off `1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0`. Do not ask Parker to listen again. The exact replacement MP4 is 8.475 seconds; retime the already-approved caption wording/visual description automatically and verify that no VTT cue exceeds the media duration.
+- **Wealthsimple:** `FINAL-RC ACCESSIBILITY GATE — VERBATIM CAPTION TRACK REQUIRED`. The exact final ~101.652-second MP4 contains speech and must have a synchronized, verbatim caption track before preview. Use a media-capable transcription workflow; preserve Parker's wording. Ask Parker only to resolve genuinely uncertain words, if any remain after high-confidence transcription/review.
 
-## Cloudflare credentials for the authorized step
+## Required runtime
 
-Set these only in the operator environment or secret store; never commit them:
+- exact frozen RC SHA descending from green base `5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e`;
+- Node 24.19.0;
+- Git/npm and enough disk/time for clean install/build and full Playwright QA;
+- Cloudflare credentials only for the explicitly authorized preview step.
 
-```bash
-export CLOUDFLARE_API_TOKEN='...'
-export CLOUDFLARE_ACCOUNT_ID='...'
-export CF_ACCESS_CLIENT_ID='...'
-export CF_ACCESS_CLIENT_SECRET='...'
-```
+Evidence is written under `.release-preview/<RC_SHA>/` and tied cryptographically to that SHA and dist manifest.
 
-The API token should be deliberately narrow: it needs Workers Scripts read/write for version upload/read/delete and read-only deployment/domain inspection, Access Apps and Policies write for the preview-only Access guard, and Access Service Tokens read so the supplied service-token client ID can be resolved. It does **not** need DNS write, Worker custom-domain write, zone-route write, analytics, KV, D1, R2, or other product permissions.
+## Commands
 
-`CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET` are an existing Cloudflare Access service token used only for automated smoke testing of the private preview. The script never prints the secret.
-
-For interactive Parker review, the script uses `PREVIEW_REVIEW_EMAIL` if set; otherwise it attempts to derive one unique email from the built site's `mailto:` contact link. If neither is unambiguous, it stops before upload and asks for `PREVIEW_REVIEW_EMAIL`. Cloudflare Access must already have at least one identity provider / One-time PIN method configured.
-
-## The four operator commands
-
-### 1. Preflight — local only
+### Local-only preflight
 
 ```bash
 node scripts/final-rc-preview.mjs preflight --rc <FINAL_RC_SHA_OR_REF>
 ```
 
-This resolves and records the full SHA and tree, verifies required ancestry, creates a detached clean worktree, runs a clean `npm ci`, the existing infra validator, type/check gate, unit/regression suites, a clean build, public-safety scan, contrast QA, high-severity npm audit, the targeted final-RC release QA, the full three-browser Playwright suite, release-dist validator, and Wrangler preview dry run. It then independently checks the exact route/SEO/public-artifact contracts and copies the exact `dist` bytes into the immutable evidence packet with a SHA-256 manifest.
+Preflight runs clean install/build, current final-RC QA, public-safety/privacy checks, accessibility/browser checks, asset/workbook/media identity checks, release-dist validation, and an infrastructure dry run. It independently verifies the final 8+1 route/indexation contract, exact production canonicals, sitemap containing exactly the 8 portfolio routes, true 404, approved workbook/media bytes, and absence of private Drive/review/local artifacts.
 
-Preflight requires exactly these public HTML routes and no others:
-
-- `/`
-- `/work/compound-growth`
-- `/work/design-day`
-- `/work/askwill`
-- `/work/grocery-automation`
-- `/work/reporting-workflow`
-- `/work/smith-manoeuvre`
-- `/work/coast-fi`
-
-It also requires a true 404, exact production-apex canonicals/sitemap, production-safe route meta, the host-scoped `workers.dev` `X-Robots-Tag` rule, the two approved workbook hashes, no private/review/source-map/archive/office artifacts beyond the approved XLSX files, and no automatic third-party resource origins in built markup/styles.
-
-### 2. Authorized private preview — only command allowed to create the RC preview
+### Authorized private preview
 
 ```bash
 node scripts/final-rc-preview.mjs preview --rc <FINAL_RC_SHA_OR_REF> --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW
 ```
 
-The command reuses a valid preflight packet or reruns preflight. **If any required credential is absent, it completes all local/dry-run work and exits successfully without any Cloudflare mutation.**
+Required secrets remain runtime-only. If authorization/credentials are unavailable, do not mutate Cloudflare.
 
-If credentials are present, the exact authorization phrase is mandatory. The command then:
+The authorized command must:
 
-1. snapshots the Worker's current routes, custom domains, and active deployments;
-2. if the Worker does not yet exist, creates only a non-routable bootstrap version with `workers_dev=false` and `preview_urls=false` — no preview URL can exist yet;
-3. resolves the Worker immutable ID and creates/reuses a `preview_worker` Cloudflare Access application, with an exact-email owner policy and service-token smoke policy;
-4. uploads a harmless **Access guard** version containing no RC content, proves that anonymous access is challenged/denied and authenticated access receives the workers.dev noindex header, then deletes that guard version; this proves the Access boundary is live before any routable RC bytes exist;
-5. only after the guard passes, uploads the exact preflight `dist` bytes with `wrangler versions upload` using the reviewed assets-only config;
-6. identifies exactly one new Worker version and obtains its unique versioned `workers.dev` URL;
-7. proves that routes, custom domains, and active deployment IDs are byte-for-byte/logically unchanged and that the new version is not in an active deployment;
-8. proves anonymous access does not return content, authenticated access succeeds, and every preview response carries `X-Robots-Tag: noindex, nofollow, noarchive`;
-9. byte-compares every remotely served asset against the local build manifest, checks the eight routes + true 404, and runs a real Chromium network-origin smoke across all routes;
-10. writes `preview.json`, post-upload smoke evidence, and `OWNER-REVIEW-LINK-PACKET.md` containing the preview URL, route links, RC/build/version identifiers, production-binding proof, and cleanup/rollback references.
+1. snapshot production routes, custom domains, and active deployment IDs;
+2. prove the Access boundary with a harmless guard before routable RC bytes exist;
+3. upload the exact certified `dist` as one unpublished version;
+4. identify one immutable versioned `workers.dev` URL;
+5. prove production bindings/deployments are unchanged;
+6. prove anonymous access is denied and authenticated responses carry `X-Robots-Tag: noindex, nofollow, noarchive`;
+7. byte-compare remotely served assets against the certified local manifest;
+8. smoke all 9 HTML routes plus 404, including Wealthsimple noindex/noarchive/H1/captions;
+9. write the version/deployment IDs, route checks, build hashes, cleanup commands, and one owner-review URL.
 
-The source HTML is intentionally **not** given a preview-only `meta noindex`, because that same RC must remain production-indexable if later deployed. Preview noindex is response-scoped to the versioned `workers.dev` host. The script verifies that combination explicitly.
+After successful preview creation, the future one-shot execution must stop with exact status:
 
-If any post-upload proof fails, it tries to delete the exact new unpublished version immediately. If cleanup itself fails, it records `MANUAL-CLEANUP-REQUIRED.txt` with the exact version and Worker IDs and exits non-zero.
+`AWAITING PARKER FINAL INTEGRATED PREVIEW APPROVAL`
 
-### 3. Repeat smoke test
+No timeout or inferred approval is permitted. Production launch requires Parker's explicit `GO` or an unambiguous equivalent.
+
+### Repeat smoke
 
 ```bash
 node scripts/final-rc-preview.mjs smoke --rc <FINAL_RC_SHA_OR_REF>
 ```
 
-This revalidates Access privacy/noindex, all eight routes, true 404 behavior, all remote asset hashes, runtime automatic origins, and the unchanged route/domain/deployment snapshots from the preview packet.
+Revalidates privacy/noindex, all 8 indexable routes, the Wealthsimple noindex route, true 404, remote asset hashes, allowed network origins, and unchanged production bindings/deployments.
 
-### 4. Cleanup — deletes only the exact unpublished RC preview version
+### Cleanup
 
 ```bash
 node scripts/final-rc-preview.mjs cleanup --rc <FINAL_RC_SHA_OR_REF> --authorize DELETE_PRIVATE_FINAL_RC_PREVIEW
 ```
 
-Cleanup reads the recorded `preview.json`, rechecks production routes/domains, and **refuses to delete** if that version is referenced by any active deployment. It then deletes only the recorded preview version through Cloudflare's Worker-version API and verifies the URL no longer serves content.
+Deletes only the exact unpublished preview version after proving it is not referenced by an active deployment. Preview Access protection is retained by default.
 
-The preview-only Access application is intentionally retained. Removing it during routine cleanup could expose some other preview version. Deleting the Access guard is therefore a separate manual security decision, not part of this workflow.
+## Indexation boundary
 
-## Fail-closed release stops
+The source RC must stay production-correct: portfolio routes indexable, Wealthsimple noindex/noarchive. Preview-wide noindex is imposed at the versioned preview-host response layer, not by converting production-indexable portfolio source pages to `noindex`.
 
-The workflow stops on any failed existing RC test/QA gate; final-RC human-gate absence; wrong RC lineage; non-clean build; route set other than the exact eight; unexpected private/review artifact; workbook identity drift; source/manifest mismatch; preview that is anonymously accessible or lacks response-level noindex; unexpected automatic network origin; remote asset byte mismatch; custom-domain or Worker-route change; active-deployment change; or any evidence that the new version has become a production deployment.
+## Production boundary
 
-A source/config change after preflight invalidates the packet because the manifest is tied to the exact SHA. Run preflight again on the new frozen SHA.
+This preview workflow does **not** merge, create a production tag/release, deploy production, bind a domain, change DNS/TLS, alter analytics, or make an owner decision. If any post-upload proof fails, delete the exact unpublished version when safe; if cleanup fails, persist the exact Worker/version IDs for manual cleanup and stop.
 
-## Cloudflare identity recorded in the packet
-
-The owner packet records:
-
-- exact RC commit and tree;
-- exact dist manifest SHA-256;
-- Worker name and immutable Worker ID;
-- exact preview version ID and version number;
-- versioned preview URL;
-- pre-existing deployment IDs and the fact that **no new deployment ID was created**;
-- Access application and policy IDs (never secrets);
-- smoke/indexing/origin/remote-manifest results;
-- exact cleanup command;
-- exact API delete endpoint for this version;
-- the production rollback command template from the rollback runbook, clearly marked as **not** a preview-cleanup command.
-
-## Production rollback boundary
-
-Preview cleanup is version deletion, not production rollback. If a future production incident occurs, use the separately verified last-known-good Worker version from the release record:
-
-```bash
-npx wrangler rollback <EXACT_LAST_KNOWN_GOOD_VERSION_ID> --name parkerhamilton-ca --message "INCIDENT <YYYYMMDD-HHMM>: rollback to LKG <GIT_SHA>"
-```
-
-Never infer the rollback target and never change DNS as a first reaction to an application-version problem.
-
-## Deliberately out of scope
-
-This workflow does not merge branches, deploy a production version, attach `parkerhamilton.ca` or `www`, modify DNS/TLS, alter analytics, edit source routes, create KV/D1/R2/service bindings, or make an owner approval decision. Parker's review of the authenticated preview remains a separate explicit release gate.
+After Parker's later `GO`, production must use the **same certified candidate reviewed in preview**. Do not rebuild from different source after approval.
