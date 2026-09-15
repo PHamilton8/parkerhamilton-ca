@@ -11,13 +11,16 @@ export const publicRoutes = [
   '/work/smith-manoeuvre',
 ] as const;
 
-export type AuthoritySurface = 'home' | 'reporting' | 'coast' | 'compound';
+export const auxiliaryNoindexRoutes = ['/wealthsimple-2026'] as const;
+export const allHtmlRoutes = [...publicRoutes, ...auxiliaryNoindexRoutes] as const;
+
+export type AuthoritySurface = 'home' | 'designDay' | 'reporting' | 'grocery' | 'askWill' | 'coast' | 'compound' | 'smith' | 'wealthsimple';
 
 const profileSurfaces: Record<string, ReadonlySet<AuthoritySurface>> = {
   baseline: new Set(),
   'homepage-v3': new Set(['home']),
   'reporting-v3': new Set(['reporting']),
-  'final-rc': new Set(['home', 'reporting', 'coast', 'compound']),
+  'final-rc': new Set(['home', 'designDay', 'reporting', 'grocery', 'askWill', 'coast', 'compound', 'smith', 'wealthsimple']),
 };
 
 export function requiresAuthority(surface: AuthoritySurface): boolean {
@@ -25,12 +28,13 @@ export function requiresAuthority(surface: AuthoritySurface): boolean {
 }
 
 export const routeAuthority = {
-  '/': { visual: 'conditional', note: 'Cathedral, Compound media, More Work assets locked; full Homepage V3 required only in homepage-v3/final-rc profiles.' },
-  '/work/design-day': { visual: 'deferred', note: 'Option C remains owner-review pending; human audio listen remains a manual release gate.' },
-  '/work/reporting-workflow': { visual: 'conditional', note: 'V3 owner approved; required only in reporting-v3/final-rc profiles.' },
-  '/work/grocery-automation': { visual: 'deferred', note: 'V2 visual candidate still owner-review pending; generic safety/accessibility only.' },
-  '/work/askwill': { visual: 'deferred', note: 'V2 visual candidate still owner-review pending; generic safety/accessibility only.' },
-  '/work/coast-fi': { visual: 'conditional', note: 'Existing graph is locked unchanged; Coast-by-age default/reset required in final-rc.' },
-  '/work/compound-growth': { visual: 'conditional', note: 'Canonical data/engine required; four-zone visual candidate remains owner-review pending.' },
-  '/work/smith-manoeuvre': { visual: 'deferred', note: 'Engine/workbook locked; graph A/B/C and simplification visual remain unresolved.' },
+  '/': { visual: 'final', note: 'Homepage V3 owner approved; final global white-email ContactBand is canonical.' },
+  '/work/design-day': { visual: 'final', note: 'Final Minimal Crop layout and 8.475-second replacement demo approved; human audio gate is closed. VTT retiming is technical implementation work.' },
+  '/work/reporting-workflow': { visual: 'final', note: 'V3 owner approved with four synchronized stages.' },
+  '/work/grocery-automation': { visual: 'final', note: 'House Rules C and The workflow owner approved.' },
+  '/work/askwill': { visual: 'final', note: 'Sep-14 Option B + Hosting C owner approved with authentic screenshots.' },
+  '/work/coast-fi': { visual: 'final', note: 'Four-mode final interactive approved; graph/engine/workbook remain frozen.' },
+  '/work/compound-growth': { visual: 'final', note: 'Five-experiment evidence frozen; final simulator uses monthly recurring contributions, $0 start, and 8% default.' },
+  '/work/smith-manoeuvre': { visual: 'final', note: 'Simplified page approved; Graph A with Emerald ladder is the only final graph.' },
+  '/wealthsimple-2026': { visual: 'final', note: 'Implemented noindex auxiliary application route; verbatim synchronized caption track remains a final-RC accessibility gate.' },
 } as const;
