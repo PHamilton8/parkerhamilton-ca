@@ -2,93 +2,245 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactBand from '../../components/layout/ContactBand.astro';
 import { projects } from '../../data/projects';
-
 const project = projects.find((item) => item.slug === 'design-day');
 if (!project) throw new Error('Design Day project data is unavailable.');
-
-const processImages = [
-  { src: '/assets/projects/design-day/design-day-print-components.jpg', width: 1920, height: 1080, alt: 'Purple components being made on a 3D printer during fabrication.', caption: '3D-printing the mounts for the final instrument.' },
-  { src: '/assets/projects/design-day/design-day-soldering.jpg', width: 475, height: 1028, alt: 'Hands soldering electronics on a workbench during the team build.', caption: 'Soldering components onto the prototyping board.' },
-  { src: '/assets/projects/design-day/design-day-bench-test.jpg', width: 1200, height: 912, alt: 'Illuminated components and wiring being tested on a workbench before final assembly.', caption: 'A reassuring moment: the lights worked before we put everything together.' },
-];
 ---
 <BaseLayout title="Design Day 2023" description="Our team built a laser-powered musical instrument that won 1st place at uOttawa's Design Day 2023." canonicalPath={project.route}>
-  <article class="design-case">
-    <header class="design-hero">
-      <div class="design-hero-copy">
-        <h1>Design Day 2023</h1>
-        <p class="design-lede">For Design Day 2023, we built our own take on a laser-powered musical instrument.</p>
-      </div>
-      <figure class="design-hero-image"><img src="/assets/projects/design-day/design-day-hero-prototype.webp" width="1200" height="1600" alt="The final circular light-based electronic musical instrument with illuminated interaction points arranged around its rim." /></figure>
-    </header>
+<article class="design-case visual-75" data-design-layout="media-led" data-prototype-layout="minimal">
+<header class="design-hero">
+<div class="design-hero-copy">
+<h1>Design Day 2023</h1>
+<p class="design-lede">For Design Day 2023, we built our own take on a laser-powered musical instrument.</p>
+<div class="design-award"><a href="https://www.uottawa.ca/faculty-engineering/centre-entrepreneurship-engineering-design/past-winners">1st place at Design Day 2023 <span aria-hidden="true" class="external-mark">↗</span></a></div>
+</div>
+<figure class="design-hero-image"><img alt="The final circular light-based electronic musical instrument with illuminated interaction points arranged around its rim." height="1600" src="/assets/projects/design-day/design-day-hero-prototype-final.jpg" width="1200"/></figure>
+</header>
+<section aria-labelledby="inspiration-title" class="design-section design-origin">
+<div class="origin-layout">
+<figure class="design-figure origin-media"><img alt="A transparent pink laser harp on display at the Canada Science and Technology Museum." height="1200" src="/assets/projects/design-day/design-day-museum-reference.jpg" width="1480"/><figcaption>Laser harp at the Canada Science and Technology Museum.</figcaption></figure>
+<div class="section-copy origin-copy">
+<p class="eyebrow">Origin</p>
+<h2 id="inspiration-title">Where it started</h2>
+<div class="design-reading">
+<p>The idea started after we saw a laser harp at the Canada Science and Technology Museum. We used that interaction as the starting point for our own instrument.</p>
+<p>We wanted to explore whether we could design and produce an instrument that relies less on precise finger movements compared to traditional string instruments.</p>
+</div>
+</div>
+</div>
+</section>
+<section aria-labelledby="demo-title" class="design-section design-demo">
+<div class="demo-layout">
+<div class="section-copy demo-copy">
+<p class="eyebrow">Working demo</p>
+<h2 id="demo-title">The prototype</h2>
+<div class="design-reading" id="design-demo-description"><p>Here’s the prototype in action. Each laser was aimed at a sensor. Blocking the beam caused the sensor to trigger the Arduino, which sent a signal to the synthesizer to produce the note. That meant we could use the same physical interface with different instrument sounds.</p></div>
+<ol aria-label="How the prototype works" class="design-mechanism design-mechanism-desktop"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol>
+</div>
 
-    <section class="design-section design-result design-result--heading-only" aria-labelledby="result-title">
-      <div><p class="eyebrow">Result</p><h2 id="result-title"><a href="https://www.uottawa.ca/faculty-engineering/centre-entrepreneurship-engineering-design/past-winners">1st place at Design Day 2023</a></h2></div>
-    </section>
-
-    <section class="design-section" aria-labelledby="inspiration-title">
-      <div class="design-heading"><p class="eyebrow">Origin</p><h2 id="inspiration-title">Where it started</h2></div>
-      <div class="design-two-col">
-        <figure class="design-figure"><img src="/assets/projects/design-day/design-day-museum-reference.jpg" width="1480" height="1200" alt="A transparent pink laser harp on display at the Canada Science and Technology Museum." /><figcaption>Laser harp at the Canada Science and Technology Museum.</figcaption></figure>
-        <div class="design-reading"><p>The idea started after we saw a laser harp at the Canada Science and Technology Museum. We used that interaction as the starting point for our own instrument.</p><p>We wanted to explore whether we could design and produce an instrument that relies less on precise finger movements compared to traditional string instruments.</p></div>
-      </div>
-    </section>
-
-    <section class="design-section design-demo" aria-labelledby="demo-title">
-      <div class="design-heading"><p class="eyebrow">Working demo</p><h2 id="demo-title">The prototype</h2></div>
-      <div class="design-demo-grid">
-        <video class="design-video" controls width="480" height="848" preload="metadata" aria-describedby="design-demo-description" poster="/assets/projects/design-day/design-day-demo-poster.jpg" aria-label="Demo of the final instrument being played.">
-          <source src="/assets/projects/design-day/design-day-working-demo.mp4" type="video/mp4" />
-          Your browser does not support the working demonstration video.
-        </video>
-        <div class="design-reading" id="design-demo-description"><p>Here’s the prototype in action. Each laser was aimed at a sensor. Blocking the beam caused the sensor to trigger the Arduino, which sent a signal to the synthesizer to produce the note. That meant we could use the same physical interface with different instrument sounds.</p></div>
-      </div>
-      <ol class="design-mechanism" aria-label="Interaction mechanism"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol>
-    </section>
-
-    <section class="design-section" aria-labelledby="build-title">
-      <div class="design-heading"><p class="eyebrow">Process</p><h2 id="build-title">Building the prototype</h2></div>
-      <div class="design-reading design-reading-wide"><p>We 3D-printed the mounts, soldered the circuitry, wired the lasers and sensors, and tested the electronics before putting everything together. I’d be giving myself far too much credit if I pretended I was an electronics expert, but I was fortunate to have teammates who were.</p></div>
-      <div class="design-gallery">{processImages.map((image) => <figure><img src={image.src} width={image.width} height={image.height} alt={image.alt} loading="lazy" /><figcaption>{image.caption}</figcaption></figure>)}</div>
-    </section>
-  </article>
+<div class="demo-mobile-row"><ol aria-label="How the prototype works" class="design-mechanism design-mechanism-mobile"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol><div class="demo-media"><video aria-describedby="design-video-equivalent" aria-label="Demo of the final instrument being played." class="design-video" controls="" height="848" poster="/assets/projects/design-day/design-day-demo-poster.jpg" preload="metadata" width="480"><source src="/assets/projects/design-day/design-day-working-demo.mp4" type="video/mp4"/><track kind="captions" src="/assets/projects/design-day/design-day-working-demo.vtt" srclang="en" label="English" default />Your browser does not support the working demonstration video.</video></div></div></div>
+<div class="design-video-accessibility">
+<p id="design-video-equivalent">A hand moves around the circular instrument and engages illuminated interaction points around its rim. As different points respond, the instrument produces synthesized notes at changing pitches. The clip repeats this interaction at several positions to show the prototype working.</p>
+<details class="design-demo-transcript">
+  <summary>Video transcript and visual description</summary>
+  <dl>
+    <dt>0:00.240–0:03.720</dt><dd>A sequence of synthesized notes changes pitch. A hand moves around the circular instrument and engages illuminated interaction points around its rim.</dd>
+    <dt>0:03.720–0:04.100</dt><dd>The view stays fixed on the same circular prototype.</dd>
+    <dt>0:04.100–0:08.475</dt><dd>Synthesized notes continue. As different points respond, the instrument produces synthesized notes at changing pitches. The clip repeats this interaction at several positions to show the prototype working.</dd>
+  </dl>
+</details>
+</div>
+</section>
+<section aria-labelledby="build-title" class="design-section design-build"><div class="build-layout"><div class="section-copy build-copy"><p class="eyebrow">Process</p><h2 id="build-title">Building the prototype</h2><div class="design-reading"><p>We 3D-printed the mounts, soldered the circuitry, wired the lasers and sensors, and tested the electronics before putting everything together. I’d be giving myself far too much credit if I pretended I was an electronics expert, but I was fortunate to have teammates who were.</p></div></div><div class="design-gallery build-gallery">
+<figure><img alt="Purple components being made on a 3D printer during fabrication." height="1080" loading="lazy" src="/assets/projects/design-day/design-day-print-components.jpg" width="1920"/><figcaption>3D-printing the mounts for the final instrument.</figcaption></figure>
+<figure><img alt="Hands soldering electronics on a workbench during the team build." height="1028" loading="lazy" src="/assets/projects/design-day/design-day-soldering.jpg" width="475"/><figcaption>Soldering components onto the prototyping board.</figcaption></figure>
+<figure><img alt="Illuminated components and wiring being tested on a workbench before final assembly." height="912" loading="lazy" src="/assets/projects/design-day/design-day-bench-test.jpg" width="1200"/><figcaption>A reassuring moment: the lights worked before we put everything together.</figcaption></figure>
+</div></div></section>
+</article>
   <ContactBand />
 </BaseLayout>
 
 <style>
-  .design-case { max-width: var(--content-main); margin-inline: auto; padding: clamp(3.5rem, 8vw, 7rem) clamp(1.125rem, 3vw, 2.25rem) clamp(4.5rem, 8vw, 7rem); }
-  .design-hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(18rem, .8fr); gap: clamp(2rem, 5vw, 5.5rem); align-items: center; padding-bottom: clamp(3.5rem, 7vw, 6rem); border-bottom: 1px solid var(--color-line); }
-  .design-meta { margin: 0 0 1.2rem; color: var(--color-muted); font-size: .8rem; font-weight: 760; letter-spacing: .06em; text-transform: uppercase; }
-  .design-hero h1 { margin: 0; max-width: 48rem; font-size: clamp(3.2rem, 6.5vw, 6rem); line-height: .96; letter-spacing: -.06em; }
-  .design-lede { margin: 1.6rem 0 0; color: var(--color-text); font-size: clamp(1.08rem, 1.6vw, 1.3rem); line-height: 1.55; }
-  .design-role { margin: 1.2rem 0 0; color: var(--color-muted); font-size: .92rem; line-height: 1.5; }
-  .design-hero-image, .design-figure, .design-gallery figure { margin: 0; }
-  .design-hero-image { padding: .65rem; border: 1px solid var(--color-line-strong); background: var(--color-surface); box-shadow: var(--shadow-media); }
-  .design-hero-image img, .design-figure img, .design-gallery img, .design-video { display: block; width: 100%; height: auto; }
-  figcaption { margin-top: .65rem; color: var(--color-muted); font-size: .78rem; line-height: 1.4; }
-  .design-section { padding-top: clamp(4rem, 8vw, 7rem); }
-  .design-heading { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 2rem; align-items: start; }
-  .design-heading .eyebrow { margin: .5rem 0 0; }
-  .design-heading h2, .design-result h2 { max-width: 46rem; margin: 0; font-size: clamp(2.2rem, 4.5vw, 4.2rem); line-height: 1; letter-spacing: -.052em; }
-  .design-result { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, .9fr); gap: 2.5rem; padding: clamp(2rem, 5vw, 3.25rem); background: var(--color-pale-teal); }
-  .design-result--heading-only { grid-template-columns: 1fr; }
-  .design-result .eyebrow { margin-bottom: .8rem; }
-  .design-result p { align-self: end; margin: 0; color: var(--color-text); font-size: 1.03rem; line-height: 1.55; }
-  .design-result a { color: var(--color-deep-teal); font-weight: 760; text-underline-offset: .18em; }
-  .design-two-col, .design-demo-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2.5rem); align-items: start; margin-top: 1.8rem; }
-  .design-figure { padding: .55rem; border: 1px solid var(--color-line); background: var(--color-surface); }
-  .design-reading { max-width: var(--content-reading); color: var(--color-text); }
-  .design-reading p { margin: 0; font-size: 1.04rem; line-height: 1.6; }
-  .design-reading p + p { margin-top: 1rem; }
-  .design-video { aspect-ratio: 480 / 848; max-height: 43rem; background: #111; }
-  .design-mechanism { display: flex; flex-wrap: wrap; gap: .7rem 1rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
-  .design-mechanism li { display: inline-flex; align-items: center; gap: 1rem; color: var(--color-ink); font-size: .9rem; font-weight: 780; }
-  .design-mechanism li:not(:last-child)::after { content: '→'; color: var(--color-teal); }
-  .design-reading-wide { max-width: var(--content-reading); margin: 1.7rem 0 0 auto; }
-  .design-gallery { display: grid; grid-template-columns: 1.3fr .72fr 1fr; gap: 1rem; align-items: start; margin-top: 1.8rem; }
-  .design-gallery figure { padding: .45rem; border: 1px solid var(--color-line); background: var(--color-surface); }
-  .design-gallery figure:nth-child(2) img { max-height: 31rem; object-fit: cover; }
-  @media (max-width: 51.25rem) { .design-hero, .design-result, .design-heading, .design-two-col, .design-demo-grid { grid-template-columns: 1fr; } .design-heading .eyebrow { margin: 0; } .design-hero-image { max-width: 35rem; } .design-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } .design-reading-wide { margin-left: 0; } }
-  @media (max-width: 35rem) { .design-case { padding-inline: 1.125rem; } .design-hero h1 { font-size: clamp(3rem, 15vw, 4.25rem); } .design-gallery { grid-template-columns: 1fr; } .design-mechanism { display: grid; gap: .6rem; } .design-mechanism li:not(:last-child)::after { content: none; } }
-  @media (prefers-reduced-motion: reduce) { .design-video { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
+.design-video-accessibility { margin-top: 1.25rem; }
+.design-video-accessibility > p { max-width: var(--content-reading); margin: 0; font-size: 1.04rem; line-height: 1.6; }
+.design-demo-transcript { margin-top: 1.25rem; color: var(--color-text); border-top: 1px solid var(--color-line); }
+.design-demo-transcript summary { min-height: 44px; padding-block: .7rem; cursor: pointer; font-weight: 700; }
+.design-demo-transcript p, .design-demo-transcript dl { max-width: var(--content-reading); }
+.design-demo-transcript dt { font-weight: 700; margin-top: .85rem; }
+.design-demo-transcript dd { margin: .2rem 0 0; }
+
+
+img{display:block;max-width:100%} a{color:inherit} :focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}
+.eyebrow{margin:0 0 1rem;color:var(--color-teal);font-size:.75rem;line-height:1.35;font-weight:820;letter-spacing:.13em;text-transform:uppercase}
+
+.design-case{max-width:var(--content-main);margin-inline:auto;padding:clamp(3.5rem,8vw,7rem) clamp(1.125rem,3vw,2.25rem) clamp(4.5rem,8vw,7rem)}
+.design-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(18rem,.8fr);gap:clamp(2rem,5vw,5.5rem);align-items:center;padding-bottom:clamp(3.5rem,7vw,6rem);border-bottom:1px solid var(--color-line)}
+.design-hero h1{margin:0;max-width:48rem;font-size:clamp(3.2rem,6.5vw,6rem);line-height:.96;letter-spacing:-.06em}
+.design-lede{margin:1.6rem 0 0;color:var(--color-text);font-size:clamp(1.08rem,1.6vw,1.3rem);line-height:1.55}
+.design-award{margin-top:1.45rem;padding-top:1.05rem;border-top:1px solid var(--color-line-strong);max-width:31rem}
+.design-award a{display:inline-flex;align-items:baseline;gap:.45rem;color:var(--color-deep-teal);font-size:clamp(.98rem,1.2vw,1.08rem);line-height:1.35;font-weight:800;text-decoration-thickness:1px;text-underline-offset:.2em}
+.design-award .external-mark{color:var(--color-teal);font-size:.9em;text-decoration:none}
+.design-hero-image,.design-figure,.design-gallery figure{margin:0}
+.design-hero-image{padding:.65rem;border:1px solid var(--color-line-strong);background:var(--color-surface);box-shadow:var(--shadow-media)}
+.design-hero-image img,.design-figure img,.design-gallery img,.design-video{display:block;width:100%;height:auto}
+figcaption{margin-top:.65rem;color:var(--color-muted);font-size:.78rem;line-height:1.4}
+.design-section{padding-top:clamp(4rem,8vw,7rem)}
+.section-copy h2,.design-heading h2{max-width:46rem;margin:0;font-size:clamp(2.2rem,4.5vw,4.2rem);line-height:1;letter-spacing:-.052em}
+.section-copy .eyebrow{margin-bottom:.85rem}
+.design-figure{padding:.55rem;border:1px solid var(--color-line);background:var(--color-surface)}
+.design-reading{max-width:var(--content-reading);color:var(--color-text)}.design-reading p{margin:0;font-size:1.04rem;line-height:1.6}.design-reading p+p{margin-top:1rem}
+.section-copy .design-reading{margin-top:1.35rem}
+.design-video{aspect-ratio:480/848;background:#111;object-fit:contain}
+.demo-media{display:flex;justify-content:center;align-items:flex-start;min-width:0}
+.design-mechanism{display:flex;flex-wrap:wrap;gap:.7rem 1rem;margin:1.7rem 0 0;padding:0;list-style:none}
+.design-mechanism li{display:inline-flex;align-items:center;gap:1rem;color:var(--color-ink);font-size:.9rem;font-weight:780}
+.design-mechanism li:not(:last-child)::after{content:'→';color:var(--color-teal)}
+
+.origin-layout,.demo-layout{display:grid;align-items:start}
+:where(.design-case)[data-design-layout="media-led"] .origin-layout{grid-template-columns:minmax(19rem,.78fr) minmax(0,1.32fr);gap:clamp(2rem,3vw,3rem);align-items:start}
+:where(.design-case)[data-design-layout="media-led"] .origin-copy{grid-column:1;grid-row:1;margin-top:4.5rem;padding:1.15rem 0 1.2rem 1.6rem;border-left:1px solid var(--color-line-strong)}
+:where(.design-case)[data-design-layout="media-led"] .origin-media{grid-column:2;grid-row:1;width:min(100%,43rem);justify-self:end}
+:where(.design-case)[data-design-layout="media-led"] .demo-layout{grid-template-columns:minmax(17rem,.45fr) minmax(0,1fr);gap:clamp(3rem,6vw,6.25rem);align-items:start}
+:where(.design-case)[data-design-layout="media-led"] .demo-media{grid-column:1;grid-row:1;justify-content:flex-start}
+:where(.design-case)[data-design-layout="media-led"] .demo-media .design-video{max-width:18.5rem}
+:where(.design-case)[data-design-layout="media-led"] .demo-copy{grid-column:2;grid-row:1;margin-top:4rem;padding:1.2rem 0 1.1rem 2rem;border-left:1px solid var(--color-line-strong)}
+:where(.design-case)[data-design-layout="media-led"] .demo-copy .design-reading{max-width:41rem}
+:where(.design-case)[data-design-layout="media-led"] .demo-copy .design-mechanism{padding-top:1.1rem;border-top:1px solid var(--color-line)}
+.design-heading{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:2rem;align-items:start}
+.design-heading .eyebrow{margin:.5rem 0 0}
+.design-reading-wide{max-width:var(--content-reading);margin:1.7rem 0 0 auto}
+.design-gallery{display:grid;grid-template-columns:1.3fr .72fr 1fr;gap:1rem;align-items:start;margin-top:1.8rem}
+.design-gallery figure{padding:.45rem;border:1px solid var(--color-line);background:var(--color-surface)}
+.design-gallery figure:nth-child(2) img{max-height:31rem;object-fit:cover}
+@media (min-width:35.01rem){
+  .design-gallery{grid-template-columns:minmax(15rem,.7fr) minmax(0,1.3fr);grid-template-rows:auto auto;gap:1rem 1.2rem;align-items:stretch}
+  .design-gallery figure:nth-child(1){grid-column:2;grid-row:1}
+  .design-gallery figure:nth-child(2){grid-column:1;grid-row:1 / span 2;display:flex;flex-direction:column}
+  .design-gallery figure:nth-child(3){grid-column:2;grid-row:2}
+  .design-gallery figure:nth-child(1) img,.design-gallery figure:nth-child(3) img{aspect-ratio:16/9;object-fit:cover}
+  .design-gallery figure:nth-child(2) img{width:100%;height:100%;max-height:none;min-height:0;flex:1 1 auto;object-fit:cover;object-position:center 48%}
+}
+
+@media (max-width:51.25rem){
+  .design-hero,.design-heading{grid-template-columns:1fr}
+  .design-heading .eyebrow{margin:0}
+  .design-hero-image{max-width:35rem}
+  .design-reading-wide{margin-left:0}
+}
+@media (min-width:44rem) and (max-width:51.25rem){
+
+  :where(.design-case)[data-design-layout="media-led"] .origin-layout{grid-template-columns:minmax(17rem,.8fr) minmax(0,1.2fr);gap:1.4rem}
+  :where(.design-case)[data-design-layout="media-led"] .origin-copy{margin-top:2.4rem;padding-left:1.15rem}
+  :where(.design-case)[data-design-layout="media-led"] .demo-layout{grid-template-columns:minmax(15.5rem,.48fr) minmax(0,1fr);gap:2.1rem}
+  :where(.design-case)[data-design-layout="media-led"] .demo-media .design-video{max-width:16.8rem}
+  :where(.design-case)[data-design-layout="media-led"] .demo-copy{margin-top:2.6rem;padding-left:1.3rem}
+}
+@media (max-width:43.99rem){
+  .origin-layout,.demo-layout{grid-template-columns:1fr!important;gap:1.55rem!important}
+  .origin-copy,.demo-copy,.origin-media,.demo-media{grid-column:1!important;margin-top:0!important;padding-top:0!important}
+  .origin-copy,.demo-copy{grid-row:1!important;order:1;padding-left:0!important;border-left:0!important}
+  .origin-media,.demo-media{grid-row:2!important;order:2;justify-self:stretch!important;justify-content:flex-start!important;width:100%!important}
+  .origin-media{max-width:100%!important}
+  .demo-media .design-video{width:min(100%,21rem)!important;max-width:21rem!important;max-height:none!important}
+  :where(.design-case)[data-design-layout="media-led"] .demo-copy .design-mechanism{border-top:0;padding-top:0}
+}
+@media (max-width:35rem){
+  .design-case{font-size:.97rem}
+  .design-case{padding-inline:1.125rem}.design-hero h1{font-size:clamp(3rem,15vw,4.25rem)}
+  .design-award{margin-top:1.2rem;padding-top:.9rem}
+  .design-mechanism{display:grid;gap:0}
+  .design-mechanism li{display:grid;grid-template-columns:1fr;gap:0;justify-items:start;padding:.08rem 0}
+  .design-mechanism li:not(:last-child)::after{content:'↓';display:block;margin:.18rem 0 .18rem .35rem;color:var(--color-teal);font-size:1rem;line-height:1}
+  .design-gallery{grid-template-columns:1fr;gap:1rem}.design-gallery figure:nth-child(2) img{max-height:24rem;object-fit:cover;object-position:center 42%}
+}
+:where(.design-case).visual-75 .design-hero-image{width:75%;justify-self:end}
+:where(.design-case).visual-75[data-design-layout="media-led"] .origin-media{width:min(75%,32.25rem)}
+:where(.design-case).visual-75[data-design-layout="media-led"] .demo-media .design-video{width:75%;max-width:13.875rem}
+:where(.design-case).visual-75 .design-gallery{width:75%;margin-left:auto;margin-right:0}
+@media (max-width:51.25rem){
+  :where(.design-case).visual-75 .design-hero-image{width:75%;max-width:26.25rem;justify-self:start}
+  :where(.design-case).visual-75 .design-gallery{margin-left:0;margin-right:auto}
+}
+@media (min-width:44rem) and (max-width:51.25rem){
+  :where(.design-case).visual-75[data-design-layout="media-led"] .origin-media{width:75%;max-width:none;justify-self:end}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-media .design-video{width:75%;max-width:12.6rem}
+}
+@media (max-width:43.99rem){
+  :where(.design-case).visual-75[data-design-layout="media-led"] .origin-media{width:75%!important;max-width:75%!important;justify-self:start!important}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-media{width:100%!important}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-media .design-video{width:75%!important;max-width:15.75rem!important}
+  :where(.design-case).visual-75 .design-gallery{width:75%;margin-left:0;margin-right:auto}
+}
+:where(.design-case).visual-75 .design-hero-image{justify-self:center!important}
+:where(.design-case).visual-75[data-design-layout="media-led"] .origin-media{justify-self:center!important}
+:where(.design-case).visual-75[data-design-layout="media-led"] .demo-media{justify-content:center!important}
+:where(.design-case).visual-75 .design-gallery{margin-left:auto!important;margin-right:auto!important}
+@media (max-width:51.25rem){
+  :where(.design-case).visual-75 .design-hero-image{justify-self:center!important}
+  :where(.design-case).visual-75 .design-gallery{margin-left:auto!important;margin-right:auto!important}
+}
+@media (max-width:43.99rem){
+  :where(.design-case).visual-75[data-design-layout="media-led"] .origin-media{justify-self:center!important}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-media{justify-content:center!important}
+  :where(.design-case).visual-75 .design-gallery{margin-left:auto!important;margin-right:auto!important}
+}
+@media (min-width:44rem){
+  :where(.design-case)[data-design-layout="media-led"] .origin-copy{margin-top:0!important;padding-top:.15rem!important}
+  .design-origin + .design-demo{padding-top:clamp(3rem,5vw,4.5rem)}
+}
+@media (min-width:44rem) and (max-width:51.25rem){
+  :where(.design-case)[data-design-layout="media-led"] .origin-copy{margin-top:0!important;padding-top:.1rem!important}
+  .design-origin + .design-demo{padding-top:3.15rem}
+}
+.design-build .build-layout{display:grid;grid-template-columns:minmax(18rem,.72fr) minmax(0,1.28fr);gap:clamp(2.15rem,4vw,4.25rem);align-items:start}
+.design-build .build-copy{min-width:0;padding-top:.1rem}
+.design-build .build-copy h2{max-width:25rem;font-size:clamp(2.15rem,3.6vw,3.7rem);line-height:1;letter-spacing:-.052em}
+.design-build .build-copy .design-reading{max-width:31rem;margin-top:1.35rem}
+.design-build .build-gallery{width:100%!important;max-width:none!important;margin:0!important;min-width:0;align-items:start}
+.design-build .build-gallery figure{min-width:0;height:auto;align-self:start;display:block}
+.design-build .build-gallery figcaption{height:auto;min-height:0}
+.design-build .build-gallery img{display:block;width:100%;min-height:0}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-layout{grid-template-columns:minmax(18rem,.70fr) minmax(0,1.30fr)}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery{display:grid;grid-template-columns:minmax(9.5rem,.70fr) minmax(0,1.30fr);grid-template-rows:auto auto;gap:1rem 1.15rem}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery figure:nth-child(1){grid-column:2;grid-row:1}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery figure:nth-child(2){grid-column:1;grid-row:1 / span 2}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery figure:nth-child(3){grid-column:2;grid-row:2}
+:where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery img{height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;flex:none!important}
+@media (min-width:44rem) and (max-width:51.25rem){
+  .design-build .build-layout{grid-template-columns:minmax(18rem,.86fr) minmax(0,1.14fr);gap:1.55rem}
+  .design-build .build-copy h2{font-size:clamp(2.2rem,5.1vw,3.15rem)}
+  .design-build .build-copy .design-reading p{font-size:.98rem;line-height:1.56}
+  :where(.design-case)[data-prototype-layout="minimal"] .design-build .build-layout{grid-template-columns:minmax(18rem,.82fr) minmax(0,1.18fr)}
+  :where(.design-case)[data-prototype-layout="minimal"] .design-build .build-gallery{grid-template-columns:minmax(7.6rem,.68fr) minmax(0,1.32fr);gap:.8rem .9rem}
+}
+@media (max-width:43.99rem){
+  :where(.design-case)[data-prototype-layout] .design-build .build-layout{grid-template-columns:1fr!important;gap:1.55rem}
+  .design-build .build-copy{grid-column:1;grid-row:1}
+  .design-build .build-gallery{grid-column:1;grid-row:2;width:75%!important;margin-inline:auto!important;display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto!important;gap:1rem!important}
+  .design-build .build-gallery figure{grid-column:1!important;grid-row:auto!important}
+  .design-build .build-gallery figure img{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center!important;flex:none!important}
+  .design-build .build-gallery figure:nth-child(2) img{max-height:24rem!important;object-fit:cover!important;object-position:center 42%!important}
+}
+.demo-mobile-row{display:contents}
+.design-mechanism-mobile{display:none}
+@media (max-width:43.99rem){
+  .demo-layout{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+  .demo-copy{grid-column:1!important;grid-row:1!important}
+  .demo-mobile-row{grid-column:1;grid-row:2;display:grid;grid-template-columns:minmax(6.7rem,.76fr) minmax(10.4rem,1.24fr);gap:.85rem;align-items:start;margin-top:1.35rem;min-width:0}
+  .design-mechanism-desktop{display:none!important}
+  .design-mechanism-mobile{display:grid!important;margin:0!important;padding:0!important;border:0!important;align-content:start;min-width:0}
+  .demo-mobile-row .demo-media{display:block!important;grid-column:2!important;grid-row:1!important;order:initial!important;width:100%!important;min-width:0!important;justify-self:stretch!important}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-mobile-row .demo-media{width:100%!important;justify-content:initial!important}
+  :where(.design-case).visual-75[data-design-layout="media-led"] .demo-mobile-row .demo-media .design-video,
+  .demo-mobile-row .demo-media .design-video{display:block;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;margin:0!important;aspect-ratio:480/848;object-fit:contain}
+}
+@media (max-width:35rem){
+  .demo-mobile-row .design-mechanism li{font-size:.82rem;line-height:1.25}
+  .demo-mobile-row .design-mechanism li:not(:last-child)::after{margin:.12rem 0 .12rem .3rem}
+}
+@media (max-width:21.2rem){
+  .demo-mobile-row{grid-template-columns:1fr;gap:1rem}
+  .demo-mobile-row .design-mechanism-mobile{grid-column:1;grid-row:1}
+  .demo-mobile-row .demo-media{grid-column:1!important;grid-row:2!important;width:75%!important;justify-self:center!important}
+}
+
 </style>
