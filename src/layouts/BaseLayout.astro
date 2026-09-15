@@ -5,7 +5,7 @@ import SiteHeader from '../components/navigation/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
 interface Props { title?: string; description?: string; canonicalPath?: string; robots?: string }
-const { title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname, robots } = Astro.props;
+const { title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname, robots = canonicalPath === '/404' ? 'noindex, nofollow, noarchive' : undefined } = Astro.props;
 const canonical = new URL(canonicalPath, site.origin);
 const pageTitle = title === site.defaultTitle ? title : `${title} — ${site.name}`;
 const ogImage = new URL(site.ogImage, site.origin);
