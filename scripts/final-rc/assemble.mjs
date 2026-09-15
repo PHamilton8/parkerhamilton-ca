@@ -275,4 +275,7 @@ function main() {
   } finally { if (worktree) { git(repoRoot, ['worktree', 'remove', '--force', worktree], { allowFailure: true }); fs.rmSync(worktree, { recursive: true, force: true }); } }
 }
 
-main();
+// The separate owner-authorized emergency orchestrator shares these unchanged primitives.
+export { RcError, readJson, parseArgs, git, sha256Text, canonicalize, manifestHash, validateManifestShape, findRepoRoot, verifyRepositoryIdentity, ensureCommit, preflightExecuteBranch, normalizeLaneEntry, validateAuthorities, expandLane, validateCommitAndFootprint, validateDuplicatesAndCollisions, writeJson, ensureNpmInstalled, commitIdentity, collectConflictDiagnostics, verifyFinalChangedFiles, hashBuildArtifact, writeCloseout, runGate, packageScripts };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

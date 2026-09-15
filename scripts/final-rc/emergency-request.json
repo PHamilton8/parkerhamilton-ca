@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "profile": "PARKER_EMERGENCY_INITIAL_LAUNCH_2026_09_15",
+  "approvedBy": "Parker Hamilton",
+  "repository": "PHamilton8/parkerhamilton-ca",
+  "operatorBranch": "codex/emergency-final-rc-integration",
+  "integrationBranch": "integration/final-rc-v1",
+  "productionFirst": true,
+  "privatePreviewDeferred": true,
+  "fullQaDeferred": true,
+  "authorityPath": "docs/EMERGENCY-INITIAL-LAUNCH-OWNER-AUTHORITY-2026-09-15.md",
+  "authoritySha256": "7aa914e6f4220995dca1be4265a35cb7072f8faf7842039769ef38bbf5b6e5af",
+  "manifestPath": "scripts/final-rc/manifest.emergency-approved.json",
+  "manifestSha256": "2d2a46af59a334c33636fca46ccc69a7212e9c7cfec0e0b3e9fc63b94cd3ff29"
+}

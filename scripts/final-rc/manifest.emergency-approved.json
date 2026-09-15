@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "base": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "candidateTimestamp": "2026-09-15T07:41:11.000Z",
+  "homepage": {
+    "authorityIds": [
+      "1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28",
+      "17IrAugqmR4lQrG7J4Rt9Dng-ullqOlU60mI9a3O5Y5I"
+    ],
+    "commits": [
+      "db81c7a353b124f24b91b549419d3590a6f1c9bc",
+      "e76c9b225051bb0dc1fd9803bc3a419b48532959",
+      "778724599ef18de15b59a19bdfa95fffe1b424de",
+      "502f551f1c613f7d62b696eb4e2ada597a00f04e",
+      "0ca967805afdbdb65001657b17a9cbd5d63eab9a",
+      "38a804631ca9035ae36cfd1a24eeca408f696c81",
+      "cde943debcc054e5885e2d8e4ff2d85a9d94bc9e",
+      "c2b5c5f8839a23c7baf863040caea5d69b58fab9",
+      "d249b5873e96a88bbd86a88d55f81d45687da3b1",
+      "79957344e0f4983ccab0e032348faf4e32c59b0b"
+    ]
+  },
+  "wealthsimple": {
+    "authorityIds": [
+      "1tQmrQXBBsFYgf15UFVugujukriC8KIRq",
+      "1VYR56cZ9_KWxfWFSmtWLpwnH_EMmxDiu",
+      "1gER2EoFJXMphwiWnbLPU_grs1u5ehqZv",
+      "1uH9i6F5COWQ8jeBAEEVV3NBYGNlv8FE7"
+    ],
+    "commits": [
+      "4d9f8738d0d7868f96cc981f4bffce25740af50e",
+      "194c02b1e2f93b5d244334ca980a440f31da0dfa",
+      "509f3ac09dc7928b0f9f8109b103c2e8c9b18188"
+    ]
+  },
+  "reporting": {
+    "authorityIds": [
+      "1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"
+    ],
+    "commits": [
+      "40bdfa5cd20d8feb569f2d500d678a3372d8aced"
+    ]
+  },
+  "designDay": {
+    "authorityIds": [
+      "1UppTGeru6nzGKlm9hFP95DBT9-bSi7Uz",
+      "1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0"
+    ],
+    "commits": [
+      "24662a3d8e3fafef65367b814303bbb35276ca35"
+    ]
+  },
+  "grocery": {
+    "authorityIds": [
+      "1OgX7M90-B7g3Oj37bv2636FmTS-BvxDz"
+    ],
+    "commits": [
+      "2ba2c458e19527b7deaca551072981877c75c333"
+    ]
+  },
+  "askWill": {
+    "authorityIds": [
+      "1u7SySd3C9hHK5WeUZ6SPIqksSYYIZzmG"
+    ],
+    "commits": [
+      "7a88344e565bca3545169e681906c8a881abedf4"
+    ]
+  },
+  "coast": {
+    "authorityIds": [
+      "1m_4rRwPObxOLpbXqOMyRu20jXn8knEIx"
+    ],
+    "commits": [
+      "7be675abf8ff3ff38fd7fac01eac98d9fb9b7958"
+    ]
+  },
+  "compound": {
+    "authorityIds": [
+      "1b6_1WBeAdWtj-k_cMLqdlLSeHX5cnKzpo-Z2IJZN3kU",
+      "1uH9i6F5COWQ8jeBAEEVV3NBYGNlv8FE7"
+    ],
+    "commits": [
+      "d7063d6afdd8309862ac18e3c5559153ba04465c",
+      "1893be977690b803ae7447a3a1014db6c938ed31"
+    ]
+  },
+  "smith": {
+    "authorityIds": [
+      "1LvovEf0qbIqr37SmJaz83m1ks9-mB_Is3WZgVgIs-pM",
+      "1qn24h5YyzUBfFuWodhCUte5JJn_52w4C"
+    ],
+    "commits": [
+      "4c2cb27a31bca9bf5ba274d3aafa13565dd814cf"
+    ]
+  },
+  "releaseTooling": {
+    "authorityIds": [
+      "1WX-7XVSsoogpVcVHJJB8xGA4lP8xcZIB",
+      "1uH9i6F5COWQ8jeBAEEVV3NBYGNlv8FE7"
+    ],
+    "commits": [
+      "e914dbb429201d8be0135b8121100a8d189cee0e",
+      "88738fb3b08bea97d4eb5f5b2a2005cbad834778",
+      "cf71e2dbee0947726ae3e78e97a9bf66f46c0f9f",
+      "3a710d0e19359899a6800677bf3debc47caa2ae1",
+      "fd29a4e5ec600e95e8f9141d9ee3008ff5431d43",
+      "56d1dfc410f1d5c221ad4cfe0a35913ed67ca2dc",
+      "2e13defb6cacfa7b484fc136051133be840d4113",
+      "7afc2ceeb587d43554c966f76acba1cc648213fb",
+      "e22b9f2348671a176c48a85451831feeed76bfcd",
+      "ecf5aae2203e9feea496f68590af592f034cd1b1",
+      "dd2f9cb62912168099a6f680efb2123f300027f3",
+      "4d34d4ed95a8848af49ac1ca61d73474b85f4f8a",
+      "a470a335a0563186ae52bf82bcfde93d17d94241",
+      "9034eae2e072eefb14c33fee94c5b20dc94579ed",
+      "d5b74c987dd3844dd1140db7fe6453392de98ff2",
+      "eedb5412bd3249d09afc07bc6ed48ee3efc4db23",
+      "693c018069f4112abc5a0e8db4c26d3007d440ad",
+      "02431af8ae8ab27ae38a601499bd36ce391115c8",
+      "3e769b598437d1711e6aba71efa3f981624c1e2d",
+      "1e78b863825ecffe7513401f560c8143d2742baa",
+      "95c4b9ef9d01ef9fc9e0eae08f88ba76ba42b72c",
+      "1bcdd96210e2406fbde2701ac4f74afa28896297",
+      "24687bb5e50538c16f40d8302e7ef752baa4c42f",
+      "b5c8148fa63d20d75e2782ad74374436fd937893",
+      "e9ca622818c621564aa4383e1d7e7a0a987eec66",
+      "edf1b756bdf7f8df4e439ea197e84650d5847e5b",
+      "63ae5cc128e8ebeff69c65dba604130c337ee8bd",
+      "53281a09c72e3c2c07a2b937418e90747902de98"
+    ]
+  },
+  "execution": {
+    "authorizedIntegrationBranch": "integration/final-rc-v1"
+  },
+  "notes": [
+    "Exact owner-approved source lanes; emergency operator files do not enter this candidate.",
+    "Full final certification and private preview are deferred by the explicit September15 emergency initial-launch owner authorization.",
+    "Explicit patch arrays assign shared Home ancestry only to the homepage lane; Wealthsimple includes only its page/media, caption and404 metadata commits. Historic V2 forensic commits remain ancestors of the fully green terminal V3 release-tooling source."
+  ]
+}

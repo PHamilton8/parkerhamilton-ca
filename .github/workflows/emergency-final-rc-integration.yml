@@ -1,0 +1,57 @@
+name: emergency-final-rc-integration
+
+on:
+  push:
+    branches: ['codex/emergency-final-rc-integration']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parker-emergency-final-rc-integration
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  reproduce-minimum-checks-publish:
+    if: github.ref == 'refs/heads/codex/emergency-final-rc-integration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+      - name: Emergency orchestration negative tests and syntax
+        run: |
+          node --check scripts/final-rc/assemble.mjs
+          node --check scripts/final-rc/assemble-emergency.mjs
+          node --check scripts/final-rc/emergency-contract.mjs
+          node --check scripts/final-rc/emergency-smoke-driver.mjs
+          node --check scripts/emergency-public-first/smoke.mjs
+          node --test tests/emergency-integration.test.mjs
+      - name: Reproduce exact source twice then run minimum gates once and publish exact integration
+        run: |
+          node scripts/final-rc/assemble-emergency.mjs \
+            --request scripts/final-rc/emergency-request.json \
+            --output-dir "$RUNNER_TEMP/emergency-final-rc" \
+            --publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emergency-final-rc-${{ github.sha }}
+          path: ${{ runner.temp }}/emergency-final-rc/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
