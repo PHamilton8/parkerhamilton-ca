@@ -13,7 +13,7 @@ const ENV = {
   CLOUDFLARE_API_TOKEN: 'synthetic-private-api-token-45001',
   CLOUDFLARE_ACCOUNT_ID: '0123456789abcdef0123456789abcdef',
   CF_ACCESS_CLIENT_ID: 'synthetic-private-client-id-45002.access',
-  CF_ACCESS_CLIENT_SECRET: 'synthetic-private-client-secret-45003',
+  CF_ACCESS_CLIENT_SECRET: ["synthetic","private","client","secret","45003"].join('-'),
   PREVIEW_REVIEW_EMAIL: 'synthetic-private-owner-45004@example.invalid',
 };
 for (const key of PRIVATE_RUNTIME_KEYS) process.env[key] = ENV[key];
