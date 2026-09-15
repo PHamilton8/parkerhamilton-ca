@@ -27,6 +27,11 @@ export const SMITH_SOFT_RANGES = Object.freeze({
 export type SmithAnnualPoint = {
   month: number;
   year: number;
+  smithClosingMortgage: number;
+  smithClosingHeloc: number;
+  smithClosingPortfolio: number;
+  baselineClosingMortgage: number;
+  baselineClosingPortfolio: number;
   smithNetFinancialPosition: number;
   baselineNetFinancialPosition: number;
 };
@@ -112,6 +117,11 @@ export function buildSmithAnnualSeries(result: SmithResult): SmithAnnualPoint[] 
   const series: SmithAnnualPoint[] = [{
     month: 0,
     year: 0,
+    smithClosingMortgage: result.inputs.mortgageBalance,
+    smithClosingHeloc: 0,
+    smithClosingPortfolio: 0,
+    baselineClosingMortgage: result.inputs.mortgageBalance,
+    baselineClosingPortfolio: 0,
     smithNetFinancialPosition: -result.inputs.mortgageBalance,
     baselineNetFinancialPosition: -result.inputs.mortgageBalance,
   }];
@@ -122,6 +132,11 @@ export function buildSmithAnnualSeries(result: SmithResult): SmithAnnualPoint[] 
     series.push({
       month: period.month,
       year: period.month / 12,
+      smithClosingMortgage: period.smithClosingMortgage,
+      smithClosingHeloc: period.smithClosingHeloc,
+      smithClosingPortfolio: period.smithClosingPortfolio,
+      baselineClosingMortgage: period.baselineClosingMortgage,
+      baselineClosingPortfolio: period.baselineClosingPortfolio,
       smithNetFinancialPosition:
         period.smithClosingPortfolio - period.smithClosingMortgage - period.smithClosingHeloc,
       baselineNetFinancialPosition:
@@ -187,5 +202,39 @@ export function buildSmithChartGeometry(
     ticks,
     smithPath: pathFor('smithY'),
     baselinePath: pathFor('baselineY'),
+  };
+}
+
+/** Final multi-series display definitions; the monthly engine and annual sampling stay unchanged. */
+export const SMITH_BALANCE_SERIES = Object.freeze([
+  { key: 'smithClosingMortgage', label: 'Smith mortgage', color: '#5A7D67', dash: '7 5', width: 2.25 },
+  { key: 'smithClosingHeloc', label: 'HELOC balance', color: '#14A76C', dash: '7 5', width: 2.25 },
+  { key: 'smithClosingPortfolio', label: 'Smith taxable portfolio', color: '#0B4A33', dash: '', width: 2.7 },
+  { key: 'baselineClosingMortgage', label: 'Baseline mortgage', color: '#9AA29F', dash: '3 4', width: 2.1 },
+  { key: 'baselineClosingPortfolio', label: 'Baseline investment portfolio', color: '#232A28', dash: '', width: 2.35 },
+] as const);
+
+/** Shared-axis balances use the approved desktop/mobile geometry, padding and exact sampled values. */
+export function buildSmithBalanceGeometry(series: SmithAnnualPoint[], mobile = false) {
+  const dimensions = mobile
+    ? { width: 420, height: 292, left: 67, right: 20, top: 20, bottom: 40 }
+    : { width: 760, height: 310, left: 82, right: 24, top: 22, bottom: 42 };
+  const { width, height, left, right, top, bottom } = dimensions;
+  const maximum = Math.max(1, Math.max(0, ...series.flatMap((point) => SMITH_BALANCE_SERIES.map(({ key }) => point[key]))) * 1.08);
+  const horizon = Math.max(1, series.at(-1)?.year ?? 1);
+  const scaleX = (year: number) => left + year / horizon * (width - left - right);
+  const scaleY = (value: number) => top + (maximum - value) / maximum * (height - top - bottom);
+  return {
+    ...dimensions,
+    zeroY: scaleY(0),
+    points: series,
+    ticks: Array.from({ length: 5 }, (_, index) => {
+      const value = maximum - maximum * index / 4;
+      return { value, y: scaleY(value) };
+    }),
+    paths: SMITH_BALANCE_SERIES.map((definition) => ({
+      ...definition,
+      d: series.map((point, index) => `${index ? 'L' : 'M'} ${scaleX(point.year).toFixed(2)} ${scaleY(point[definition.key]).toFixed(2)}`).join(' '),
+    })),
   };
 }

@@ -16,12 +16,6 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
         <p class="advice-badge">Educational scenario model only. Not financial, tax, legal, or lending advice.</p>
       </div>
 
-      <dl class="proof-grid" aria-label="Project proof points">
-        <div><dt>Model</dt><dd>Monthly scenario calculator</dd></div>
-        <div><dt>Comparison</dt><dd>Equal household cash</dd></div>
-        <div><dt>Testing</dt><dd>21 / 21 scenarios passed</dd></div>
-        <div><dt>Download</dt><dd>Sanitized workbook</dd></div>
-      </dl>
     </header>
 
     <section class="case-section page-shell" aria-labelledby="strategy-title">
@@ -40,9 +34,6 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
       <div class="page-shell calculator-intro">
         <p class="section-kicker">Calculator</p>
         <h2 id="calculator-title">Explore a scenario</h2>
-        <p>Change the assumptions to compare the Smith scenario with the equal-cash baseline over time. The results are illustrative rather than a prediction or recommendation.</p>
-        <p>This calculator compares a simplified Smith Manoeuvre with an equal-cash non-Smith baseline and does not determine tax deductibility or suitability.</p>
-        <p class="privacy-line">Calculations stay in your browser.</p>
       </div>
       <SmithManoeuvreCalculator />
     </section>
@@ -80,7 +71,6 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
       </div>
       <div class="reading-copy reading-copy--single">
         <p>The original spreadsheet was more detailed than I wanted a public calculator to be. For the web version, I rebuilt the comparison as a monthly model with fewer assumptions, an explicit equal-cash baseline, and conservative borrowing limits.</p>
-        <p>The public calculator is a separate V2 model rather than the private workbook copied into a browser.</p>
       </div>
       <details class="assumption-details">
         <summary>Calculation assumptions</summary>
@@ -88,27 +78,11 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
           <li>Mortgage payments use the Canadian fixed-rate semi-annual convention.</li>
           <li>HELOC interest is modeled monthly on the opening balance.</li>
           <li>New HELOC borrowing is limited by actual principal reduction and available revolving room.</li>
-          <li>The estimated tax offset uses the tax-rate and deductibility assumptions entered by the user.</li>
+          <li>The illustrative tax-offset proxy assumes 100% of modeled HELOC interest is eligible and applies the marginal tax-rate proxy. That is a modeling assumption, not a determination of actual tax eligibility.</li>
         </ul>
       </details>
     </section>
 
-    <section class="qa-section" aria-labelledby="qa-title">
-      <div class="page-shell qa-layout">
-        <div class="qa-stat" aria-label="21 regression scenarios passed with zero failures"><span>21 / 21</span><p>scenarios passed</p></div>
-        <div class="qa-copy">
-          <p class="section-kicker">Testing</p>
-          <h2 id="qa-title">Checking the model</h2>
-          <p class="proof-line">21 regression scenarios · 21 passed · 0 failed</p>
-          <ol class="qa-list">
-            <li>Smith and baseline use equal household cash.</li>
-            <li>New HELOC borrowing cannot exceed actual mortgage principal reduction.</li>
-            <li>New revolving borrowing cannot breach the modeled 65% limit.</li>
-            <li>When readvancement is removed, matched scenarios converge.</li>
-          </ol>
-        </div>
-      </div>
-    </section>
 
     <section class="case-section page-shell" aria-labelledby="limits-title">
       <div class="section-heading">
@@ -123,7 +97,7 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
       <details class="assumption-details">
         <summary>Detailed assumptions and limitations</summary>
         <div class="detail-grid">
-          <div><h3>Tax</h3><p>The estimated tax offset is only an illustration. Interest deductibility depends on the actual use and tracing of borrowed funds, income-earning purpose, legal obligations, record keeping, and other tax rules. This calculator does not determine tax eligibility.</p></div>
+          <div><h3>Tax</h3><p>The estimated tax offset is only an illustration. The public UI fixes the model assumption at 100% of modeled HELOC interest eligible before applying the marginal tax-rate proxy. Actual deductibility depends on the use and tracing of borrowed funds, income-earning purpose, legal obligations, record keeping, and other tax rules. This calculator does not determine tax eligibility.</p></div>
           <div><h3>Lending</h3><p>The educational model uses simplified borrowing boundaries. Actual HELOC limits, combined-loan rules, underwriting, payments, and readvancement behaviour depend on the lender and current requirements.</p></div>
           <div><h3>Mortgage mechanics</h3><p>The mortgage calculation is a standardized monthly illustration. Actual payment timing, prepayment privileges, variable-rate mechanics, fees, and lender calculations may differ.</p></div>
           <div><h3>Investment risk</h3><p>Borrowing to invest increases exposure to both market losses and interest-rate changes. Returns are uncertain, borrowing costs can rise, and investments can underperform borrowing costs for long periods.</p></div>
@@ -135,7 +109,7 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
       <div class="page-shell workbook-inner">
         <div>
           <p class="section-kicker">Workbook</p>
-          <h2 id="workbook-title">Download the sanitized workbook</h2>
+          <h2 id="workbook-title">Download the workbook</h2>
           <p>The workbook uses hypothetical inputs and follows the same monthly calculation structure as the public calculator.</p>
         </div>
         <a class="download-link" href="/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx" download>Download workbook <span aria-hidden="true">↓</span></a>
@@ -197,4 +171,19 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
   @media (max-width: 56rem) { .smith-hero, .qa-layout, .workbook-inner { grid-template-columns: 1fr; } }
   @media (max-width: 44rem) { .reading-copy, .detail-grid, .cash-identity { grid-template-columns: 1fr; } .cash-divider { display: none; } }
   @media (max-width: 35rem) { .smith-hero h1 { font-size: clamp(3rem,15vw,4.4rem); } }
+  .smith-hero { display: block; max-width: var(--content-main); padding-block: clamp(4.25rem,8vw,7.5rem) clamp(4.75rem,8vw,7rem); }
+  .smith-hero-copy { max-width: 66rem; }
+  .smith-hero h1 { max-width: 62rem; }
+  .hero-dek { max-width: 55rem; }
+  .calculator-intro { margin-bottom: 0; }
+  .calculator-intro h2 { max-width: 50rem; }
+  @media (min-width: 70rem) {
+    .case-section > .section-heading { display: block; max-width: var(--content-reading); margin-bottom: 0; }
+    .case-section > .section-heading h2 { margin: .65rem 0 0; max-width: var(--content-reading); }
+    .case-section > .reading-copy { margin-top: 1.45rem; }
+    .case-section { padding-block: clamp(4.25rem,6.4vw,6.45rem); }
+  }
+  @media (max-width: 56rem) { .smith-hero { padding-top: 3.5rem; } }
+  @media (max-width: 44rem) { .cash-divider { display: grid; place-items: center; min-height: 1.8rem; color: #9bd7d0; font-size: 1.55rem; line-height: 1; padding: .05rem 0; } }
+  @media (max-width: 35rem) { .smith-hero { padding-block: 3.1rem 4rem; } .calculator-section { padding-top: 4rem; } }
 </style>
