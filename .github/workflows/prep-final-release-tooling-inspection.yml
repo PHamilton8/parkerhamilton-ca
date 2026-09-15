@@ -1,0 +1,47 @@
+name: prep-final-release-tooling-inspection
+
+on:
+  push:
+    branches:
+      - prep/final-release-tooling-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  inspect-preview-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - name: Decode current private-preview payload
+        run: |
+          mkdir -p .prep-inspection
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import { gunzipSync } from 'node:zlib';
+          const names = ['fixed-00a','fixed-00b','part-01','part-02','part-03','part-04','part-05','part-06'];
+          const dir = 'scripts/final-rc-preview.payload';
+          const b64 = names.map((name) => fs.readFileSync(`${dir}/${name}`, 'utf8')).join('');
+          const source = gunzipSync(Buffer.from(b64, 'base64'));
+          const sha = crypto.createHash('sha256').update(source).digest('hex');
+          fs.writeFileSync('.prep-inspection/final-rc-preview-exec.mjs', source);
+          fs.writeFileSync('.prep-inspection/source-sha256.txt', `${sha}\n`);
+          console.log(`decoded source sha256=${sha} bytes=${source.length}`);
+          NODE
+          node --check .prep-inspection/final-rc-preview-exec.mjs
+      - name: Upload decoded prep-only inspection artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: decoded-private-preview-source
+          path: .prep-inspection/
+          include-hidden-files: true
+          if-no-files-found: error
