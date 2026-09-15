@@ -11,21 +11,29 @@ import ContactBand from '../../components/layout/ContactBand.astro';
 >
   <article class="coast-page">
     <header class="case-hero">
-      <h1>Coast FI / Net Worth Calculator</h1>
+      <h1>Coast FI Calculator</h1>
       <p class="case-hero__premise">A planning model that connects today’s savings, future contributions, and investment growth to retirement targets.</p>
       <p class="case-hero__lede">I started with a detailed retirement-planning spreadsheet, then audited it and turned the Coast FI part into a simpler four-mode web calculator.</p>
     </header>
+
+    <section class="coast-explainer" aria-labelledby="coast-explainer-title">
+    <div class="coast-explainer__heading"><h2 id="coast-explainer-title"><span class="coast-explainer-line">What is</span> <span class="coast-explainer-line">Coast FI?</span></h2></div>
+    <div class="coast-explainer__copy">
+    <p>Coast FI is an investment strategy built around doing more of your retirement saving early in your career, then letting compound growth carry your portfolio to your retirement target. By front-loading your retirement contributions, you give compounding more time to work, which can reduce the total lifetime contributions needed to hit your goal.</p>
+    <p>The four modes use the same underlying assumptions to answer different questions: where you are now, what it would take to Coast by a chosen age, when you might reach the threshold at a chosen contribution, or what contribution would reach the full retirement target.</p>
+    <p>All values use today’s dollars. The return assumption is a real annual return after inflation, and recurring contributions are treated as constant real contributions made at month-end.</p>
+    </div>
+    </section>
 
     <div class="calculator-stage">
       <CoastFiCalculator />
     </div>
 
-    <section class="story-section story-section--split" aria-labelledby="origin-title">
+    <section class="story-section story-section--split origin-section" aria-labelledby="origin-title">
       <div class="story-copy">
         <p class="section-kicker">Original model</p>
-        <h2 id="origin-title">It started as a much bigger spreadsheet.</h2>
+        <h2 id="origin-title"><span class="origin-title-line">It started as a much</span> <span class="origin-title-line">bigger spreadsheet.</span></h2>
         <p>I originally built a four-sheet retirement-planning model that tracked contributions every paycheque across 41 years. It handled TFSA and RRSP contribution allocation, modeled RRSP refunds, non-registered investing, FHSA tracking, and annual net worth and Coast FI calculations.</p>
-        <p>That level of detail was useful for my own scenario planning, but it was too specific for a public tool. For the website, I pulled out the Coast FI question and rebuilt it around a much smaller set of assumptions.</p>
       </div>
 
       <div class="architecture" aria-labelledby="architecture-title">
@@ -54,7 +62,7 @@ import ContactBand from '../../components/layout/ContactBand.astro';
           </ul>
         </div>
         <div>
-          <h3>Deliberately removed</h3>
+          <h3>Removed from the public tool</h3>
           <ul>
             <li>Account-specific tax treatment</li>
             <li>TFSA/RRSP contribution-room mechanics</li>
@@ -71,7 +79,6 @@ import ContactBand from '../../components/layout/ContactBand.astro';
       <div class="section-heading-block">
         <p class="section-kicker">Testing</p>
         <h2 id="testing-title">Checking the web model</h2>
-        <p class="proof-line">34 regression tests · 34 passed · 0 failed</p>
         <p>To check the web calculator independently, I built a separate Python implementation to generate expected outputs, then compared those against the TypeScript engine across 34 normal and edge cases. The tests covered all four calculator modes, zero and negative returns, portfolios already above the Coast threshold, unreachable targets, and invalid inputs. All 34 passed.</p>
       </div>
     </section>
@@ -79,8 +86,8 @@ import ContactBand from '../../components/layout/ContactBand.astro';
     <section class="story-section workbook-section" aria-labelledby="workbook-title">
       <div>
         <p class="section-kicker">Workbook</p>
-        <h2 id="workbook-title">Download the sanitized workbook</h2>
-        <p>The demonstration workbook uses hypothetical values and shows the deeper bi-weekly model behind the project. It is separate from the simplified web calculator.</p>
+        <h2 id="workbook-title">Download the workbook</h2>
+        <p>The demo workbook uses the more in-depth biweekly engine from my original model.</p>
       </div>
       <a class="workbook-download" href="/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx" download>
         <span>
@@ -136,4 +143,39 @@ import ContactBand from '../../components/layout/ContactBand.astro';
   @media (max-width: 56rem) { .story-section--split, .workbook-section { grid-template-columns: 1fr; } }
   @media (max-width: 40rem) { .refactor-grid { grid-template-columns: 1fr; } }
   @media (max-width: 35rem) { .coast-page { padding-inline: 1.125rem; } .case-hero h1 { font-size: clamp(3rem, 15vw, 4.4rem); } }
+
+  /* Final owner-approved route composition. Shared ContactBand stays globally owned. */
+  .calculator-stage { margin-bottom: clamp(3.9rem, 6.6vw, 6rem); }
+  .story-section--split { padding-top: clamp(3.2rem, 5.2vw, 4.6rem); }
+  .testing-section, .workbook-section { padding-block: clamp(3.4rem, 5vw, 4.5rem); }
+  .limits-section { padding-block: clamp(3.6rem, 5.25vw, 4.75rem); }
+  .coast-explainer { max-width: var(--content-main); margin: 0 auto clamp(1.6rem, 2.5vw, 2.3rem); padding: clamp(3.2rem, 5.2vw, 4.7rem) 0 clamp(2.5rem, 4.1vw, 3.6rem); border-top: 1px solid var(--color-line); display: grid; grid-template-columns: minmax(15rem, .62fr) minmax(0, 1.38fr); column-gap: clamp(2.5rem, 6vw, 5.75rem); align-items: start; }
+  .coast-explainer h2 { margin: 0; color: var(--color-ink); font-size: clamp(2.1rem, 4.2vw, 4rem); line-height: 1.02; letter-spacing: -.05em; }
+  .coast-explainer__copy { max-width: 55rem; }
+  .coast-explainer__copy p { margin: 0; color: var(--color-text); }
+  .coast-explainer__copy p + p { margin-top: 1.15rem; }
+  .origin-section { row-gap: clamp(1.55rem, 2.5vw, 2.35rem); }
+  .testing-section .section-heading-block, .testing-section .section-heading-block > p:not(.section-kicker) { max-width: 74rem; }
+  .limits-copy { max-width: 70rem; }
+  .limits-copy > p:not(.section-kicker) { max-width: var(--content-reading); }
+  .coast-explainer-line, .origin-title-line { display: inline; }
+  @media (min-width: 35.01rem) { .story-section h2 { font-size: clamp(2.1rem, 4.2vw, 4rem); } }
+  @media (min-width: 56.01rem) {
+    .coast-explainer-line, .origin-title-line { display: block; }
+    .origin-section { grid-template-columns: minmax(0, 1.05fr) minmax(27rem, .95fr); column-gap: clamp(2.75rem, 4vw, 3.75rem); }
+    .origin-section .story-copy h2 { max-width: none; font-size: clamp(3.15rem, 3.85vw, 3.55rem); }
+    .origin-section .architecture { width: 100%; max-width: none; justify-self: stretch; }
+    .coast-explainer { grid-template-columns: minmax(14rem, .52fr) minmax(0, 1.48fr); column-gap: clamp(2rem, 4vw, 4rem); }
+    .workbook-section { grid-template-columns: minmax(19rem, .6fr) minmax(0, 1fr); }
+    .workbook-section > div { grid-column: 2; grid-row: 1; }
+    .workbook-section > .workbook-download { grid-column: 1; grid-row: 1; }
+  }
+  @media (max-width: 56rem) { .coast-explainer { grid-template-columns: 1fr; row-gap: 1.35rem; } .coast-explainer__copy { max-width: var(--content-reading); } }
+  @media (max-width: 35rem) {
+    .testing-section, .workbook-section, .limits-section { padding-block: 3.75rem; }
+    .coast-explainer { padding-block: 3.35rem 2.65rem; margin-bottom: 1.25rem; }
+    .coast-explainer h2 { font-size: 2.4rem; }
+    .coast-explainer__copy p + p { margin-top: 1rem; }
+    .limits-copy { max-width: 100%; }
+  }
 </style>
