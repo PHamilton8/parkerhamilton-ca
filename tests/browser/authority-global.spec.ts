@@ -2,41 +2,32 @@ import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
 import { publicRoutes, QA_PROFILE } from './qa-profile';
 
 const requiredWidths = [1440, 820, 390, 320] as const;
-const allowedExternal = ['mailto:', 'https://www.uottawa.ca/', 'https://parkerhamilton.ca/'];
+const allowedExternal = ['mailto:', 'https://www.uottawa.ca/', 'https://parkerhamilton.ca/', 'https://askwill.ca/', 'https://www.askwill.ca/'];
 
 async function open(page: Page, route: string, captureErrors = false) {
   const errors: string[] = [];
-  const onConsole = (message: ConsoleMessage) => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
-  };
+  const onConsole = (message: ConsoleMessage) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); };
   const onPageError = (error: Error) => errors.push(`pageerror: ${error.message}`);
-
-  if (captureErrors) {
-    page.on('console', onConsole);
-    page.on('pageerror', onPageError);
-  }
-
+  if (captureErrors) { page.on('console', onConsole); page.on('pageerror', onPageError); }
   try {
     const response = await page.goto(route, { waitUntil: captureErrors ? 'load' : 'domcontentloaded' });
     expect(response?.status(), route).toBe(200);
     if (captureErrors) await page.waitForTimeout(75);
     return errors;
   } finally {
-    if (captureErrors) {
-      page.off('console', onConsole);
-      page.off('pageerror', onPageError);
-    }
+    if (captureErrors) { page.off('console', onConsole); page.off('pageerror', onPageError); }
   }
 }
 
 test.describe('Final-RC global release gates', () => {
-  test('sitemap contains exactly the eight canonical public HTML routes', async ({ request }) => {
+  test('sitemap contains exactly the eight indexable portfolio routes', async ({ request }) => {
     const response = await request.get('/sitemap.xml');
     expect(response.status()).toBe(200);
     const xml = await response.text();
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replace(/\/$/, ''));
     const expected = publicRoutes.map((route) => `https://parkerhamilton.ca${route === '/' ? '' : route}`);
     expect(locs.sort()).toEqual(expected.sort());
+    expect(xml).not.toMatch(/wealthsimple-2026/i);
   });
 
   for (const route of publicRoutes) {
@@ -46,13 +37,11 @@ test.describe('Final-RC global release gates', () => {
       await expect(canonical).toHaveCount(1);
       const href = await canonical.getAttribute('href');
       expect(href).toBe(`https://parkerhamilton.ca${route === '/' ? '/' : route}`);
-
       await page.keyboard.press('Tab');
       const skip = page.getByRole('link', { name: 'Skip to main content' });
       await expect(skip).toBeFocused();
       await skip.press('Enter');
       await expect(page.locator('main#main')).toBeFocused();
-
       const unsafe = await page.locator('a[href]').evaluateAll((links, allowed) => links.flatMap((link) => {
         const href = (link as HTMLAnchorElement).getAttribute('href') ?? '';
         const bad = /(?:drive|docs)\.google\.com|localhost|127\.0\.0\.1|file:\/\/|review|staging/i.test(href);
@@ -60,8 +49,7 @@ test.describe('Final-RC global release gates', () => {
         return bad || external ? [href] : [];
       }), allowedExternal);
       expect(unsafe).toEqual([]);
-
-      const assetUrls = await page.locator('img[src], video[src], source[src]').evaluateAll((nodes) => Array.from(new Set(nodes.map((node) => node.getAttribute('src')).filter((src): src is string => Boolean(src && src.startsWith('/'))))));
+      const assetUrls = await page.locator('img[src], video[src], source[src], track[src]').evaluateAll((nodes) => Array.from(new Set(nodes.map((node) => node.getAttribute('src')).filter((src): src is string => Boolean(src && src.startsWith('/'))))));
       for (const asset of assetUrls) {
         const response = await request.get(asset);
         expect(response.status(), `${route} -> ${asset}`).toBe(200);
@@ -72,7 +60,7 @@ test.describe('Final-RC global release gates', () => {
   }
 
   for (const width of requiredWidths) {
-    test(`all routes have no page-level horizontal overflow at ${width}px`, async ({ page }) => {
+    test(`all portfolio routes have no page-level horizontal overflow at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
       for (const route of publicRoutes) {
         await open(page, route);
