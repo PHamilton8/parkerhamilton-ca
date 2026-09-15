@@ -85,12 +85,18 @@ test('frozen Coast and Smith engines/workbooks plus fixed Compound research evid
 test('Compound simulator is the final owner-authorized monthly model, not the superseded annual explorer', () => {
   const page = readText('src/pages/work/compound-growth.astro');
   const engine = readText('src/lib/calculators/compoundGrowth.ts');
-  const combined = `${page}\n${engine}`;
+  const explorer = readText('src/components/compound-growth/AnnualCompoundGrowthExplorer.astro');
+  const combined = `${page}\n${explorer}\n${engine}`;
   assert.match(combined, /monthly/i);
   assert.match(combined, /(?:annualReturn|annual return|return)[\s\S]{0,120}(?:8|0\.08)/i);
   assert.doesNotMatch(combined, /default[^\n]{0,80}10%/i);
   assert.doesNotMatch(combined, /starting balance[^\n]{0,80}(?:input|editable)/i);
-  assert.match(page, /\$0|starting balance/i);
+  assert.match(explorer, /starting invested balance is fixed at \$0\./);
+  assert.match(explorer, /<input\b[^>]*id="cg-monthly-contribution"[^>]*value="100"/);
+  assert.match(explorer, /<input\b[^>]*id="cg-annual-return"[^>]*value="8"/);
+  assert.doesNotMatch(explorer, /<input\b[^>]*(?:startingPortfolio|starting-balance|initial-balance)/i);
+  assert.match(engine, /Math\.expm1\(Math\.log1p\(normalized\.annualReturn\) \/ 12\)/);
+  assert.doesNotMatch(engine, /(?:import|require)[^\n]*(?:fixedExperimentalData|projection-data|experiment-4-results|experiment-summary)/);
   const fixed = readText('src/data/compound-growth/fixedExperimentalData.ts');
   assert.match(fixed, /1248|1,248/);
   assert.match(fixed, /five|5/i);
@@ -146,6 +152,10 @@ test('Wealthsimple route remains noindex/unlisted and exact media is captioned',
   const vtt = readText('public/assets/application/wealthsimple-application-video.vtt');
   assert.match(vtt, /^WEBVTT/m);
   assert.ok(latestVttCueEnd(vtt) > 0, 'Wealthsimple VTT must contain synchronized timed cues');
+  assert.ok(latestVttCueEnd(vtt) <= 101.652, 'Wealthsimple captions must remain within the exact approved media duration');
+  assert.equal((page.match(/<track\b[^>]*kind="captions"/gi) ?? []).length, 1, 'Exactly one native caption track is required');
+  assert.match(page, /<track\b[^>]*srclang="en"/i);
+  assert.doesNotMatch(vtt, /BLOCKED|NOT RELEASE AUTHORITY|DRAFT[- ]ONLY|\[in\/out\]/i);
 });
 
 test('approved public workbook bytes remain exact', () => {

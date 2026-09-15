@@ -39,13 +39,32 @@ jobs:
           node scripts/final-rc-preview.mjs --verify-only
           node scripts/final-rc-preview.mjs help
       - name: Complete deterministic runner, integrity, and release-dist tests
-        run: node --test tests/final-rc-preview-v3.test.mjs tests/preview-v3-integrity.test.mjs tests/release-dist-v3.test.mjs tests/preview-v3-static-safety.test.mjs
+        run: node --test tests/final-rc-preview-v3.test.mjs tests/preview-v3-integrity.test.mjs tests/release-dist-v3.test.mjs tests/preview-v3-static-safety.test.mjs tests/preview-v3-browser-duration.test.mjs tests/preview-v3-runtime-privacy.test.mjs
+      - name: Reviewed assembler and final QA integrity validation
+        run: |
+          node --check scripts/final-rc/assemble.mjs
+          node --check scripts/final-rc/source-overlay.mjs
+          node --check scripts/final-rc/qa-integrity.mjs
+          node --check tests/source-contract.test.mjs
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          const pin=JSON.parse(fs.readFileSync('release/source-contract-integrity.json','utf8'));
+          assert.equal(pin.reviewStatus,'REVIEWED_CURRENT_AUTHORITY_SOURCE_CONTRACT');
+          assert.equal(pin.sourcePath,'tests/source-contract.test.mjs');
+          assert.equal(crypto.createHash('sha256').update(fs.readFileSync(pin.sourcePath)).digest('hex'),pin.sha256);
+          assert.deepEqual(fs.readFileSync('scripts/final-rc/policy.json'),execFileSync('git',['show','84da5699ff5ef9ca207c85bdde71ef496736a0b6:scripts/final-rc/policy.json']));
+          NODE
+          node --test tests/source-overlay.test.mjs tests/final-rc-qa-integrity.test.mjs
       - name: Current final-RC QA harness self-check
         run: |
           node --check scripts/final-rc-qa.mjs
           node --check tests/final-rc-contract.test.mjs
           node --check tests/built-route-contract.mjs
           QA_AUTHORITY_PROFILE=final-rc npx playwright test \
+            tests/browser/site.spec.ts \
             tests/browser/authority-global.spec.ts \
             tests/browser/authority-home.spec.ts \
             tests/browser/authority-reporting.spec.ts \
@@ -82,5 +101,6 @@ jobs:
             artifacts/tooling-v3/
             release/preview-runner-v3-integrity.json
             docs/FINAL-PREVIEW-RUNNER-V3-CAPABILITY-REVIEW.md
+            release/source-contract-integrity.json
           if-no-files-found: error
           retention-days: 30

@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "repository": "PHamilton8/parkerhamilton-ca",
+  "authorizedBase": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "integrationBranchPrefix": "integration/",
+  "forbiddenIntegrationBranches": [
+    "main",
+    "master",
+    "production",
+    "integration/copy-locked-visual-review-v1",
+    "prep/final-rc-assembler-v1"
+  ],
+  "laneOrder": [
+    "homepage",
+    "wealthsimple",
+    "reporting",
+    "designDay",
+    "grocery",
+    "askWill",
+    "coast",
+    "compound",
+    "smith",
+    "releaseTooling"
+  ],
+  "globalFrozen": [
+    "src/lib/cathedralMonument.ts",
+    "src/lib/calculators/coastFi.ts",
+    "public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx",
+    "src/data/compound-growth/**",
+    "src/lib/calculators/smithManoeuvre.ts",
+    "public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx",
+    "tests/fixtures/**",
+    "scripts/public-safety-scan.mjs"
+  ],
+  "lanes": {
+    "homepage": {
+      "label": "Canonical Homepage V3 plus final global ContactBand foundation",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": [
+        "1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28",
+        "17IrAugqmR4lQrG7J4Rt9Dng-ullqOlU60mI9a3O5Y5I"
+      ],
+      "testProfile": "source",
+      "allowed": [
+        "docs/GLOBAL-WHITE-EMAIL-CTA-PREVIEW-SPEC.md",
+        "src/pages/index.astro",
+        "src/components/layout/ContactBand.astro",
+        "src/components/layout/HeroShell.astro",
+        "src/components/project/ProjectCardFeatured.astro",
+        "src/components/project/ProjectCardCompact.astro",
+        "src/components/visualization/CathedralMonument.astro",
+        "src/data/hero/final-config.json",
+        "src/styles/homepage-v3.css",
+        "public/assets/projects/compound-growth/homepage-*.webp",
+        "public/assets/projects/askwill/homepage-*.webp",
+        "public/assets/projects/smith-manoeuvre/smith.svg",
+        "public/assets/projects/reporting-workflow/workflow.svg",
+        "public/assets/projects/coast-fi/coast.svg",
+        "public/assets/projects/grocery-automation/grocery.svg"
+      ],
+      "denied": [
+        "src/lib/cathedralMonument.ts",
+        "src/pages/work/**"
+      ]
+    },
+    "wealthsimple": {
+      "label": "Noindex Wealthsimple auxiliary application route plus caption follow-up",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": [
+        "1tQmrQXBBsFYgf15UFVugujukriC8KIRq",
+        "1VYR56cZ9_KWxfWFSmtWLpwnH_EMmxDiu"
+      ],
+      "testProfile": "source",
+      "allowed": [
+        "src/layouts/BaseLayout.astro",
+        "src/pages/wealthsimple-2026.astro",
+        "tests/route-contract.test.mjs",
+        "tests/browser/wealthsimple-application.spec.ts",
+        "public/assets/application/wealthsimple-application-video.mp4",
+        "public/assets/application/wealthsimple-application-video-poster.webp",
+        "public/assets/application/wealthsimple-application-video.vtt"
+      ],
+      "denied": [
+        "src/pages/index.astro",
+        "src/data/projects.ts",
+        "src/data/site.ts",
+        "src/pages/sitemap.xml.ts"
+      ]
+    },
+    "reporting": {
+      "label": "Reporting Workflow V3",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"],
+      "testProfile": "source",
+      "allowed": ["src/pages/work/reporting-workflow.astro"],
+      "denied": ["tests/**", "src/styles/global.css", "src/data/projects.ts"]
+    },
+    "designDay": {
+      "label": "Final Design Day route and approved 8.475-second media accessibility delta",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": [
+        "1UppTGeru6nzGKlm9hFP95DBT9-bSi7Uz",
+        "1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0"
+      ],
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/design-day.astro",
+        "public/assets/projects/design-day/**"
+      ],
+      "denied": ["tests/**", "src/styles/global.css", "src/data/projects.ts"]
+    },
+    "grocery": {
+      "label": "Final Grocery Automation route",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1OgX7M90-B7g3Oj37bv2636FmTS-BvxDz"],
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/grocery-automation.astro",
+        "src/data/grocery-demo.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/styles/global.css",
+        "src/data/projects.ts",
+        "public/assets/projects/grocery-automation/grocery.svg"
+      ]
+    },
+    "askWill": {
+      "label": "Final AskWill Sep-14 Option B + Hosting C route",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1u7SySd3C9hHK5WeUZ6SPIqksSYYIZzmG"],
+      "testProfile": "source",
+      "allowed": [
+        "src/pages/work/askwill.astro",
+        "src/styles/askwill.css",
+        "public/assets/projects/askwill/**"
+      ],
+      "denied": [
+        "tests/**",
+        "src/styles/global.css",
+        "src/data/projects.ts",
+        "public/assets/projects/askwill/homepage-*.webp"
+      ]
+    },
+    "coast": {
+      "label": "Final Coast FI four-mode route",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1m_4rRwPObxOLpbXqOMyRu20jXn8knEIx"],
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/coast-fi.astro",
+        "src/components/calculators/CoastFiCalculator.astro",
+        "src/scripts/coastFiCalculator.ts",
+        "src/types/coast-fi-root.d.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/lib/calculators/coastFi.ts",
+        "public/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "compound": {
+      "label": "Final Compound Growth research route plus owner-authorized monthly simulator",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": ["1b6_1WBeAdWtj-k_cMLqdlLSeHX5cnKzpo-Z2IJZN3kU"],
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/compound-growth.astro",
+        "src/components/compound-growth/**",
+        "src/styles/compound-growth.css",
+        "src/styles/compound-growth-page.css",
+        "src/lib/calculators/compoundGrowth.ts",
+        "tests/compound-growth.test.ts"
+      ],
+      "denied": [
+        "src/data/compound-growth/**",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "smith": {
+      "label": "Final simplified Smith Manoeuvre route with Graph A Emerald",
+      "requiresAuthority": true,
+      "requiredAuthorityIds": [
+        "1LvovEf0qbIqr37SmJaz83m1ks9-mB_Is3WZgVgIs-pM",
+        "1qn24h5YyzUBfFuWodhCUte5JJn_52w4C"
+      ],
+      "testProfile": "modelAware",
+      "allowed": [
+        "src/pages/work/smith-manoeuvre.astro",
+        "src/components/calculators/SmithManoeuvreCalculator.astro",
+        "src/components/calculators/SmithManoeuvreCalculatorBase.astro",
+        "src/lib/calculators/smithManoeuvreView.ts"
+      ],
+      "denied": [
+        "tests/**",
+        "src/lib/calculators/smithManoeuvre.ts",
+        "public/downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx",
+        "src/styles/global.css",
+        "src/data/projects.ts"
+      ]
+    },
+    "releaseTooling": {
+      "label": "Reconciled final QA, Cloudflare release infrastructure, and immutable-preview automation",
+      "requiresAuthority": false,
+      "testProfile": "infra",
+      "allowed": [
+        ".github/workflows/**",
+        ".gitignore",
+        ".nvmrc",
+        "docs/**",
+        "package.json",
+        "package-lock.json",
+        "playwright.config.ts",
+        "public/_headers",
+        "public/_redirects",
+        "release/**",
+        "scripts/**",
+        "tests/**",
+        "wrangler.jsonc"
+      ],
+      "denied": [
+        "src/**",
+        "public/assets/**",
+        "public/downloads/**",
+        "scripts/public-safety-scan.mjs",
+        "tests/fixtures/**"
+      ]
+    }
+  }
+}

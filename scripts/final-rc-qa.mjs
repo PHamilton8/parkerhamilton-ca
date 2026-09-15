@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { assertCandidateQaIdentity, assertCompleteBrowserReport } from './final-rc/qa-integrity.mjs';
 
 const HARNESS_ROOT = process.cwd();
 const targetRef = process.argv[2];
@@ -20,6 +21,7 @@ const run = (cwd, cmd, args, options = {}) => {
   const result = spawnSync(cmd, args, {
     cwd,
     encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
     stdio: options.capture ? 'pipe' : 'inherit',
     env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1', QA_AUTHORITY_PROFILE: profile, ...options.env },
   });
@@ -40,6 +42,9 @@ if (resolved.code !== 0) {
   resolved = git(['rev-parse', 'FETCH_HEAD^{commit}']);
 }
 const targetSha = resolved.stdout.trim();
+const treeResolution = git(['rev-parse', `${targetSha}^{tree}`]);
+if (treeResolution.code !== 0) throw new Error('Unable to resolve exact candidate tree.');
+const targetTree = treeResolution.stdout.trim();
 const shortSha = targetSha.slice(0, 12);
 const artifactDir = path.join(HARNESS_ROOT, 'artifacts', 'final-rc', shortSha);
 fs.mkdirSync(artifactDir, { recursive: true });
@@ -47,7 +52,8 @@ fs.mkdirSync(artifactDir, { recursive: true });
 const routeMatrix = {
   targetRef,
   targetSha,
-  routeAccounting: '8 indexable portfolio routes + 1 noindex Wealthsimple auxiliary route',
+  targetTree,
+  routeAccounting: '8 indexable portfolio routes + 1 noindex auxiliary application route + true noindex 404',
   routes: {
     '/': 'FINAL HOMEPAGE V3 + FINAL GLOBAL CONTACTBAND',
     '/work/design-day': 'FINAL MINIMAL CROP + 8.475s VIDEO + RETIMED VTT',
@@ -77,8 +83,12 @@ try {
     steps.push(add);
     if (add.code) throw new Error('Unable to create target worktree.');
 
-    const overlay = [
+    const exactQaFiles = [
       'playwright.config.ts',
+      'scripts/final-rc-qa.mjs',
+      'scripts/final-rc/qa-integrity.mjs',
+      'tests/source-contract.test.mjs',
+      'tests/browser/site.spec.ts',
       'tests/browser/qa-profile.ts',
       'tests/browser/authority-home.spec.ts',
       'tests/browser/authority-reporting.spec.ts',
@@ -89,12 +99,8 @@ try {
       'tests/final-rc-contract.test.mjs',
       'tests/built-route-contract.mjs',
     ];
-    for (const rel of overlay) {
-      const src = path.join(HARNESS_ROOT, rel);
-      const dst = path.join(worktree, rel);
-      fs.mkdirSync(path.dirname(dst), { recursive: true });
-      fs.copyFileSync(src, dst);
-    }
+    const qaIdentity = assertCandidateQaIdentity(HARNESS_ROOT, worktree, exactQaFiles);
+    fs.writeFileSync(path.join(artifactDir, 'exact-qa-identity.json'), JSON.stringify(qaIdentity, null, 2));
 
     const checks = [
       ['git', ['merge-base', '--is-ancestor', BASE_SHA, targetSha], 'green-base ancestry', true],
@@ -105,6 +111,9 @@ try {
       ['node', ['--test', 'tests/final-rc-contract.test.mjs'], 'latest-authority source contracts', true],
       ['npm', ['run', 'build'], 'production build', true],
       ['node', ['--test', 'tests/built-route-contract.mjs'], 'built route/indexation/canonical contract', true],
+      ['npm', ['run', 'infra:validate'], 'Cloudflare infrastructure safeguards', true],
+      ['npm', ['run', 'infra:validate-dist'], 'exact release-dist validation', true],
+      ['npm', ['run', 'infra:preview-dry-run'], 'unpublished Wrangler preview dry run', true],
       ['npm', ['run', 'public-safety'], 'public safety', true],
       ['npm', ['run', 'qa:contrast'], 'contrast', true],
       ['npm', ['audit', '--audit-level=high'], 'npm audit high', true],
@@ -133,7 +142,13 @@ try {
       const browser = run(worktree, 'npx', ['playwright', 'test', ...browserFiles, '--reporter=json'], { capture: true, name: 'Playwright full final-authority suite' });
       steps.push({ ...browser, stdout: '[written to playwright.json]' });
       fs.writeFileSync(path.join(artifactDir, 'playwright.json'), browser.stdout);
-      try { playwrightJson = JSON.parse(browser.stdout); } catch {}
+      try {
+        playwrightJson = JSON.parse(browser.stdout);
+        const browserEvidence = assertCompleteBrowserReport(playwrightJson);
+        fs.writeFileSync(path.join(artifactDir, 'complete-browser-evidence.json'), JSON.stringify(browserEvidence, null, 2));
+      } catch (error) {
+        blockingAssertion = `Incomplete final browser certification: ${error.message}`;
+      }
       if (browser.code) {
         const failures = [];
         const visit = (suite) => {
@@ -149,6 +164,14 @@ try {
       const sourceResults = path.join(worktree, 'test-results');
       if (fs.existsSync(sourceResults)) fs.cpSync(sourceResults, path.join(artifactDir, 'test-results'), { recursive: true });
     }
+    const afterSha = run(worktree, 'git', ['rev-parse', 'HEAD'], {capture: true});
+    const afterTree = run(worktree, 'git', ['rev-parse', 'HEAD^{tree}'], {capture: true});
+    const afterStatus = run(worktree, 'git', ['status', '--porcelain=v1'], {capture: true});
+    const sourceIdentity = {targetSha, targetTree, afterSha: afterSha.stdout.trim(), afterTree: afterTree.stdout.trim(), status: afterStatus.stdout.trim()};
+    fs.writeFileSync(path.join(artifactDir, 'candidate-source-identity.json'), JSON.stringify(sourceIdentity, null, 2));
+    if (afterSha.code || afterTree.code || afterStatus.code || sourceIdentity.afterSha !== targetSha || sourceIdentity.afterTree !== targetTree || sourceIdentity.status !== '') {
+      blockingAssertion ||= 'Final QA changed candidate SHA, tree, or source working-tree state.';
+    }
   }
 } catch (error) {
   blockingAssertion ||= error instanceof Error ? error.message : String(error);
@@ -161,6 +184,7 @@ const result = {
   schemaVersion: 3,
   targetRef,
   targetSha,
+  targetTree,
   profile,
   baseSha: BASE_SHA,
   requiredNode: REQUIRED_NODE,

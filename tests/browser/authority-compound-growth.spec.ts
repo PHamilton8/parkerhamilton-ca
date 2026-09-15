@@ -32,14 +32,14 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
     await expect(ratio).toHaveText('2.61');
     await page.locator('[data-egr-preset="equal-gains"]').click();
     await expect(ratio).toHaveText('1.00');
-    const correct = page.locator('[data-egr-preset="correct"], [data-egr-preset="compound"]');
-    await correct.first().click();
+    await page.getByRole('button', { name: 'Experimental projection', exact: true }).click();
     await expect(ratio).toHaveText('2.61');
   });
 
   test('simulator is the final monthly model: $0 start, $100/month, 8%, and monthly contribution dynamics', async ({ page }) => {
     await open(page);
-    await expect(page.getByText(/separate from the experiments/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Create your own compound-growth scenarios', exact: true })).toBeVisible();
+    await expect(page.getByText('Illustrative projection only. It does not model fees, taxes, inflation, return volatility, or changes in contributions.', { exact: true })).toBeVisible();
     await expect(page.locator('#cg-monthly-contribution')).toHaveValue('100');
     await expect(page.locator('#cg-annual-return')).toHaveValue('8');
     await expect(page.getByText(/starting invested balance is fixed at \$0/i)).toBeVisible();
@@ -50,6 +50,14 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
     await expect(page.locator('[data-summary-balance]')).toContainText('$644,216');
     await expect(page.locator('[data-summary-contributions]')).toContainText('$96,000');
     await expect(page.locator('body')).not.toContainText('$531,111');
+    // Simulator interaction cannot rewrite the frozen historical evidence.
+    await page.locator('[data-fixed-view="table"]').click();
+    const rows = page.locator('[data-fixed-panel="table"] tbody tr');
+    await expect(rows).toHaveCount(9);
+    for (let i = 0; i < fixedRows.length; i += 1) {
+      const cells = rows.nth(i).locator('th,td');
+      for (let j = 0; j < 3; j += 1) await expect(cells.nth(j)).toContainText(fixedRows[i][j]);
+    }
   });
 
   test('fixed and simulator tabsets expose complete roving-tab semantics', async ({ page }) => {

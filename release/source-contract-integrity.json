@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "interfaceVersion": 1,
+  "sourcePath": "tests/source-contract.test.mjs",
+  "sha256": "2dcc9a7c9ea51e973870b73eaaff47152e7a2fc2462dc72c336e804c7062a803",
+  "reviewStatus": "REVIEWED_CURRENT_AUTHORITY_SOURCE_CONTRACT"
+}

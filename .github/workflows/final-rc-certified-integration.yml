@@ -1,0 +1,110 @@
+name: final-rc-certified-integration
+
+on:
+  push:
+    branches: ['codex/final-rc-certified-integration']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parker-final-rc-certified-integration
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  reproduce-and-publish-exact-integration:
+    if: github.ref == 'refs/heads/codex/final-rc-certified-integration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+      - name: Verify exact full manifest and immutable policy
+        run: |
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          const manifestPath='scripts/final-rc/manifest.final-approved.json';
+          const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+          const policy=JSON.parse(fs.readFileSync('scripts/final-rc/policy.json','utf8'));
+          assert.equal(process.version,'v24.19.0');
+          assert.equal(process.env.GITHUB_REPOSITORY,'PHamilton8/parkerhamilton-ca');
+          assert.equal(manifest.base,'5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e');
+          assert.equal(manifest.execution?.authorizedIntegrationBranch,'integration/final-rc-v1');
+          assert.equal(execFileSync('git',['status','--porcelain=v1'],{encoding:'utf8'}).trim(),'');
+          const original=execFileSync('git',['show','84da5699ff5ef9ca207c85bdde71ef496736a0b6:scripts/final-rc/policy.json']);
+          assert.deepEqual(fs.readFileSync('scripts/final-rc/policy.json'),original);
+          for(const lane of policy.laneOrder){
+            const entry=manifest[lane];
+            assert.ok(entry && typeof entry==='object' && !Array.isArray(entry),`Full object authority required for ${lane}`);
+            const commits=entry.tip?[entry.tip]:entry.commits;
+            assert.ok(Array.isArray(commits)&&commits.length>0,`No commits for ${lane}`);
+            for(const sha of commits)assert.match(sha,/^[a-f0-9]{40}$/);
+            assert.ok(Array.isArray(entry.authorityIds)&&entry.authorityIds.length>0,`No authority IDs for ${lane}`);
+            if(lane==='releaseTooling')assert.notEqual(commits.at(-1),'b5c8148fa63d20d75e2782ad74374436fd937893');
+          }
+          const source=fs.readFileSync('tests/source-contract.test.mjs');
+          const pin=JSON.parse(fs.readFileSync('release/source-contract-integrity.json','utf8'));
+          assert.equal(pin.reviewStatus,'REVIEWED_CURRENT_AUTHORITY_SOURCE_CONTRACT');
+          assert.equal(crypto.createHash('sha256').update(source).digest('hex'),pin.sha256);
+          NODE
+      - name: Reviewed assembler and QA negative tests
+        run: |
+          node --check scripts/final-rc/assemble.mjs
+          node --check scripts/final-rc/source-overlay.mjs
+          node --check scripts/final-rc/qa-integrity.mjs
+          node --check scripts/final-rc-qa.mjs
+          node --test tests/source-overlay.test.mjs tests/final-rc-qa-integrity.test.mjs
+      - name: Complete deterministic DRY-RUN with every final gate
+        run: |
+          node scripts/final-rc/assemble.mjs \
+            --manifest scripts/final-rc/manifest.final-approved.json \
+            --mode DRY-RUN \
+            --output-dir "$RUNNER_TEMP/final-rc-dry-run"
+      - name: Reproduce exact green candidate and publish only integration/final-rc-v1
+        run: |
+          node scripts/final-rc/assemble.mjs \
+            --manifest scripts/final-rc/manifest.final-approved.json \
+            --mode EXECUTE \
+            --integration-branch integration/final-rc-v1 \
+            --expected-dry-run-summary "$RUNNER_TEMP/final-rc-dry-run/final-rc-summary.json" \
+            --output-dir "$RUNNER_TEMP/final-rc-execute"
+      - name: Verify exact published branch identity
+        run: |
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import { execFileSync } from 'node:child_process';
+          import { assertDryRunIdentity } from './scripts/final-rc/qa-integrity.mjs';
+          const dry=JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/final-rc-dry-run/final-rc-summary.json`,'utf8'));
+          const execute=JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/final-rc-execute/final-rc-summary.json`,'utf8'));
+          assert.equal(execute.status,'PASS');
+          assertDryRunIdentity(dry,execute);
+          assert.equal(execute.pushedIntegrationBranch,'integration/final-rc-v1');
+          const remote=execFileSync('git',['ls-remote','--exit-code','--heads','origin','refs/heads/integration/final-rc-v1'],{encoding:'utf8'}).trim().split(/\s+/)[0];
+          assert.equal(remote,dry.finalCandidateSha);
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-rc-certified-integration-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/final-rc-dry-run/
+            ${{ runner.temp }}/final-rc-execute/
+          if-no-files-found: error
+          retention-days: 90

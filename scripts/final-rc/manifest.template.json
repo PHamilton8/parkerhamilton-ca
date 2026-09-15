@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "base": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+  "candidateTimestamp": "REPLACE_WITH_FIXED_ISO_8601_TIMESTAMP",
+  "homepage": {
+    "tip": "REPLACE_WITH_FINAL_GLOBAL_CONTACTBAND_TIP_SHA",
+    "authorityIds": [
+      "1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28",
+      "17IrAugqmR4lQrG7J4Rt9Dng-ullqOlU60mI9a3O5Y5I"
+    ]
+  },
+  "wealthsimple": {
+    "commits": [
+      "4d9f8738d0d7868f96cc981f4bffce25740af50e",
+      "REPLACE_WITH_NARROW_CAPTION_FOLLOWUP_COMMIT_IF_NEEDED"
+    ],
+    "authorityIds": [
+      "1tQmrQXBBsFYgf15UFVugujukriC8KIRq",
+      "1VYR56cZ9_KWxfWFSmtWLpwnH_EMmxDiu"
+    ]
+  },
+  "reporting": {
+    "commits": ["REPLACE_WITH_FINAL_REPORTING_COMMIT"],
+    "authorityIds": ["1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"]
+  },
+  "designDay": {
+    "commits": ["REPLACE_WITH_FINAL_DESIGN_DAY_COMMIT"],
+    "authorityIds": [
+      "1UppTGeru6nzGKlm9hFP95DBT9-bSi7Uz",
+      "1kYgls9So9wrlyQXcfOv2CuFtC086dczc9SNvbIl2Kd0"
+    ]
+  },
+  "grocery": {
+    "commits": ["REPLACE_WITH_FINAL_GROCERY_COMMIT"],
+    "authorityIds": ["1OgX7M90-B7g3Oj37bv2636FmTS-BvxDz"]
+  },
+  "askWill": {
+    "commits": ["REPLACE_WITH_FINAL_ASKWILL_COMMIT"],
+    "authorityIds": ["1u7SySd3C9hHK5WeUZ6SPIqksSYYIZzmG"]
+  },
+  "coast": {
+    "commits": ["REPLACE_WITH_FINAL_COAST_COMMIT"],
+    "authorityIds": ["1m_4rRwPObxOLpbXqOMyRu20jXn8knEIx"]
+  },
+  "compound": {
+    "commits": ["REPLACE_WITH_FINAL_COMPOUND_COMMIT"],
+    "authorityIds": ["1b6_1WBeAdWtj-k_cMLqdlLSeHX5cnKzpo-Z2IJZN3kU"]
+  },
+  "smith": {
+    "commits": ["REPLACE_WITH_FINAL_SMITH_COMMIT"],
+    "authorityIds": [
+      "1LvovEf0qbIqr37SmJaz83m1ks9-mB_Is3WZgVgIs-pM",
+      "1qn24h5YyzUBfFuWodhCUte5JJn_52w4C"
+    ]
+  },
+  "releaseTooling": {
+    "tip": "REPLACE_WITH_RECONCILED_RELEASE_TOOLING_TIP_SHA",
+    "authorityIds": []
+  },
+  "execution": {
+    "authorizedIntegrationBranch": "integration/final-rc-v1"
+  },
+  "notes": "Do not replace explicit route commits with stale branch tips. Wealthsimple is a noindex auxiliary route and is not a ninth portfolio route."
+}

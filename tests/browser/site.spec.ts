@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import { QA_PROFILE, requiresAuthority } from './qa-profile';
 
 const routes = [
   { key: 'home', path: '/', h1: 'I like figuring things out.', title: 'Parker Hamilton' },
@@ -8,14 +9,16 @@ const routes = [
   { key: 'reporting-workflow', path: '/work/reporting-workflow', h1: 'Automating a Reporting Workflow', title: 'Automating a Reporting Workflow — Parker Hamilton' },
   { key: 'grocery-automation', path: '/work/grocery-automation', h1: 'Grocery Automation', title: 'Grocery Automation — Parker Hamilton' },
   { key: 'askwill', path: '/work/askwill', h1: 'Rebuilding AskWill.ca', title: 'Rebuilding AskWill.ca — Parker Hamilton' },
-  { key: 'coast-fi', path: '/work/coast-fi', h1: 'Coast FI / Net Worth Calculator', title: 'Coast FI / Net Worth Calculator — Parker Hamilton' },
+  { key: 'coast-fi', path: '/work/coast-fi', h1: requiresAuthority('coast') ? 'Coast FI Calculator' : 'Coast FI / Net Worth Calculator', title: 'Coast FI / Net Worth Calculator — Parker Hamilton' },
   { key: 'compound-growth', path: '/work/compound-growth', h1: 'Compound Growth & Retirement Investing', title: 'Compound Growth & Retirement Investing — Parker Hamilton' },
   { key: 'smith-manoeuvre', path: '/work/smith-manoeuvre', h1: 'Smith Manoeuvre Model', title: 'Smith Manoeuvre Model — Parker Hamilton' },
 ] as const;
 
 const inspectWidths = [1440, 1280, 1024, 820, 768, 430, 390, 360, 320];
 const baselineWidths = new Set([1440, 820, 390]);
-const baselineRoot = path.join(process.cwd(), 'artifacts', 'baseline');
+// Final screenshots belong to the ignored Playwright evidence directory, which
+// the final harness preserves, so producing evidence cannot dirty RC source.
+const baselineRoot = path.join(process.cwd(), QA_PROFILE === 'final-rc' ? 'test-results' : 'artifacts', 'baseline');
 
 async function collectPageErrors(page: Page) {
   const errors: string[] = [];
@@ -66,7 +69,10 @@ async function assertNoDocumentOverflow(page: Page) {
 test.describe('copy-locked integrated visual-review baseline', () => {
   for (const route of routes) {
     test(`${route.key}: responsive baseline and screenshots`, async ({ page }, testInfo) => {
-      test.skip(testInfo.project.name !== 'chromium', 'Canonical baseline screenshots are captured once in Chromium.');
+      test.skip(QA_PROFILE !== 'final-rc' && testInfo.project.name !== 'chromium', 'PREP baseline screenshots are captured once in Chromium; final RC exercises every browser.');
+      // Routing disables the browser HTTP cache, so every width receives and
+      // validates fresh 200 route bytes rather than Firefox's cached 304 event.
+      await page.route('**/*', route => route.continue());
       for (const width of inspectWidths) {
         await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
         const monitor = await collectPageErrors(page);
@@ -80,7 +86,7 @@ test.describe('copy-locked integrated visual-review baseline', () => {
           await activateLazyMedia(page);
           await assertImagesHealthy(page);
           await page.evaluate(() => window.scrollTo(0, 0));
-          const directory = path.join(baselineRoot, route.key);
+          const directory = path.join(baselineRoot, testInfo.project.name, route.key);
           fs.mkdirSync(directory, { recursive: true });
           await page.screenshot({ path: path.join(directory, `${route.key}-${width}.png`), fullPage: true, animations: 'disabled' });
         }
@@ -91,10 +97,12 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     });
   }
 
-  test('keyboard, skip link, internal navigation, and site utility routes work', async ({ page, request }) => {
+  test('keyboard, skip link, internal navigation, and site utility routes work', async ({ page, request, browserName }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await page.keyboard.press('Tab');
+    // Safari on macOS uses Option-Tab for links unless full keyboard access is enabled.
+    // https://support.apple.com/guide/safari/cpsh003/mac
+    await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
     const skipLink = page.getByRole('link', { name: 'Skip to main content' });
     await expect(skipLink).toBeFocused();
     await expect(skipLink).toBeVisible();
@@ -116,8 +124,9 @@ test.describe('copy-locked integrated visual-review baseline', () => {
   });
 
   test('project interactions and downloadable assets remain functional', async ({ page, request }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium', 'State screenshots are captured once in Chromium.');
-    fs.mkdirSync(path.join(baselineRoot, 'states'), { recursive: true });
+    test.skip(QA_PROFILE !== 'final-rc' && testInfo.project.name !== 'chromium', 'PREP state screenshots are captured once in Chromium; final RC exercises every browser.');
+    const stateRoot = path.join(baselineRoot, testInfo.project.name, 'states');
+    fs.mkdirSync(stateRoot, { recursive: true });
     await page.setViewportSize({ width: 1440, height: 900 });
 
     await page.goto('/work/reporting-workflow');
@@ -125,14 +134,15 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     await generate.click();
     await expect(generate).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#reporting-demo-status')).toContainText('autofills the standard reporting text');
-    await page.screenshot({ path: path.join(baselineRoot, 'states', 'reporting-generated-1440.png'), fullPage: true, animations: 'disabled' });
+    await page.screenshot({ path: path.join(stateRoot, 'reporting-generated-1440.png'), fullPage: true, animations: 'disabled' });
 
     await page.goto('/work/coast-fi');
     const coastByAge = page.getByLabel('Coast by age');
-    await coastByAge.check();
+    await page.locator('label[for="coast-mode-b"]').click();
+    await expect(coastByAge).toBeChecked();
     await expect(page.getByRole('spinbutton', { name: 'Target Coast age', exact: true })).toBeVisible();
     await expect(page.getByText('The model estimates a monthly contribution of about', { exact: false })).toBeVisible();
-    await page.screenshot({ path: path.join(baselineRoot, 'states', 'coast-by-age-1440.png'), fullPage: true, animations: 'disabled' });
+    await page.screenshot({ path: path.join(stateRoot, 'coast-by-age-1440.png'), fullPage: true, animations: 'disabled' });
 
     await page.goto('/work/compound-growth');
     const tableTab = page.getByRole('tab', { name: 'Table' }).first();
@@ -144,13 +154,16 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     const explorerGraph = page.getByRole('tab', { name: 'Line graph' }).last();
     await explorerGraph.click();
     await expect(explorerGraph).toHaveAttribute('aria-selected', 'true');
-    await page.screenshot({ path: path.join(baselineRoot, 'states', 'compound-interactions-1440.png'), fullPage: true, animations: 'disabled' });
+    await page.screenshot({ path: path.join(stateRoot, 'compound-interactions-1440.png'), fullPage: true, animations: 'disabled' });
 
     await page.goto('/work/smith-manoeuvre');
     await expect(page.getByText('Illustrative net-position difference', { exact: true })).toBeVisible();
-    const details = page.locator('details').filter({ has: page.getByText('Year-by-year details', { exact: true }) }).first();
-    if (await details.count()) await details.locator('summary').click();
-    await page.screenshot({ path: path.join(baselineRoot, 'states', 'smith-default-1440.png'), fullPage: true, animations: 'disabled' });
+    const details = page.locator('details').filter({ has: page.getByText(requiresAuthority('smith') ? 'View yearly model data' : 'Year-by-year details', { exact: true }) });
+    await expect(details).toHaveCount(1);
+    await details.locator('summary').click();
+    await expect(details).toHaveAttribute('open', '');
+    await expect(details.locator('table')).toBeVisible();
+    await page.screenshot({ path: path.join(stateRoot, 'smith-default-1440.png'), fullPage: true, animations: 'disabled' });
 
     for (const asset of [
       '/downloads/Coast_FI_Calculator_Public_Sanitized.xlsx',

@@ -1,0 +1,92 @@
+name: final-rc-assembler-dry-run
+
+on:
+  push:
+    branches: ['prep/final-rc-assembler-v1', 'codex/final-rc-assembler-authority-qa']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  dry-run-known-canonical-lanes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - name: Reviewed source integrity and complete overlay self-tests
+        run: |
+          node --check scripts/final-rc/assemble.mjs
+          node --check scripts/final-rc/source-overlay.mjs
+          node --check tests/source-contract.test.mjs
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          const pin=JSON.parse(fs.readFileSync('release/source-contract-integrity.json','utf8'));
+          assert.equal(pin.reviewStatus,'REVIEWED_CURRENT_AUTHORITY_SOURCE_CONTRACT');
+          assert.equal(pin.sourcePath,'tests/source-contract.test.mjs');
+          assert.equal(crypto.createHash('sha256').update(fs.readFileSync(pin.sourcePath)).digest('hex'),pin.sha256);
+          NODE
+          node --test tests/source-overlay.test.mjs
+      - name: Fetch current canonical implementation inputs
+        run: |
+          git fetch --no-tags origin \
+            79957344e0f4983ccab0e032348faf4e32c59b0b \
+            4d9f8738d0d7868f96cc981f4bffce25740af50e \
+            40bdfa5cd20d8feb569f2d500d678a3372d8aced
+      - name: Write deterministic partial rehearsal manifest
+        run: |
+          cat > /tmp/final-rc-rehearsal.json <<'JSON'
+          {
+            "schemaVersion": 1,
+            "base": "5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e",
+            "candidateTimestamp": "2026-09-15T03:40:00Z",
+            "homepage": {
+              "tip": "79957344e0f4983ccab0e032348faf4e32c59b0b",
+              "authorityIds": [
+                "1K-_ERW4hKuA0QvncX7nvT0S9hjQ-r2G84UM_JjBTt28",
+                "17IrAugqmR4lQrG7J4Rt9Dng-ullqOlU60mI9a3O5Y5I"
+              ]
+            },
+            "wealthsimple": {
+              "commits": ["4d9f8738d0d7868f96cc981f4bffce25740af50e"],
+              "authorityIds": ["1tQmrQXBBsFYgf15UFVugujukriC8KIRq", "1VYR56cZ9_KWxfWFSmtWLpwnH_EMmxDiu"]
+            },
+            "reporting": {
+              "commits": ["40bdfa5cd20d8feb569f2d500d678a3372d8aced"],
+              "authorityIds": ["1JVPD0dbrhV6DVIsZ54_BGQyZKps5QUKt"]
+            },
+            "designDay": null,
+            "grocery": null,
+            "askWill": null,
+            "coast": null,
+            "compound": null,
+            "smith": null,
+            "releaseTooling": null,
+            "execution": {"authorizedIntegrationBranch": "integration/final-rc-v1"},
+            "notes": "PREP-ONLY rehearsal of known canonical lanes. Remaining route implementations are intentionally skipped."
+          }
+          JSON
+      - name: Run deterministic assembler dry run
+        run: |
+          node scripts/final-rc/assemble.mjs \
+            --manifest /tmp/final-rc-rehearsal.json \
+            --mode DRY-RUN \
+            --output-dir /tmp/final-rc-assembler-rehearsal
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-rc-assembler-rehearsal-${{ github.sha }}
+          path: /tmp/final-rc-assembler-rehearsal/
+          if-no-files-found: warn
+          retention-days: 30
