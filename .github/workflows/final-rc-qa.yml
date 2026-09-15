@@ -1,4 +1,4 @@
-name: final-rc-qa-harness-v2
+name: final-rc-qa-harness-v3
 
 on:
   push:
@@ -6,13 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       target_ref:
-        description: SHA/ref to test
+        description: Exact final-RC SHA/ref to certify
         required: false
         default: ''
-      profile:
-        description: baseline | homepage-v3 | reporting-v3 | final-rc
-        required: false
-        default: 'final-rc'
 
 permissions:
   contents: read
@@ -21,37 +17,33 @@ env:
   ASTRO_TELEMETRY_DISABLED: '1'
 
 jobs:
-  prepared-matrix:
+  prep-self-check:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: 5bd7356fca9ff506d7d6ab3bb1a24cda3dc1902e
-            profile: baseline
-          - target: impl/homepage-v3-final
-            profile: homepage-v3
-          - target: impl/reporting-workflow-v3
-            profile: reporting-v3
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24.19.0
-      - name: Run V2 harness against target
-        run: node scripts/final-rc-qa.mjs '${{ matrix.target }}' --profile='${{ matrix.profile }}'
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: final-rc-qa-${{ matrix.profile }}-${{ github.sha }}
-          path: artifacts/final-rc/
-          if-no-files-found: warn
-          retention-days: 14
+          cache: npm
+      - run: npm ci
+      - name: Syntax-check prep-only QA runners and JS contracts
+        run: |
+          node --check scripts/final-rc-qa.mjs
+          node --check tests/final-rc-contract.test.mjs
+          node --check tests/built-route-contract.mjs
+      - name: Load final Playwright authority tests without executing them
+        run: |
+          npx playwright test \
+            tests/browser/authority-global.spec.ts \
+            tests/browser/authority-home.spec.ts \
+            tests/browser/authority-reporting.spec.ts \
+            tests/browser/authority-coast-fi.spec.ts \
+            tests/browser/authority-compound-growth.spec.ts \
+            tests/browser/authority-pending-routes.spec.ts \
+            --list
 
-  dispatch:
+  dispatch-final-sha:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.target_ref != '' }}
     runs-on: ubuntu-latest
     steps:
@@ -61,11 +53,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24.19.0
-      - run: node scripts/final-rc-qa.mjs '${{ inputs.target_ref }}' --profile='${{ inputs.profile }}'
+          cache: npm
+      - name: Certify exact final candidate
+        run: node scripts/final-rc-qa.mjs '${{ inputs.target_ref }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: final-rc-qa-dispatch-${{ github.sha }}
+          name: final-rc-qa-${{ inputs.target_ref }}-${{ github.sha }}
           path: artifacts/final-rc/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
