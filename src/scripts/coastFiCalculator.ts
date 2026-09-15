@@ -69,7 +69,7 @@
     const currencyInput = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 2 });
 
     function selectedMode(): Mode {
-      return (form.querySelector<HTMLInputElement>('input[name="coast-mode"]:checked')?.value ?? 'A') as Mode;
+      return (form.querySelector<HTMLInputElement>('input[name="coast-mode"]:checked')?.value ?? 'B') as Mode;
     }
 
     function value(input: HTMLInputElement): number {
@@ -234,7 +234,9 @@
         const contribution = value(inputs.monthlyContribution);
         if (data.reached && data.estimatedCoastAge && data.durationUntilCoast) {
           answer.textContent = `At ${currencyInput.format(contribution)} per month, the modeled portfolio reaches the Coast threshold at about age ${data.estimatedCoastAge.years}.`;
-          setPrimary('Estimated Coast age', data.estimatedCoastAge.label);
+          setPrimary('Estimated Coast age', data.estimatedCoastAge.months === 0
+            ? `${data.estimatedCoastAge.years} years old`
+            : `${data.estimatedCoastAge.years} years ${data.estimatedCoastAge.months} months old`);
           renderMetrics([
             { label: 'Time until Coast threshold', value: durationLabel(data.durationUntilCoast.years, data.durationUntilCoast.months) },
             { label: 'Projected portfolio at crossing', value: currencyWhole.format(data.projectedPortfolioAtCoast ?? 0) },
@@ -323,8 +325,15 @@
       return currencyWhole.format(value);
     }
 
+    function chartGeometry() {
+      return window.innerWidth > 560
+        ? { top: 24, bottom: 238, middle: 131, height: 290, xLabelY: 268 }
+        : { top: 24, bottom: 308, middle: 166, height: 360, xLabelY: 338 };
+    }
+
     function linePath(points: ChartPoint[], key: 'portfolio' | 'threshold', maxY: number): string {
-      const left = 76, right = 730, top = 24, bottom = 308;
+      const left = 76, right = 730;
+      const { top, bottom } = chartGeometry();
       const lastMonth = Math.max(1, points.at(-1)?.month ?? 1);
       let active = false;
       let path = '';
@@ -340,7 +349,8 @@
     }
 
     function appendMarker(month: number, label: string, points: ChartPoint[], maxY: number, emphasized = false): void {
-      const left = 76, right = 730, top = 24, bottom = 308;
+      const left = 76, right = 730;
+      const { top, bottom } = chartGeometry();
       const lastMonth = Math.max(1, points.at(-1)?.month ?? 1);
       const point = points[Math.max(0, Math.min(month, points.length - 1))];
       const x = left + (month / lastMonth) * (right - left);
@@ -387,7 +397,9 @@
       const maxDataValue = Math.max(shared.retirementTarget, ...points.map((point) => point.portfolio), ...finiteThresholds);
       const maxY = maxDataValue > 0 ? maxDataValue * 1.08 : 1;
       const yValues = [0, maxY / 2, maxY];
-      const yPositions = [308, 166, 24];
+      const { top, bottom, middle: middleY, height, xLabelY } = chartGeometry();
+      const yPositions = [bottom, middleY, top];
+      root.querySelector<SVGSVGElement>('[data-chart]')!.setAttribute('viewBox', `0 0 760 ${height}`);
 
       yValues.forEach((tick, index) => {
         const label = root.querySelector<SVGTextElement>(`[data-y-label="${index}"]`)!;
@@ -401,6 +413,9 @@
       const start = root.querySelector<SVGTextElement>('[data-x-label="start"]')!;
       const middle = root.querySelector<SVGTextElement>('[data-x-label="middle"]')!;
       const end = root.querySelector<SVGTextElement>('[data-x-label="end"]')!;
+      start.setAttribute('y', String(xLabelY));
+      middle.setAttribute('y', String(xLabelY));
+      end.setAttribute('y', String(xLabelY));
       start.setAttribute('x', '76'); start.textContent = `Age ${shared.currentAge}`;
       middle.setAttribute('x', '403'); middle.textContent = `Age ${Math.round((shared.currentAge + shared.retirementAge) / 2)}`;
       end.setAttribute('x', '730'); end.textContent = `Age ${shared.retirementAge}`;
@@ -486,11 +501,16 @@
       inputs.realReturn.value = examples.realReturn;
       inputs.targetCoastAge.value = examples.targetCoastAge;
       inputs.monthlyContribution.value = examples.monthlyContribution;
-      form.querySelector<HTMLInputElement>('#coast-mode-a')!.checked = true;
+      form.querySelector<HTMLInputElement>('#coast-mode-b')!.checked = true;
       syncModeVisibility();
       runCalculation();
     });
 
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(runCalculation, 80);
+    });
     syncModeVisibility();
     runCalculation();
   }
