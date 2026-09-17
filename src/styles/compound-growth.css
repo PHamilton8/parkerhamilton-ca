@@ -76,7 +76,7 @@
 .cg-pathway__connector path{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 
-.cg-explorer-boundary__statement>.cg-explorer-instruction{margin:.8rem 0 0;max-width:none;color:var(--color-muted);white-space:nowrap}
+.cg-explorer-boundary__statement>.cg-explorer-instruction{margin:.8rem 0 0;max-width:none;color:var(--color-muted);white-space:normal}
 
 
 .cg-series{vector-effect:non-scaling-stroke}
@@ -215,7 +215,7 @@
 
 
 @media(min-width:64.01rem){
-  .cg-explorer-boundary__statement h2{max-width:none;white-space:nowrap}
+  .cg-explorer-boundary__statement h2{max-width:none;white-space:normal}
 }
 
 
@@ -239,7 +239,7 @@
 
 @media(min-width:64.01rem){
   .cg-research-question h2{max-width:none}
-  .cg-research-question .rq-line{display:block;white-space:nowrap}
+  .cg-research-question .rq-line{display:block;white-space:normal}
 }
 @media(max-width:64rem){
   .cg-research-question .rq-line{display:inline;white-space:normal}
