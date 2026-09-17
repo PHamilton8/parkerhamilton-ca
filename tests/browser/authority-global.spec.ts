@@ -66,8 +66,45 @@ test.describe('Final-RC global release gates', () => {
       await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
       for (const route of publicRoutes) {
         await open(page, route);
-        const dims = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
-        expect(dims.scroll, route).toBeLessThanOrEqual(dims.client + 1);
+        const overflowState = await page.evaluate(() => {
+          const root = document.documentElement;
+          const client = root.clientWidth;
+          const elements = [...document.querySelectorAll<HTMLElement>('body *')];
+          const offenders = elements
+            .map((element) => {
+              const rect = element.getBoundingClientRect();
+              return {
+                tag: element.tagName.toLowerCase(),
+                id: element.id || null,
+                className: typeof element.className === 'string' ? element.className : null,
+                left: Math.round(rect.left * 100) / 100,
+                right: Math.round(rect.right * 100) / 100,
+                width: Math.round(rect.width * 100) / 100,
+              };
+            })
+            .filter(({ left, right, width }) => width > 0 && (left < -1 || right > client + 1))
+            .slice(0, 20);
+          const internalOverflows = elements
+            .filter((element) => element.scrollWidth > element.clientWidth + 1)
+            .map((element) => {
+              const style = getComputedStyle(element);
+              return {
+                tag: element.tagName.toLowerCase(),
+                id: element.id || null,
+                className: typeof element.className === 'string' ? element.className : null,
+                clientWidth: element.clientWidth,
+                scrollWidth: element.scrollWidth,
+                overflowX: style.overflowX,
+                whiteSpace: style.whiteSpace,
+              };
+            })
+            .slice(0, 30);
+          return { scroll: root.scrollWidth, client, offenders, internalOverflows };
+        });
+        expect(
+          overflowState.scroll,
+          `${route} overflow diagnostics: ${JSON.stringify({ offenders: overflowState.offenders, internalOverflows: overflowState.internalOverflows })}`,
+        ).toBeLessThanOrEqual(overflowState.client + 1);
       }
     });
   }
