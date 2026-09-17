@@ -2,13 +2,27 @@ name: cloudflare-infrastructure-qa
 
 on:
   push:
-    branches: ['prep/cloudflare-workers-release-infra-v1']
+    branches: ['infra/**']
     paths:
       - 'wrangler.jsonc'
       - 'package.json'
       - 'package-lock.json'
       - 'scripts/validate-cloudflare-infra.mjs'
       - 'scripts/validate-release-dist.mjs'
+      - 'public/_headers'
+      - 'public/_redirects'
+      - '.github/workflows/cloudflare-*.yml'
+      - 'scripts/postlaunch-release.mjs'
+      - 'tests/postlaunch-release-architecture.test.mjs'
+  pull_request:
+    paths:
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/validate-cloudflare-infra.mjs'
+      - 'scripts/validate-release-dist.mjs'
+      - 'scripts/postlaunch-release.mjs'
+      - 'tests/postlaunch-release-architecture.test.mjs'
       - 'public/_headers'
       - 'public/_redirects'
       - '.github/workflows/cloudflare-*.yml'
