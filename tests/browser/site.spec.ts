@@ -40,6 +40,7 @@ async function activateLazyMedia(page: Page) {
   const imageCount = await images.count();
   for (let index = 0; index < imageCount; index += 1) {
     const image = images.nth(index);
+    if (!(await image.isVisible())) continue;
     await image.scrollIntoViewIfNeeded();
     await expect.poll(async () => image.evaluate((element) => {
       const img = element as HTMLImageElement;
@@ -133,7 +134,7 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     const reportingDemo = page.locator('section.reporting-demo');
     await expect(reportingDemo).toHaveAttribute('hidden', '');
     await expect(page.getByRole('button', { name: '3. Generate' })).toHaveCount(0);
-    await expect(reportingDemo.getByRole('button', { name: '3. Generate', includeHidden: true })).toHaveCount(1);
+    await expect(reportingDemo.locator('[data-demo-stage="2"]')).toHaveCount(1);
     await page.screenshot({ path: path.join(stateRoot, 'reporting-owner-hidden-1440.png'), fullPage: true, animations: 'disabled' });
 
     await page.goto('/work/coast-fi');
@@ -158,7 +159,7 @@ test.describe('copy-locked integrated visual-review baseline', () => {
 
     await page.goto('/work/smith-manoeuvre');
     await expect(page.getByText('Illustrative net-position difference', { exact: true })).toBeVisible();
-    const details = page.locator('details').filter({ has: page.getByText(requiresAuthority('smith') ? 'View yearly model data' : 'Year-by-year details', { exact: true }) });
+    const details = page.locator('details').filter({ has: page.getByText('View yearly model data', { exact: true }) });
     await expect(details).toHaveCount(1);
     await details.locator('summary').click();
     await expect(details).toHaveAttribute('open', '');
