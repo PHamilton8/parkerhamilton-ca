@@ -1,0 +1,159 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Preferred: prior known-good production GitHub Release tag'
+        required: false
+        type: string
+      target_version_id:
+        description: 'Fallback: exact known-good Cloudflare Version UUID'
+        required: false
+        type: string
+      confirm:
+        description: 'Type exactly: ROLLBACK parkerhamilton.ca'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parker-production-release
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'ROLLBACK parkerhamilton.ca'
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+
+      - name: Resolve exactly one rollback target
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          EXPLICIT_VERSION: ${{ inputs.target_version_id }}
+        shell: bash
+        run: |
+          mkdir -p .release-rollback
+          if [ -n "$RELEASE_TAG" ] && [ -n "$EXPLICIT_VERSION" ]; then
+            echo "Provide either release_tag or target_version_id, not both."
+            exit 1
+          fi
+          if [ -n "$RELEASE_TAG" ]; then
+            gh release download "$RELEASE_TAG" --pattern production-release-record.json --dir .release-rollback/target
+            VERSION_ID="$(node -e "const j=require('./.release-rollback/target/production-release-record.json');process.stdout.write(j.cloudflareVersionId)")"
+            SOURCE_KIND="github-release"
+          elif [ -n "$EXPLICIT_VERSION" ]; then
+            [[ "$EXPLICIT_VERSION" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "Exact Version UUID required"; exit 1; }
+            VERSION_ID="$EXPLICIT_VERSION"
+            SOURCE_KIND="explicit-known-good-version"
+          else
+            echo "A prior production release tag or explicit known-good Version UUID is required."
+            exit 1
+          fi
+          echo "version_id=$VERSION_ID" >> "$GITHUB_OUTPUT"
+          echo "source_kind=$SOURCE_KIND" >> "$GITHUB_OUTPUT"
+
+      - name: Verify target version exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION_ID: ${{ steps.target.outputs.version_id }}
+        run: node scripts/postlaunch-release.mjs verify-version "$VERSION_ID" > .release-rollback/target-version.json
+
+      - name: Snapshot current production before rollback
+        id: before
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-before.json
+          node scripts/postlaunch-release.mjs single-active-version .release-rollback/production-before.json > .release-rollback/original.json
+          echo "version_id=$(node -e "const j=require('./.release-rollback/original.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
+
+      - name: Activate exact rollback version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION_ID: ${{ steps.target.outputs.version_id }}
+        run: node scripts/postlaunch-release.mjs activate-version "$VERSION_ID" "Owner-triggered ParkerHamilton rollback" > .release-rollback/rollback-deployment.json
+
+      - name: Verify exact rollback version is active
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION_ID: ${{ steps.target.outputs.version_id }}
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-after.json
+          node scripts/postlaunch-release.mjs assert-active-version .release-rollback/production-after.json "$VERSION_ID" > .release-rollback/active-version.json
+
+      - name: Focused live smoke after rollback
+        id: smoke
+        continue-on-error: true
+        run: node scripts/postlaunch-release.mjs production-smoke > .release-rollback/live-smoke.json
+
+      - name: Restore pre-rollback production if rollback smoke fails
+        if: steps.smoke.outcome != 'success'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ORIGINAL_VERSION_ID: ${{ steps.before.outputs.version_id }}
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs activate-version "$ORIGINAL_VERSION_ID" "Restore pre-rollback ParkerHamilton version after failed rollback smoke" > .release-rollback/restored-original.json
+          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/restored-after.json
+          node scripts/postlaunch-release.mjs assert-active-version .release-rollback/restored-after.json "$ORIGINAL_VERSION_ID" > .release-rollback/restored-verified.json
+          node scripts/postlaunch-release.mjs production-smoke > .release-rollback/restored-smoke.json
+
+      - name: Write rollback record
+        if: steps.smoke.outcome == 'success'
+        env:
+          TARGET_VERSION_ID: ${{ steps.target.outputs.version_id }}
+          TARGET_SOURCE_KIND: ${{ steps.target.outputs.source_kind }}
+          ORIGINAL_VERSION_ID: ${{ steps.before.outputs.version_id }}
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const after=require('./.release-rollback/production-after.json');
+          const record={
+            schemaVersion:1,
+            status:'ROLLBACK_LIVE_SMOKE_PASS',
+            targetVersionId:process.env.TARGET_VERSION_ID,
+            targetSourceKind:process.env.TARGET_SOURCE_KIND,
+            previousVersionId:process.env.ORIGINAL_VERSION_ID,
+            cloudflareDeploymentId:after.deploymentId,
+            liveSmoke:'PASS',
+            rolledBackAt:new Date().toISOString()
+          };
+          fs.writeFileSync('.release-rollback/rollback-record.json',JSON.stringify(record,null,2)+'\n');
+          NODE
+
+      - name: Preserve rollback evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-evidence-${{ github.run_id }}
+          path: .release-rollback/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Fail if rollback smoke failed
+        if: steps.smoke.outcome != 'success'
+        run: |
+          echo "Requested rollback failed smoke; pre-rollback production was restored and re-smoked."
+          exit 1
