@@ -218,6 +218,46 @@ function verifyManifest(file, tree) {
   assert.ok(url.hostname.includes(`-${WORKER_NAME}.`) && url.hostname.endsWith('.workers.dev'));
   json(manifest);
 }
+
+async function activateVersion(versionId, message) {
+  assert.match(versionId, UUID, 'Exact Worker Version UUID required');
+  assert.ok(message && message.length <= 1000, 'Deployment message required and must fit Cloudflare annotation limit');
+  const account = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  const url = `${CF_API}/accounts/${account}/workers/scripts/${WORKER_NAME}/deployments`;
+  const body = await fetchJson(url, {
+    method: 'POST',
+    headers: cloudflareHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({
+      strategy: 'percentage',
+      versions: [{ version_id: versionId, percentage: 100 }],
+      annotations: { 'workers/message': message, 'workers/triggered_by': 'deployment' },
+    }),
+  });
+  assert.equal(body.success, true, 'Cloudflare exact-version deployment must succeed');
+  assert.match(body.result?.id ?? '', UUID, 'Deployment UUID required');
+  const versions = body.result?.versions ?? [];
+  assert.equal(versions.length, 1, 'Exact-version promotion must create a single-version deployment');
+  assert.equal(versions[0].version_id ?? versions[0].id, versionId);
+  assert.equal(Number(versions[0].percentage), 100);
+  json({ deploymentId: body.result.id, versionId, percentage: 100, createdOn: body.result.created_on ?? null });
+}
+function singleActiveVersion(snapshotFile) {
+  const snapshot = JSON.parse(fs.readFileSync(snapshotFile, 'utf8'));
+  assert.ok(Array.isArray(snapshot.versions) && snapshot.versions.length === 1, 'Production baseline must be a single-version deployment');
+  assert.equal(Number(snapshot.versions[0].percentage), 100, 'Production baseline must allocate 100% to one version');
+  const versionId = snapshot.versions[0].versionId;
+  assert.match(versionId ?? '', UUID);
+  json({ deploymentId: snapshot.deploymentId, versionId });
+}
+function assertActiveVersion(snapshotFile, versionId) {
+  assert.match(versionId, UUID);
+  const snapshot = JSON.parse(fs.readFileSync(snapshotFile, 'utf8'));
+  assert.equal(snapshot.versions.length, 1, 'Post-deployment production must have one active version');
+  assert.equal(snapshot.versions[0].versionId, versionId, 'Active production version must equal the requested exact version');
+  assert.equal(Number(snapshot.versions[0].percentage), 100, 'Exact version must receive 100% traffic');
+  json({ active: true, deploymentId: snapshot.deploymentId, versionId });
+}
+
 async function productionSmoke() {
   const origin = 'https://parkerhamilton.ca';
   const routes = [
@@ -262,6 +302,15 @@ switch (command) {
     break;
   case 'verify-version':
     await verifyVersion(args[0]);
+    break;
+  case 'activate-version':
+    await activateVersion(args[0], args.slice(1).join(' '));
+    break;
+  case 'single-active-version':
+    singleActiveVersion(args[0]);
+    break;
+  case 'assert-active-version':
+    assertActiveVersion(args[0], args[1]);
     break;
   case 'make-candidate-manifest':
     makeCandidateManifest(args);
