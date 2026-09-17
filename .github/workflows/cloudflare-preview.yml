@@ -1,66 +1,145 @@
-name: cloudflare-private-final-rc-preview
+name: Create Review Candidate
 
 on:
   workflow_dispatch:
     inputs:
-      rc_ref:
-        description: 'Exact certified final RC SHA/ref'
+      candidate_sha:
+        description: 'Exact 40-character source SHA to review'
         required: true
         type: string
       confirm:
-        description: 'Type exactly: CREATE_PRIVATE_FINAL_RC_PREVIEW'
+        description: 'Type exactly: CREATE REVIEW CANDIDATE'
         required: true
         type: string
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: cloudflare-private-final-rc-preview
+  group: parker-review-candidate
   cancel-in-progress: false
 
 env:
   ASTRO_TELEMETRY_DISABLED: '1'
 
 jobs:
-  preview:
-    if: github.ref == 'refs/heads/prep/final-release-tooling-v3-reviewed-replacement' || github.ref == 'refs/heads/integration/final-rc-v1'
+  candidate:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'CREATE REVIEW CANDIDATE'
+    environment: preview
     runs-on: ubuntu-latest
     steps:
-      - name: Verify explicit authorization
+      - name: Validate exact candidate identity
         env:
-          CONFIRM: ${{ inputs.confirm }}
-        run: test "$CONFIRM" = 'CREATE_PRIVATE_FINAL_RC_PREVIEW'
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        shell: bash
+        run: |
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "Exact 40-character SHA required"; exit 1; }
+
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.candidate_sha }}
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24.19.0
           cache: npm
-      - run: npm ci
-      - name: Install media and browser validation prerequisites
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          npx playwright install --with-deps chromium firefox webkit
-      - name: Verify reviewed readable tooling
-        run: node scripts/final-rc-preview.mjs --verify-only
-      - name: Create authenticated immutable final-RC preview
-        run: node scripts/final-rc-preview.mjs preview --rc "$RC_REF" --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW
+
+      - name: Freeze exact source
         env:
-          RC_REF: ${{ inputs.rc_ref }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          test -z "$(git status --porcelain=v1)"
+
+      - run: npm ci
+
+      - name: Require green CI for this exact SHA
+        id: ci
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p .release-candidate
+          node scripts/postlaunch-release.mjs verify-ci "$CANDIDATE_SHA" > .release-candidate/ci.json
+          echo "run_id=$(node -e "const j=require('./.release-candidate/ci.json');process.stdout.write(String(j.workflowRunId))")" >> "$GITHUB_OUTPUT"
+
+      - name: Release build and public-safety validation
+        run: npm run release:build
+
+      - name: Cloudflare infrastructure validation
+        run: npm run infra:validate
+
+      - name: Freeze tree and dist identity
+        id: identity
+        shell: bash
+        run: |
+          TREE_SHA="$(git rev-parse HEAD^{tree})"
+          node scripts/postlaunch-release.mjs dist-hash dist > .release-candidate/dist.json
+          DIST_SHA="$(node -e "const j=require('./.release-candidate/dist.json');process.stdout.write(j.sha256)")"
+          echo "tree_sha=$TREE_SHA" >> "$GITHUB_OUTPUT"
+          echo "dist_sha=$DIST_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Snapshot production before candidate upload
+        env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/postlaunch-release.mjs cf-snapshot > .release-candidate/production-before.json
+
+      - name: Upload exactly one unpublished Worker Version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-version-upload.ndjson
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        shell: bash
+        run: |
+          npx wrangler versions upload --message "ParkerHamilton review candidate $CANDIDATE_SHA"
+
+      - name: Resolve immutable Version ID and preview URL
+        id: upload
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs parse-upload-output "${{ runner.temp }}/wrangler-version-upload.ndjson" > .release-candidate/upload.json
+          echo "version_id=$(node -e "const j=require('./.release-candidate/upload.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
+          echo "preview_url=$(node -e "const j=require('./.release-candidate/upload.json');process.stdout.write(j.previewUrl)")" >> "$GITHUB_OUTPUT"
+
+      - name: Prove private preview boundary and authenticated smoke
+        env:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-          PREVIEW_REVIEW_EMAIL: ${{ vars.PREVIEW_REVIEW_EMAIL }}
-      - name: Upload fail-closed release evidence
-        if: always()
+          PREVIEW_URL: ${{ steps.upload.outputs.preview_url }}
+        run: node scripts/postlaunch-release.mjs preview-smoke "$PREVIEW_URL" > .release-candidate/preview-smoke.json
+
+      - name: Prove production stayed unchanged
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs cf-snapshot > .release-candidate/production-after.json
+          node scripts/postlaunch-release.mjs assert-production-unchanged             .release-candidate/production-before.json             .release-candidate/production-after.json             > .release-candidate/production-unchanged.json
+
+      - name: Write immutable candidate manifest
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          TREE_SHA: ${{ steps.identity.outputs.tree_sha }}
+          DIST_SHA: ${{ steps.identity.outputs.dist_sha }}
+          VERSION_ID: ${{ steps.upload.outputs.version_id }}
+          PREVIEW_URL: ${{ steps.upload.outputs.preview_url }}
+          CI_RUN_ID: ${{ steps.ci.outputs.run_id }}
+        shell: bash
+        run: |
+          node scripts/postlaunch-release.mjs make-candidate-manifest             "$CANDIDATE_SHA" "$TREE_SHA" "$DIST_SHA" "$VERSION_ID" "$PREVIEW_URL" "$CI_RUN_ID"             .release-candidate/production-before.json .release-candidate/production-after.json             > .release-candidate/candidate.json
+
+      - name: Preserve candidate evidence
         uses: actions/upload-artifact@v4
         with:
-          name: private-final-rc-preview-evidence-${{ github.sha }}
-          path: .release-preview/
+          name: review-candidate-${{ steps.identity.outputs.tree_sha }}
+          path: .release-candidate/
           include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 30
+          if-no-files-found: error
+          retention-days: 90
