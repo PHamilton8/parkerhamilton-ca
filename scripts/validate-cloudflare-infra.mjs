@@ -82,21 +82,33 @@ for (const step of requiredReleaseSteps) {
 
 const previewWorkflow = readText('.github/workflows/cloudflare-preview.yml');
 assert.match(previewWorkflow, /workflow_dispatch:/);
-// V3 supersedes the old main-only direct upload: the reviewed runner owns Access
-// proof, certification and unpublished upload; the dispatch accepts no production branch.
-assert.match(previewWorkflow, /refs\/heads\/prep\/final-release-tooling-v3-reviewed-replacement/);
-assert.match(previewWorkflow, /refs\/heads\/integration\/final-rc-v1/);
-assert.doesNotMatch(previewWorkflow, /refs\/heads\/(?:main|master|production)\b/);
-assert.match(previewWorkflow, /CREATE_PRIVATE_FINAL_RC_PREVIEW/);
-assert.match(previewWorkflow, /node scripts\/final-rc-preview\.mjs --verify-only/);
-assert.match(previewWorkflow, /node scripts\/final-rc-preview\.mjs preview --rc "\$RC_REF" --authorize CREATE_PRIVATE_FINAL_RC_PREVIEW/);
-assert.doesNotMatch(previewWorkflow, /wrangler\s+(?:deploy|rollback)|versions\s+deploy|dns_records|custom_domains/);
+assert.match(previewWorkflow, /refs\/heads\/main/);
+assert.match(previewWorkflow, /environment: preview/);
+assert.match(previewWorkflow, /CREATE REVIEW CANDIDATE/);
+assert.match(previewWorkflow, /verify-ci/);
+assert.match(previewWorkflow, /wrangler versions upload/);
+assert.match(previewWorkflow, /preview-smoke/);
+assert.match(previewWorkflow, /assert-production-unchanged/);
+assert.doesNotMatch(previewWorkflow, /wrangler\s+deploy\b|wrangler\s+versions\s+deploy\b|wrangler\s+rollback\b/);
 
 const productionWorkflow = readText('.github/workflows/cloudflare-production-release.yml');
 assert.match(productionWorkflow, /workflow_dispatch:/);
 assert.match(productionWorkflow, /refs\/heads\/main/);
-assert.match(productionWorkflow, /DEPLOY parkerhamilton\.ca/);
-assert.match(productionWorkflow, /wrangler deploy/);
+assert.match(productionWorkflow, /environment: production/);
+assert.match(productionWorkflow, /PROMOTE parkerhamilton\.ca/);
+assert.match(productionWorkflow, /resolve-candidate-artifact/);
+assert.match(productionWorkflow, /verify-manifest/);
+assert.match(productionWorkflow, /activate-version/);
+assert.doesNotMatch(productionWorkflow, /npm\s+ci\b|npm\s+run\s+(?:build|release:build)\b|wrangler\s+versions\s+upload\b|wrangler\s+deploy\b|wrangler\s+versions\s+deploy\b|wrangler\s+rollback\b/);
+
+const rollbackWorkflow = readText('.github/workflows/cloudflare-rollback-production.yml');
+assert.match(rollbackWorkflow, /workflow_dispatch:/);
+assert.match(rollbackWorkflow, /refs\/heads\/main/);
+assert.match(rollbackWorkflow, /environment: production/);
+assert.match(rollbackWorkflow, /ROLLBACK parkerhamilton\.ca/);
+assert.match(rollbackWorkflow, /verify-version/);
+assert.match(rollbackWorkflow, /activate-version/);
+assert.doesNotMatch(rollbackWorkflow, /npm\s+ci\b|npm\s+run\s+(?:build|release:build)\b|wrangler\s+versions\s+upload\b|wrangler\s+deploy\b|wrangler\s+versions\s+deploy\b|wrangler\s+rollback\b/);
 
 const headers = readText('public/_headers');
 assert.match(headers, /https:\/\/:version\.:subdomain\.workers\.dev\/\*/);
@@ -115,10 +127,11 @@ for (const file of [
   'public/_redirects',
   '.github/workflows/cloudflare-preview.yml',
   '.github/workflows/cloudflare-production-release.yml',
+  '.github/workflows/cloudflare-rollback-production.yml',
   '.github/workflows/cloudflare-infrastructure-qa.yml',
 ]) {
   const text = readText(file);
   assert.doesNotMatch(text, /askwill|resend/i, `${file} must not inherit AskWill or Resend infrastructure`);
 }
 
-console.log('PASS: Cloudflare release infrastructure remains assets-only, pinned, preview-safe, and free of foreign dynamic infrastructure.');
+console.log('PASS: Cloudflare release infrastructure is assets-only, pinned, candidate-only on preview, exact-version-only on production, and free of foreign dynamic infrastructure.');
