@@ -468,3 +468,153 @@ test.describe('Wave 2 prelaunch visual repairs — compact title capacity', () =
     }
   });
 });
+
+
+test.describe('Wave 2 prelaunch visual repairs — featured media contract', () => {
+  const spread = (values: number[]) => Math.max(...values) - Math.min(...values);
+
+  test('desktop media surfaces share the actual desktop seam', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch pixel authority is Chromium-specific.');
+
+    for (const width of [981, 1024, 1025]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      const surfaces = await page.locator(
+        '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
+      ).evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
+        }),
+      );
+
+      expect(surfaces).toHaveLength(3);
+      expect(spread(surfaces.map((item) => item.top)), `visible media top spread at ${width}px`).toBeLessThanOrEqual(2);
+      expect(spread(surfaces.map((item) => item.bottom)), `visible media bottom spread at ${width}px`).toBeLessThanOrEqual(2);
+      for (const surface of surfaces) {
+        expect(surface.width).toBeGreaterThan(0);
+        expect(surface.height).toBeGreaterThan(0);
+      }
+
+      const designFit = await page.locator('.design-day-media img').evaluate((node) => getComputedStyle(node).objectFit);
+      expect(designFit).toBe('cover');
+
+      const askwillPosition = await page.locator('.askwill-browser > img').evaluate((node) => getComputedStyle(node).objectPosition);
+      expect(['left top', '0% 0%']).toContain(askwillPosition);
+    }
+  });
+
+  test('stacked media determines parent height and clears the CTA', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch pixel authority is Chromium-specific.');
+
+    const cards = [
+      { route: '/work/compound-growth', surface: '.compound-media' },
+      { route: '/work/design-day', surface: '.design-day-media' },
+      { route: '/work/askwill', surface: '.askwill-browser' },
+    ];
+
+    for (const width of [980, 820, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      for (const item of cards) {
+        const card = page.locator(`.featured-card:has(a[href="${item.route}"])`);
+        const geometry = await card.evaluate((node, surfaceSelector) => {
+          const surface = node.querySelector(surfaceSelector as string) as HTMLElement;
+          const media = node.querySelector('.project-media') as HTMLElement;
+          const link = node.querySelector('.project-link') as HTMLElement;
+          const cardRect = (node as HTMLElement).getBoundingClientRect();
+          const mediaRect = media.getBoundingClientRect();
+          const surfaceRect = surface.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
+          return {
+            cardLeft: cardRect.left,
+            cardRight: cardRect.right,
+            cardBottom: cardRect.bottom,
+            mediaBottom: mediaRect.bottom,
+            surfaceLeft: surfaceRect.left,
+            surfaceRight: surfaceRect.right,
+            surfaceBottom: surfaceRect.bottom,
+            linkTop: linkRect.top,
+          };
+        }, item.surface);
+
+        expect(geometry.linkTop - geometry.surfaceBottom, `${item.route} media → CTA gap at ${width}px`).toBeGreaterThanOrEqual(8);
+        expect(geometry.mediaBottom, `${item.route} parent contains media at ${width}px`).toBeGreaterThanOrEqual(geometry.surfaceBottom - 1);
+        expect(geometry.surfaceBottom, `${item.route} media stays inside card at ${width}px`).toBeLessThanOrEqual(geometry.cardBottom + 1);
+        expect(geometry.surfaceLeft, `${item.route} media left edge at ${width}px`).toBeGreaterThanOrEqual(geometry.cardLeft - 1);
+        expect(geometry.surfaceRight, `${item.route} media right edge at ${width}px`).toBeLessThanOrEqual(geometry.cardRight + 1);
+      }
+
+      const overflow = await page.evaluate(() => ({
+        documentWidth: document.documentElement.scrollWidth,
+        viewportWidth: document.documentElement.clientWidth,
+      }));
+      expect(overflow.documentWidth, `no horizontal overflow at ${width}px`).toBeLessThanOrEqual(overflow.viewportWidth + 1);
+
+      const designFit = await page.locator('.design-day-media img').evaluate((node) => getComputedStyle(node).objectFit);
+      expect(designFit).toBe('cover');
+      const askwillPosition = await page.locator('.askwill-browser > img').evaluate((node) => getComputedStyle(node).objectPosition);
+      expect(['left top', '0% 0%']).toContain(askwillPosition);
+    }
+  });
+
+  test('critical Homepage seams stay overflow-free and use the correct two-regime contract', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch pixel authority is Chromium-specific.');
+
+    for (const width of [390, 820, 821, 980, 981, 1024, 1025, 1100, 1101, 1180, 1181, 1280, 1312, 1313, 1440]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      const overflow = await page.evaluate(() => ({
+        documentWidth: document.documentElement.scrollWidth,
+        viewportWidth: document.documentElement.clientWidth,
+      }));
+      expect(overflow.documentWidth, `no document overflow at ${width}px`).toBeLessThanOrEqual(overflow.viewportWidth + 1);
+
+      if (width >= 981) {
+        const surfaces = await page.locator(
+          '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
+        ).evaluateAll((nodes) => nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { top: rect.top, bottom: rect.bottom };
+        }));
+        expect(spread(surfaces.map((item) => item.top)), `desktop media top spread at ${width}px`).toBeLessThanOrEqual(2);
+        expect(spread(surfaces.map((item) => item.bottom)), `desktop media bottom spread at ${width}px`).toBeLessThanOrEqual(2);
+      } else {
+        const clearances = await page.locator('.home-page .featured-card').evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const surface = node.querySelector('.compound-media, .design-day-media, .askwill-browser') as HTMLElement;
+            const link = node.querySelector('.project-link') as HTMLElement;
+            return link.getBoundingClientRect().top - surface.getBoundingClientRect().bottom;
+          }),
+        );
+        for (const clearance of clearances) expect(clearance, `stacked media → CTA gap at ${width}px`).toBeGreaterThanOrEqual(8);
+      }
+    }
+  });
+
+  test('writes focused Homepage evidence crops from repaired source', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Focused evidence is captured once in Chromium.');
+
+    await page.setViewportSize({ width: 1024, height: 1000 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.locator('.featured-grid').screenshot({ path: testInfo.outputPath('homepage-1024-selected-work.png'), animations: 'disabled' });
+    await page.locator('.secondary-grid').screenshot({ path: testInfo.outputPath('homepage-1024-more-work.png'), animations: 'disabled' });
+
+    for (const width of [820, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      await page.locator('.featured-grid').screenshot({
+        path: testInfo.outputPath(`homepage-${width}-featured-cards.png`),
+        animations: 'disabled',
+      });
+    }
+  });
+});

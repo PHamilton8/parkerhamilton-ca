@@ -1181,7 +1181,7 @@ body.route-home .site-footer {
   }
   .home-page .featured-card {
     display: grid;
-    grid-template-rows: auto auto auto 18rem auto;
+    grid-template-rows: auto auto auto auto auto;
     row-gap: 12px;
   }
   .home-page .featured-card .title-band,
@@ -1198,9 +1198,11 @@ body.route-home .site-footer {
   .home-page .secondary-card .project-link {
     margin-top: 0;
   }
+  /* Stacked cards are content-height driven: the actual media establishes
+     this row, so the CTA always follows the visible surface in normal flow. */
   .home-page .featured-card .project-media {
-    height: 18rem;
-    min-height: 18rem;
+    height: auto;
+    min-height: 0;
   }
   .home-page .secondary-card {
     display: grid;
@@ -1235,8 +1237,8 @@ body.route-home .site-footer {
     grid-template-rows: auto auto auto auto auto;
   }
   .home-page .featured-card .project-media {
-    height: 16rem;
-    min-height: 16rem;
+    height: auto;
+    min-height: 0;
   }
   .home-page .secondary-card .secondary-visual {
     height: auto;
@@ -1328,7 +1330,12 @@ body.route-home .site-footer {
   .home-page .secondary-card {
     grid-template-rows: 4.55rem 8rem 2.35rem 9.125rem auto;
   }
+}
 
+/* The three-column featured-card regime begins at 61.26rem. Keep Design
+   Day on the same deterministic desktop media surface across that entire
+   regime instead of leaving a 981–1024px gap. */
+@media (min-width: 61.26rem) {
   .home-page .featured-card .design-day-media {
     width: 100%;
     height: 100%;
