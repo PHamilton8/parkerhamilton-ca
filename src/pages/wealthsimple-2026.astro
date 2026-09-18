@@ -74,4 +74,36 @@ const posterSrc = '/assets/application/wealthsimple-application-video-poster.web
       margin-top: 2rem;
     }
   }
+
+  /* WS-PORTRAIT-MAIN-GAP-02: keep the shared utility sticky-footer shell,
+     but on Wealthsimple's portrait regime use the spare main-axis space as
+     three deliberate composition bands instead of one dead band after video.
+     The fractional rows collapse to zero when the article needs natural flow. */
+  @media (max-width: 51.25rem) {
+    :global(body.route-utility > main) {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .application-page {
+      flex: 1 1 auto;
+      width: 100%;
+      display: grid;
+      grid-template-rows:
+        minmax(0, 0.8fr)
+        auto
+        minmax(2rem, 0.8fr)
+        auto
+        minmax(0, 1.4fr);
+    }
+
+    .application-page h1 {
+      grid-row: 2;
+    }
+
+    .application-video-wrap {
+      grid-row: 4;
+      margin-top: 0;
+    }
+  }
 </style>
