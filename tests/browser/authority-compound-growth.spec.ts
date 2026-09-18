@@ -167,7 +167,7 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
     const ratio = await box('[data-egr-ratio]');
     const interpretation = await box('[data-egr-interpretation]');
     close(ratio.x + ratio.width / 2, year30.x + year30.width / 2);
-    close(interpretation.x, year40.x);
+    close(interpretation.x, year40.x, 3);
 
     await page.setViewportSize({ width: 820, height: 900 });
     const headingLead = await box('[data-fixed-recreation] .cg-module__heading > div:first-child');
