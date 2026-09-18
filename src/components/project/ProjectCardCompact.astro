@@ -6,17 +6,17 @@ const { project } = Astro.props;
 const mediaPath = `/assets/projects/${project.slug}/${project.mediaKind === 'reporting' ? 'workflow' : project.mediaKind}.svg`;
 const homepageTitle = project.slug === 'coast-fi' ? 'Coast FI Calculator' : project.title;
 const homepagePremise = project.slug === 'coast-fi'
-  ? "A planning model that connects today's savings, future contributions, and investment growth to retirement targets."
+  ? "This tool models how early retirement contributions can give compound growth more time to work and reduce future contribution needs."
   : project.premise;
 const homepageTags = (project.slug === 'smith-manoeuvre' || project.slug === 'coast-fi')
   ? project.tags.filter((tag) => tag !== 'Builds and Systems')
   : project.tags;
 ---
 <article class="project-card secondary-card">
-  <div class="project-meta">
+  <div class="title-band">
     <span class="project-number">{project.number}</span>
+    <h3>{homepageTitle}</h3>
   </div>
-  <h3>{homepageTitle}</h3>
   <p class="project-premise">{homepagePremise}</p>
   <ProjectMetadata tags={homepageTags} />
   <figure class="secondary-visual">
