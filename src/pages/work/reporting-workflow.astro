@@ -201,6 +201,12 @@ const stages = [
   .reporting-human .reporting-reading p { font-size: .95rem; }
   .reporting-human .reporting-heading h2::after { content: ''; display: block; width: 2.2rem; height: 2px; margin-top: .55rem; background: var(--color-teal); }
 
+  @media (min-width: 51.26rem) {
+    .reporting-problem .reporting-editorial-split {
+      grid-template-columns: minmax(0, .71fr) minmax(0, 1.29fr);
+      gap: clamp(2rem, 3vw, 2.25rem);
+    }
+  }
   @media (max-width: 51.25rem) {
     .reporting-result { grid-template-columns: 1fr; }
     .reporting-editorial-split { grid-template-columns: 1fr; gap: 1.35rem; }
