@@ -236,11 +236,13 @@ test('Coast FI copy lock is present without changing engine-facing contract', ()
 });
 
 test('Compound Growth copy lock preserves evidence/explorer boundary', () => {
+  assert.match(files.compound, /<dt>Program<\/dt><dd>5 randomized experiments<\/dd>/);
+  assert.match(files.compound, /<dt>Population<\/dt><dd>Young adults who had not begun investing for retirement<\/dd>/);
+  assert.doesNotMatch(files.compound, /<dt>Final analytic N<\/dt><dd>1,248 participants<\/dd>/);
   if (isFinal('compound')) {
     const corpus=files.compound+files.compoundFixed+files.compoundEvidence+files.compoundExplorer;
     includesAll(corpus,[
-      'Across five randomized experiments, I tested whether identical retirement-growth projections produce different judgments when shown as a numerical table or a line graph.',
-      '1,248 participants','Line graphs made compound-growth acceleration more apparent than tables.',
+      'Across five randomized experiments, I tested whether identical retirement-growth projections produce different judgments when shown as a numerical table or a line graph.','Line graphs made compound-growth acceleration more apparent than tables.',
       'The same projection, shown two ways','How the five studies built on each other',
       'How perceived acceleration was measured','2.61 = the correct ratio for the experimental projection.',
       'Experiment 4 results','What changed?','What this could mean for retirement tools',
@@ -265,7 +267,6 @@ test('Compound Growth copy lock preserves evidence/explorer boundary', () => {
   const corpus = files.compound + files.compoundFixed + files.compoundEvidence + files.compoundExplorer;
   includesAll(corpus, [
     'Across five randomized experiments, I tested whether identical retirement-growth projections produce different judgments when shown as a numerical table or a line graph.',
-    '1,248 participants',
     'Line graphs made compound-growth acceleration more apparent than tables.',
     'The same projection, shown two ways',
     'How the five studies built on each other',
