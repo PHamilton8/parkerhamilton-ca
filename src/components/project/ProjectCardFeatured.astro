@@ -6,6 +6,11 @@ const { project } = Astro.props;
 const homepagePremise = project.slug === 'askwill'
   ? 'A website rethink for a family-run water-service business, covering structure, content, SEO, and QA.'
   : project.premise;
+const homepageTags = project.slug === 'compound-growth'
+  ? project.tags.filter((tag) => tag !== 'Modelling')
+  : project.slug === 'design-day'
+    ? project.tags.filter((tag) => tag !== 'Builds and Systems')
+    : project.tags;
 ---
 <article class="project-card featured-card" data-kind={project.mediaKind}>
   <div class="title-band">
@@ -13,7 +18,7 @@ const homepagePremise = project.slug === 'askwill'
     <h3>{project.title}</h3>
   </div>
   <p class="project-premise">{homepagePremise}</p>
-  <ProjectMetadata tags={project.tags} />
+  <ProjectMetadata tags={homepageTags} />
   <div class="project-media">
     {project.mediaKind === 'thesis' && (
       <div class="thesis-layered compound-media" aria-label="The same compound-growth projection shown as a numerical table and a line graph.">

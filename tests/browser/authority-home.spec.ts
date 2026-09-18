@@ -126,6 +126,10 @@ test.describe('Homepage latest-authority locked contracts', () => {
 
   test('Homepage canonical copy overrides have not weakened locked content', async ({ page }) => {
     await open(page);
+    const compound = page.locator('.featured-card:has(a[href="/work/compound-growth"])');
+    await expect(compound.locator('.project-metadata li')).toHaveText(['Behavioural Research', 'Financial Decision-Making']);
+    const designDay = page.locator('.featured-card:has(a[href="/work/design-day"])');
+    await expect(designDay.locator('.project-metadata li')).toHaveText(['Behavioural Research', 'Product Design']);
     const askwill = page.locator('.featured-card:has(a[href="/work/askwill"])');
     await expect(askwill.locator('.project-premise')).toHaveText('A website rethink for a family-run water-service business, covering structure, content, SEO, and QA.');
     const coast = page.locator('.secondary-card:has(a[href="/work/coast-fi"])');
