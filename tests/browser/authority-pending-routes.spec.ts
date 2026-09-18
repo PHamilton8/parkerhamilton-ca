@@ -2,9 +2,7 @@ import { test, expect } from '@playwright/test';
 import { requiresAuthority } from './qa-profile';
 import { createHash } from 'node:crypto';
 
-test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', () => {
-  test.skip(!requiresAuthority('designDay'), 'Final route assertions are required only for final-rc.');
-
+test.describe('Design Day accessibility gate', () => {
   test('Design Day uses the approved replacement video and a synchronized caption track', async ({ page }) => {
     await page.goto('/work/design-day');
     const video = page.locator('video.design-video');
@@ -54,6 +52,10 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
     }
   });
+});
+
+test.describe('Final Grocery / AskWill / Smith / Wealthsimple authority gates', () => {
+  test.skip(!requiresAuthority('designDay'), 'Final route assertions are required only for final-rc.');
 
   test('Wealthsimple final owner-confirmed native captions load, stay within the exact media, and preserve verbatim wording', async ({ page, request }, testInfo) => {
     await page.goto('/wealthsimple-2026');
