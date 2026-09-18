@@ -162,7 +162,7 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
   test('Smith H1 is exactly one rendered line at every locked width', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
 
-    for (const width of [1440, 1280, 1024, 820]) {
+    for (const width of [1180, 1280, 1366, 1440, 1536, 1920, 1024, 820]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/work/smith-manoeuvre');
       await page.waitForLoadState('networkidle');
