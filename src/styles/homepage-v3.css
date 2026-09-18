@@ -957,7 +957,7 @@ body {
   min-height: 0;
   padding: 30px 24px 20px;
   display: grid;
-  grid-template-rows: minmax(4.35rem, auto) minmax(3.75rem, auto) minmax(2.35rem, auto) 20.5rem auto;
+  grid-template-rows: 4.35rem 4.5rem 2.35rem 20.5rem auto;
   row-gap: 8px;
   align-items: start;
 }
