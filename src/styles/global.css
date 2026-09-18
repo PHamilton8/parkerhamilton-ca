@@ -398,6 +398,17 @@ body.route-utility {
   background: #f5f7f4;
 }
 
+/* Utility routes can be shorter than the viewport. Keep their shared header/main/footer
+   in normal flow while letting main absorb any remaining viewport height. */
+body.route-utility {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body.route-utility > main {
+  flex: 1;
+}
+
 /* G-02: desktop normal portfolio routes use page-end/footer geometry to make
    the 42px post-ContactBand gap match the canonical 42px pre-band gap.
    The ContactBand footprint itself is deliberately untouched. */
