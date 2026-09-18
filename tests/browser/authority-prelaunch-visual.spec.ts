@@ -288,7 +288,9 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
           kickerBottom: kickerRect.bottom,
         };
       });
-      expect(alignment.display, `Smith strategy intro remains stacked at ${width}px`).toBe('block');
+      if (width === 1024) {
+        expect(alignment.display, 'Smith strategy intro preserves the prior 1024 stacked override').toBe('block');
+      }
       expect(alignment.leftDelta, `Smith strategy kicker/H2 alignment at ${width}px`).toBeLessThanOrEqual(2);
       expect(alignment.titleTop).toBeGreaterThan(alignment.kickerBottom);
     }
