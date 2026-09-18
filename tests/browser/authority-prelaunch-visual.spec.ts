@@ -178,6 +178,128 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
     }
   });
 
+  test('Smith strategy H2 stays on one line through wide desktop with measured capacity', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
+
+    const measurements: Array<{
+      width: number;
+      lines: number;
+      renderedWidth: number;
+      thresholdPx: number | null;
+      h2Left: number;
+      h2Right: number;
+      shellLeft: number;
+      shellRight: number;
+      readingTop: number;
+      h2Bottom: number;
+    }> = [];
+
+    for (const width of [1180, 1280, 1366, 1440, 1536, 1920]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/smith-manoeuvre');
+      await page.waitForLoadState('networkidle');
+
+      const geometry = await page.locator('.case-section[aria-labelledby="strategy-title"]').evaluate((section) => {
+        const heading = section.querySelector('.section-heading') as HTMLElement;
+        const h2 = heading.querySelector('h2') as HTMLElement;
+        const reading = section.querySelector('.reading-copy') as HTMLElement;
+
+        const lineCount = (node: HTMLElement) => {
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const tops: number[] = [];
+          for (const rect of Array.from(range.getClientRects())) {
+            if (rect.width <= 0 || rect.height <= 0) continue;
+            const top = Math.round(rect.top * 2) / 2;
+            if (!tops.some((value) => Math.abs(value - top) <= 0.5)) tops.push(top);
+          }
+          return tops.length;
+        };
+
+        const actualLines = lineCount(h2);
+        const actualHeadingRect = heading.getBoundingClientRect();
+        const actualH2Rect = h2.getBoundingClientRect();
+        const sectionRect = (section as HTMLElement).getBoundingClientRect();
+        const readingRect = reading.getBoundingClientRect();
+
+        const previousHeadingMax = heading.style.maxWidth;
+        const previousH2Max = h2.style.maxWidth;
+        let thresholdPx: number | null = null;
+
+        // Reproduce the exact rendered type at this viewport and find the first
+        // width, from the generic 46rem measure up to Smith's local 58rem cap,
+        // that holds this title on one line.
+        for (let px = 46 * 16; px <= 58 * 16; px += 1) {
+          heading.style.maxWidth = `${px}px`;
+          h2.style.maxWidth = `${px}px`;
+          void h2.offsetWidth;
+          if (lineCount(h2) === 1) {
+            thresholdPx = px;
+            break;
+          }
+        }
+
+        heading.style.maxWidth = previousHeadingMax;
+        h2.style.maxWidth = previousH2Max;
+        void h2.offsetWidth;
+
+        return {
+          lines: actualLines,
+          renderedWidth: actualHeadingRect.width,
+          thresholdPx,
+          h2Left: actualH2Rect.left,
+          h2Right: actualH2Rect.right,
+          shellLeft: sectionRect.left,
+          shellRight: sectionRect.right,
+          readingTop: readingRect.top,
+          h2Bottom: actualH2Rect.bottom,
+        };
+      });
+
+      expect(geometry.lines, `Smith strategy H2 line count at ${width}px`).toBe(1);
+      expect(geometry.thresholdPx, `Smith strategy H2 measured one-line threshold at ${width}px`).not.toBeNull();
+      expect(
+        geometry.renderedWidth,
+        `Smith strategy H2 route-local measure clears measured threshold at ${width}px`,
+      ).toBeGreaterThanOrEqual((geometry.thresholdPx ?? 0) + 1);
+      expect(geometry.h2Left).toBeGreaterThanOrEqual(geometry.shellLeft - 1);
+      expect(geometry.h2Right).toBeLessThanOrEqual(geometry.shellRight + 1);
+      expect(geometry.readingTop, `Smith strategy body follows H2 at ${width}px`).toBeGreaterThan(geometry.h2Bottom);
+
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `Smith horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
+
+      measurements.push({ width, ...geometry });
+    }
+
+    for (const width of [1024, 820]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/smith-manoeuvre');
+      await page.waitForLoadState('networkidle');
+      const alignment = await page.locator('.case-section[aria-labelledby="strategy-title"] .section-heading').evaluate((heading) => {
+        const kicker = heading.querySelector('.section-kicker') as HTMLElement;
+        const h2 = heading.querySelector('h2') as HTMLElement;
+        const kickerRect = kicker.getBoundingClientRect();
+        const h2Rect = h2.getBoundingClientRect();
+        return {
+          display: getComputedStyle(heading).display,
+          leftDelta: Math.abs(kickerRect.left - h2Rect.left),
+          titleTop: h2Rect.top,
+          kickerBottom: kickerRect.bottom,
+        };
+      });
+      expect(alignment.display, `Smith strategy intro remains stacked at ${width}px`).toBe('block');
+      expect(alignment.leftDelta, `Smith strategy kicker/H2 alignment at ${width}px`).toBeLessThanOrEqual(2);
+      expect(alignment.titleTop).toBeGreaterThan(alignment.kickerBottom);
+    }
+
+    fs.writeFileSync(
+      testInfo.outputPath('smith-strategy-h2-measurements.json'),
+      JSON.stringify(measurements, null, 2),
+      'utf8',
+    );
+  });
+
   test('AskWill H1 is exactly one rendered line through wide desktop', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
 
