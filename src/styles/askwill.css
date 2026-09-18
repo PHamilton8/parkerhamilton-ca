@@ -2,7 +2,7 @@
 .askwill-case{padding-bottom:3.7rem}
 .askwill-hero,.askwill-section{width:min(100% - 2.25rem,var(--content-wide));margin-inline:auto}
 .askwill-hero{padding:clamp(4.5rem,9vw,7.5rem) clamp(0rem,2vw,1.5rem) clamp(3.5rem,6vw,5.5rem)}
-.askwill-hero h1{max-width:61rem;margin:0;font-size:clamp(3.35rem,7.4vw,7rem);line-height:.94;letter-spacing:-.06em}
+.askwill-hero h1{max-width:65rem;margin:0;font-size:clamp(3.35rem,7.4vw,7rem);line-height:.94;letter-spacing:-.06em}
 .askwill-lede{max-width:52rem;margin:1.7rem 0 0;color:#344a4d;font-size:clamp(1.13rem,1.8vw,1.38rem);line-height:1.55}
 .askwill-hero .project-metadata{margin-top:1.35rem}
 .askwill-facts{display:grid;grid-template-columns:1.15fr 1.25fr .8fr;margin:clamp(2.7rem,5vw,4.25rem) 0 0;padding:1.35rem 0;border-block:1px solid var(--color-line-strong)}

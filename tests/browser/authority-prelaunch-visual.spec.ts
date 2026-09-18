@@ -178,6 +178,27 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
     }
   });
 
+  test('AskWill H1 is exactly one rendered line through wide desktop', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
+
+    for (const width of [1180, 1280, 1440, 1536, 1920]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/askwill');
+      await page.waitForLoadState('networkidle');
+
+      const geometry = await renderedGeometry(page, '.askwill-hero h1', '.askwill-hero', '.askwill-lede');
+      expect(geometry.lines, `AskWill H1 line count at ${width}px`).toBe(1);
+      expect(geometry.headingLeft).toBeGreaterThanOrEqual(geometry.parentLeft - 1);
+      expect(geometry.headingRight).toBeLessThanOrEqual(geometry.parentRight + 1);
+      expect(geometry.followingTop, `AskWill lede follows H1 at ${width}px`).toBeGreaterThan(geometry.headingBottom);
+
+      const ledeMaxWidth = await page.locator('.askwill-lede').evaluate((node) => getComputedStyle(node).maxWidth);
+      expect(ledeMaxWidth).toBe('832px');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `AskWill horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
+    }
+  });
+
   test('Reporting H1 is exactly two rendered lines at every locked width', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
 
