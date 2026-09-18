@@ -1,0 +1,132 @@
+name: temporary-final-visual-audit-capture
+
+on:
+  push:
+    branches:
+      - tooling/visual-audit-capture-27aa7c05
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: temporary-final-visual-audit-capture-27aa7c05
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+  FINAL_SOURCE_SHA: 27aa7c0502944833d23db6aa698fa414702b0d49
+  FINAL_TREE_SHA: f264ad0a09ac7d84fc21a028c3bd104413367b89
+  FINAL_GREEN_CI_RUN: '35391138350'
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout temporary capture tooling
+        uses: actions/checkout@v4
+        with:
+          path: tooling
+          fetch-depth: 0
+
+      - name: Checkout exact frozen website source
+        uses: actions/checkout@v4
+        with:
+          ref: 27aa7c0502944833d23db6aa698fa414702b0d49
+          path: site
+          fetch-depth: 0
+
+      - name: Prove source and tooling isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          actual_source="$(git -C site rev-parse HEAD)"
+          actual_tree="$(git -C site rev-parse 'HEAD^{tree}')"
+
+          test "$actual_source" = "$FINAL_SOURCE_SHA"
+          test "$actual_tree" = "$FINAL_TREE_SHA"
+          test -z "$(git -C site status --porcelain=v1)"
+
+          git -C tooling diff --name-only "$FINAL_SOURCE_SHA"..HEAD | sort > /tmp/tooling-files.txt
+          printf '%s\n'             '.github/workflows/final-visual-audit-capture.yml'             'scripts/final-visual-audit-capture.mjs'             | sort > /tmp/allowed-tooling-files.txt
+          diff -u /tmp/allowed-tooling-files.txt /tmp/tooling-files.txt
+
+          node --check tooling/scripts/final-visual-audit-capture.mjs
+
+      - name: Verify required green CI run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$FINAL_GREEN_CI_RUN"             > /tmp/ci-run.json
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const run = JSON.parse(fs.readFileSync('/tmp/ci-run.json', 'utf8'));
+          const expected = process.env.FINAL_SOURCE_SHA;
+          if (run.id !== Number(process.env.FINAL_GREEN_CI_RUN)) throw new Error('CI run ID mismatch');
+          if (run.head_sha !== expected) throw new Error(`CI head SHA mismatch: ${run.head_sha}`);
+          if (run.status !== 'completed' || run.conclusion !== 'success') {
+            throw new Error(`CI is not green: ${run.status}/${run.conclusion}`);
+          }
+          if (run.name !== 'ci') throw new Error(`Unexpected workflow name: ${run.name}`);
+          console.log(JSON.stringify({ id: run.id, head_sha: run.head_sha, status: run.status, conclusion: run.conclusion }, null, 2));
+          NODE
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install exact dependencies and Chromium
+        working-directory: site
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Build exact frozen website source
+        working-directory: site
+        run: npm run build
+
+      - name: Capture and mechanically validate complete screenshot package
+        env:
+          CAPTURE_TOOLING_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd site
+
+          node scripts/preview-for-tests.mjs > ../preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+
+          ready=0
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4321/ >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            cat ../preview.log
+            exit 1
+          fi
+
+          node ../tooling/scripts/final-visual-audit-capture.mjs
+
+      - name: Upload raw screenshot evidence package
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-final-visual-audit-27aa7c05
+          path: site/artifacts/PARKERHAMILTON_FINAL_VISUAL_AUDIT_27aa7c05/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
