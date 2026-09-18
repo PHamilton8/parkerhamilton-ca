@@ -199,6 +199,33 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
     }
   });
 
+  test('Wealthsimple H1 stays on one line without changing video geometry', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
+
+    for (const width of [1180, 1280, 1366, 1440, 1536, 1920]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/wealthsimple-2026');
+      await page.waitForLoadState('networkidle');
+
+      const geometry = await renderedGeometry(page, '.application-page h1', '.application-page', '.application-video-wrap');
+      expect(geometry.lines, `Wealthsimple H1 line count at ${width}px`).toBe(1);
+      expect(geometry.headingLeft).toBeGreaterThanOrEqual(geometry.parentLeft - 1);
+      expect(geometry.headingRight).toBeLessThanOrEqual(geometry.parentRight + 1);
+      expect(geometry.followingTop, `Wealthsimple video follows H1 at ${width}px`).toBeGreaterThan(geometry.headingBottom);
+
+      const video = await page.locator('.application-video-wrap video').evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return { width: rect.width, height: rect.height, aspectRatio: rect.width / rect.height, cssAspectRatio: style.aspectRatio };
+      });
+      expect(video.aspectRatio).toBeCloseTo(16 / 9, 2);
+      expect(video.cssAspectRatio).toBe('16 / 9');
+
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `Wealthsimple horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
+    }
+  });
+
   test('Reporting H1 is exactly two rendered lines at every locked width', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Prelaunch line-count authority is Chromium-specific.');
 
