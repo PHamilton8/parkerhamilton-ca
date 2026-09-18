@@ -384,3 +384,87 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
     }
   });
 });
+
+
+test.describe('Wave 2 prelaunch visual repairs — compact title capacity', () => {
+  const spread = (values: number[]) => Math.max(...values) - Math.min(...values);
+
+  test('Smith compact title clears its premise while deterministic rows remain aligned', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Prelaunch pixel authority is Chromium-specific.');
+
+    for (const width of [981, 1024, 1100]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      const smith = page.locator('.secondary-card:has(a[href="/work/smith-manoeuvre"])');
+      const smithGeometry = await smith.evaluate((card) => {
+        const titleBand = card.querySelector('.title-band') as HTMLElement;
+        const heading = card.querySelector('h3') as HTMLElement;
+        const premise = card.querySelector('.project-premise') as HTMLElement;
+        const titleRect = titleBand.getBoundingClientRect();
+        const headingRect = heading.getBoundingClientRect();
+        const premiseRect = premise.getBoundingClientRect();
+        return {
+          titleBottom: titleRect.bottom,
+          headingBottom: headingRect.bottom,
+          premiseTop: premiseRect.top,
+          titleScrollHeight: titleBand.scrollHeight,
+          titleClientHeight: titleBand.clientHeight,
+        };
+      });
+
+      expect(
+        smithGeometry.premiseTop - smithGeometry.headingBottom,
+        `Smith h3 → premise clearance at ${width}px`,
+      ).toBeGreaterThanOrEqual(4);
+      expect(
+        smithGeometry.titleBottom,
+        `Smith title-band contains h3 at ${width}px`,
+      ).toBeGreaterThanOrEqual(smithGeometry.headingBottom - 1);
+      expect(
+        smithGeometry.titleScrollHeight,
+        `Smith title-band has no internal overflow at ${width}px`,
+      ).toBeLessThanOrEqual(smithGeometry.titleClientHeight + 1);
+
+      const rows = await page.locator('.home-page .secondary-card').evaluateAll((cards) =>
+        cards.map((card) => {
+          const metadata = card.querySelector('.project-metadata') as HTMLElement;
+          const media = card.querySelector('.secondary-visual') as HTMLElement;
+          const link = card.querySelector('.project-link') as HTMLElement;
+          const metadataRect = metadata.getBoundingClientRect();
+          const mediaRect = media.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
+          return {
+            metadataTop: metadataRect.top,
+            mediaTop: mediaRect.top,
+            mediaBottom: mediaRect.bottom,
+            linkTop: linkRect.top,
+          };
+        }),
+      );
+
+      expect(rows).toHaveLength(4);
+      expect(spread(rows.map((row) => row.metadataTop)), `compact metadata alignment at ${width}px`).toBeLessThanOrEqual(2);
+      expect(spread(rows.map((row) => row.mediaTop)), `compact media top alignment at ${width}px`).toBeLessThanOrEqual(2);
+      expect(spread(rows.map((row) => row.mediaBottom)), `compact media bottom alignment at ${width}px`).toBeLessThanOrEqual(2);
+      expect(spread(rows.map((row) => row.linkTop)), `compact CTA alignment at ${width}px`).toBeLessThanOrEqual(2);
+
+      const overflow = await page.evaluate(() => ({
+        documentWidth: document.documentElement.scrollWidth,
+        viewportWidth: document.documentElement.clientWidth,
+      }));
+      expect(overflow.documentWidth, `no horizontal overflow at ${width}px`).toBeLessThanOrEqual(overflow.viewportWidth + 1);
+
+      for (const route of ['/work/grocery-automation', '/work/reporting-workflow', '/work/coast-fi']) {
+        const card = page.locator(`.secondary-card:has(a[href="${route}"])`);
+        const clearance = await card.evaluate((node) => {
+          const heading = node.querySelector('h3') as HTMLElement;
+          const premise = node.querySelector('.project-premise') as HTMLElement;
+          return premise.getBoundingClientRect().top - heading.getBoundingClientRect().bottom;
+        });
+        expect(clearance, `${route} title → premise clearance at ${width}px`).toBeGreaterThanOrEqual(4);
+      }
+    }
+  });
+});

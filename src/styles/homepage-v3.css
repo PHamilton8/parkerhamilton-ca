@@ -1410,7 +1410,10 @@ body.route-home .site-footer {
     grid-template-rows: 4.35rem 8rem 2.35rem 20.5rem auto;
   }
   .home-page .secondary-card {
-    grid-template-rows: 4.55rem 10rem 2.35rem 9.125rem auto;
+    /* Shared three-line title capacity for the narrow four-column band.
+       Keep every compact card on the same deterministic track so the
+       metadata, media, and Case study rows remain aligned. */
+    grid-template-rows: 5.6rem 10rem 2.35rem 9.125rem auto;
   }
   .home-page .secondary-card .project-premise {
     align-self: center;
