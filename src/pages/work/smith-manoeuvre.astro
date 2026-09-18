@@ -184,6 +184,11 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
     .case-section[aria-labelledby="strategy-title"] > .reading-copy--single,
     .case-section[aria-labelledby="limits-title"] > .reading-copy--single { max-width: min(52rem, 100%); }
   }
+  /* Smith's section-intro lockups should never inherit the shared two-column
+     .section-heading composition in the 821–1119px gap. */
+  @media (min-width: 51.26rem) and (max-width: 69.999rem) {
+    .smith-page .case-section > .section-heading { display: block; }
+  }
   @media (min-width: 70rem) {
     .case-section > .section-heading { display: block; max-width: var(--content-reading); margin-bottom: 0; }
     .case-section > .section-heading h2 { margin: .65rem 0 0; max-width: var(--content-reading); }
