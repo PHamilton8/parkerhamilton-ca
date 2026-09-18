@@ -15,7 +15,7 @@ const routes = [
 ] as const;
 
 const inspectWidths = [1440, 1280, 1024, 820, 768, 430, 390, 360, 320];
-const baselineWidths = new Set([1440, 820, 390]);
+const baselineWidths = new Set([1440, 1280, 1024, 820, 390]);
 // Final screenshots belong to the ignored Playwright evidence directory, which
 // the final harness preserves, so producing evidence cannot dirty RC source.
 const baselineRoot = path.join(process.cwd(), QA_PROFILE === 'final-rc' ? 'test-results' : 'artifacts', 'baseline');
