@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import fs from 'node:fs';
 
 const smithSections = [
@@ -7,16 +7,6 @@ const smithSections = [
   { id: 'public-title', label: 'public-calculator' },
   { id: 'limits-title', label: 'limitations' },
 ] as const;
-
-function uniqueLineTops(rects: DOMRectList | DOMRect[]) {
-  const tops: number[] = [];
-  for (const rect of Array.from(rects)) {
-    if (rect.width <= 0 || rect.height <= 0) continue;
-    const top = Math.round(rect.top * 2) / 2;
-    if (!tops.some((value) => Math.abs(value - top) <= 0.5)) tops.push(top);
-  }
-  return tops;
-}
 
 test.describe('Wave 2 prelaunch visual authority — Smith section intros', () => {
   test('Smith heading lockups remain grouped at 1280, 1024, and 820', async ({ page }, testInfo) => {
@@ -141,8 +131,8 @@ test.describe('Wave 2 prelaunch visual authority — Smith section intros', () =
 
 
 test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', () => {
-  async function renderedGeometry(page: any, selector: string, parentSelector: string, followingSelector: string) {
-    return page.locator(selector).evaluate((node, input) => {
+  async function renderedGeometry(page: Page, selector: string, parentSelector: string, followingSelector: string) {
+    return page.locator(selector).evaluate((node, input: { parentSelector: string; followingSelector: string }) => {
       const heading = node as HTMLElement;
       const parent = heading.closest(input.parentSelector) as HTMLElement;
       const following = parent.querySelector(input.followingSelector) as HTMLElement;
