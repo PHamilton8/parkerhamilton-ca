@@ -255,6 +255,24 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         expect(card.metadata.scrollHeight).toBeLessThanOrEqual(card.metadata.clientHeight + 1);
       }
 
+      const compoundHeadingGeometry = await page.locator(
+        '.featured-card:has(a[href="/work/compound-growth"]) h3',
+      ).evaluate((node) => {
+        const heading = node as HTMLElement;
+        const premise = heading.closest('.featured-card')?.querySelector('.project-premise') as HTMLElement;
+        const range = document.createRange();
+        range.selectNodeContents(heading);
+        const headingRect = heading.getBoundingClientRect();
+        const premiseRect = premise.getBoundingClientRect();
+        return {
+          lineRects: range.getClientRects().length,
+          headingBottom: headingRect.bottom,
+          premiseTop: premiseRect.top,
+        };
+      });
+      expect(compoundHeadingGeometry.lineRects).toBe(2);
+      expect(compoundHeadingGeometry.premiseTop).toBeGreaterThanOrEqual(compoundHeadingGeometry.headingBottom - 1);
+
       const featured = await page.locator(
         '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
       ).evaluateAll((nodes) =>

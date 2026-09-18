@@ -972,7 +972,7 @@ body {
   gap: 5px;
 }
 .home-page .featured-card[data-kind='thesis'] .title-band h3 {
-  max-width: 13.25rem;
+  max-width: 17rem;
 }
 .home-page .featured-card > .title-band,
 .home-page .featured-card > .project-premise,
