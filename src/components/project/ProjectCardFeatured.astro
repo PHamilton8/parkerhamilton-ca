@@ -8,10 +8,10 @@ const homepagePremise = project.slug === 'askwill'
   : project.premise;
 ---
 <article class="project-card featured-card" data-kind={project.mediaKind}>
-  <div class="project-meta">
+  <div class="title-band">
     <span class="project-number">{project.number}</span>
+    <h3>{project.title}</h3>
   </div>
-  <h3>{project.title}</h3>
   <p class="project-premise">{homepagePremise}</p>
   <ProjectMetadata tags={project.tags} />
   <div class="project-media">
@@ -34,7 +34,7 @@ const homepagePremise = project.slug === 'askwill'
       <div class="askwill-composition" aria-label="AskWill desktop homepage preview.">
         <figure class="browser-frame askwill-browser">
           <div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>askwill.ca</span></div>
-          <img src="/assets/projects/askwill/homepage-v3.webp" alt="AskWill homepage with the Water Problems? Ask Will hero and water-service navigation." loading="lazy" />
+          <img src="/assets/projects/askwill/case-home-rebuilt-approved.png" alt="AskWill homepage with the Water Problems? Ask Will hero and water-service navigation." loading="lazy" />
         </figure>
       </div>
     )}
