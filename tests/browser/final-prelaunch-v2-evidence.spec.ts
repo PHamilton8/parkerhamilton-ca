@@ -66,6 +66,7 @@ async function prepareForCapture(page: Page) {
 }
 
 test('generate final prelaunch V2 screenshot ZIP from exact source', async ({ page }, testInfo) => {
+  test.setTimeout(30 * 60 * 1000);
   test.skip(testInfo.project.name !== 'chromium', 'Final screenshot evidence is generated once in Chromium.');
 
   const root = path.join(process.cwd(), 'test-results', 'final-prelaunch-v2-package');

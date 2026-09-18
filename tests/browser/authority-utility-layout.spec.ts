@@ -13,7 +13,7 @@ async function layoutSnapshot(page: Page) {
     return {
       innerHeight: window.innerHeight,
       documentHeight: document.documentElement.scrollHeight,
-      bodyMinHeight: getComputedStyle(document.body).minHeight,
+      bodyHeight: document.body.getBoundingClientRect().height,
       bodyDisplay: getComputedStyle(document.body).display,
       bodyFlexDirection: getComputedStyle(document.body).flexDirection,
       mainFlexGrow: getComputedStyle(main).flexGrow,
@@ -30,7 +30,7 @@ async function layoutSnapshot(page: Page) {
 async function assertUtilityShell(page: Page) {
   const state = await layoutSnapshot(page);
   expect(state.routeUtility).toBe(true);
-  expect(state.bodyMinHeight).toBe('100vh');
+  expect(state.bodyHeight).toBeGreaterThanOrEqual(state.innerHeight - 1);
   expect(state.bodyDisplay).toBe('flex');
   expect(state.bodyFlexDirection).toBe('column');
   expect(Number(state.mainFlexGrow)).toBeGreaterThan(0);
