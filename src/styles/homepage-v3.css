@@ -898,7 +898,7 @@ body {
   content: '';
   position: absolute;
   z-index: -1;
-  inset: -3.5rem -2rem -2rem;
+  inset: -3.5rem 0 -2rem;
   pointer-events: none;
   background: radial-gradient(70% 95% at 50% 28%, rgba(255, 255, 255, 0.58), transparent 72%);
 }
@@ -1251,6 +1251,9 @@ body.route-home .site-footer {
 }
 
 @media (max-width: 30rem) {
+  .home-page .hero h1 {
+    font-size: clamp(2.6rem, 12.5vw, 3.05rem);
+  }
   .home-page .about-section {
     margin-top: 28px;
     padding-inline: 12px;
