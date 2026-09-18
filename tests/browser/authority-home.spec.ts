@@ -625,12 +625,12 @@ test.describe('Final prelaunch V2 — Homepage hero split threshold', () => {
     test.skip(testInfo.project.name !== 'chromium', 'Homepage seam authority is Chromium-specific.');
 
     const cases = [
-      { width: 980, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
-      { width: 981, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
-      { width: 1023, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
-      { width: 1024, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
-      { width: 1025, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
-      { width: 1180, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
+      { width: 980, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
+      { width: 981, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
+      { width: 1023, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
+      { width: 1024, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
+      { width: 1025, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
+      { width: 1180, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
     ] as const;
 
     for (const item of cases) {
@@ -667,6 +667,7 @@ test.describe('Final prelaunch V2 — Homepage hero split threshold', () => {
           thirdSpanLines: lineCount(thirdLine),
           columns: columns.length,
           fontSize: parseFloat(getComputedStyle(h1).fontSize),
+          ledeMaxWidth: parseFloat(getComputedStyle(hero.querySelector('.hero-lede') as HTMLElement).maxWidth),
           monumentHeight: monument.getBoundingClientRect().height,
           hero: { left: heroRect.left, right: heroRect.right, top: heroRect.top, bottom: heroRect.bottom },
           copy: { left: copyRect.left, right: copyRect.right, top: copyRect.top, bottom: copyRect.bottom },
@@ -678,6 +679,7 @@ test.describe('Final prelaunch V2 — Homepage hero split threshold', () => {
       expect(geometry.thirdSpanLines, `"things out." remains cohesive at ${item.width}px`).toBe(1);
       expect(geometry.columns, `hero column count at ${item.width}px`).toBe(item.expectedColumns);
       expect(geometry.fontSize, `hero H1 font at ${item.width}px`).toBeCloseTo(item.expectedFont, 1);
+      expect(geometry.ledeMaxWidth, `hero lede measure at ${item.width}px`).toBeCloseTo(item.expectedLedeMax, 0);
       expect(geometry.monumentHeight, `monument height at ${item.width}px`).toBeCloseTo(item.expectedMonument, 0);
 
       expect(geometry.visual.left).toBeGreaterThanOrEqual(geometry.hero.left - 1);

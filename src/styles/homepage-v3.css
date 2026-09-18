@@ -1180,6 +1180,45 @@ body.route-home .site-footer {
   }
 }
 
+/* HOME-SEAM-981-01: keep only the hero in its stacked pre-desktop regime
+   from 981–1023px; cards/media continue using their existing desktop seam. */
+@media (min-width: 61.3125rem) and (max-width: 63.9375rem) {
+  .home-page .hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 24px 18px 20px;
+    border-radius: 22px;
+  }
+  .home-page .hero-copy { padding: 0 2px; }
+  .home-page .hero h1 {
+    max-width: none;
+    font-size: 54px;
+    line-height: 0.98;
+  }
+  .home-page .hero-lede {
+    max-width: 38rem;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  .home-page .credential {
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .home-page .hero-link {
+    margin-top: 18px;
+    padding-bottom: 7px;
+    font-size: 12px;
+  }
+  .home-page .hero-visual-zone {
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .home-page .hero-monument-zone {
+    height: 16.25rem !important;
+  }
+}
+
 @media (max-width: 61.25rem) {
   .home-page .hero-lede {
     max-width: 38rem;
