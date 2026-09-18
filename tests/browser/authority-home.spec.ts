@@ -618,3 +618,94 @@ test.describe('Wave 2 prelaunch visual repairs — featured media contract', () 
     }
   });
 });
+
+
+test.describe('Final prelaunch V2 — Homepage hero split threshold', () => {
+  test('hero remains stacked through 1023 and preserves the approved 1024+ split', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Homepage seam authority is Chromium-specific.');
+
+    const cases = [
+      { width: 980, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
+      { width: 981, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
+      { width: 1023, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260 },
+      { width: 1024, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
+      { width: 1025, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
+      { width: 1180, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440 },
+    ] as const;
+
+    for (const item of cases) {
+      await page.setViewportSize({ width: item.width, height: 900 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      const geometry = await page.locator('.home-page .hero').evaluate((hero) => {
+        const h1 = hero.querySelector('h1') as HTMLElement;
+        const copy = hero.querySelector('.hero-copy') as HTMLElement;
+        const visual = hero.querySelector('.hero-visual-zone') as HTMLElement;
+        const monument = hero.querySelector('.hero-monument-zone') as HTMLElement;
+        const thirdLine = h1.querySelectorAll('.h1-line')[2] as HTMLElement;
+
+        const lineCount = (node: Node) => {
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const tops: number[] = [];
+          for (const rect of Array.from(range.getClientRects())) {
+            if (rect.width <= 0 || rect.height <= 0) continue;
+            const top = Math.round(rect.top * 2) / 2;
+            if (!tops.some((value) => Math.abs(value - top) <= 0.5)) tops.push(top);
+          }
+          return tops.length;
+        };
+
+        const heroRect = (hero as HTMLElement).getBoundingClientRect();
+        const copyRect = copy.getBoundingClientRect();
+        const visualRect = visual.getBoundingClientRect();
+        const columns = getComputedStyle(hero).gridTemplateColumns.trim().split(/\s+/).filter(Boolean);
+
+        return {
+          titleLines: lineCount(h1),
+          thirdSpanLines: lineCount(thirdLine),
+          columns: columns.length,
+          fontSize: parseFloat(getComputedStyle(h1).fontSize),
+          monumentHeight: monument.getBoundingClientRect().height,
+          hero: { left: heroRect.left, right: heroRect.right, top: heroRect.top, bottom: heroRect.bottom },
+          copy: { left: copyRect.left, right: copyRect.right, top: copyRect.top, bottom: copyRect.bottom },
+          visual: { left: visualRect.left, right: visualRect.right, top: visualRect.top, bottom: visualRect.bottom },
+        };
+      });
+
+      expect(geometry.titleLines, `hero title lines at ${item.width}px`).toBe(item.expectedLines);
+      expect(geometry.thirdSpanLines, `"things out." remains cohesive at ${item.width}px`).toBe(1);
+      expect(geometry.columns, `hero column count at ${item.width}px`).toBe(item.expectedColumns);
+      expect(geometry.fontSize, `hero H1 font at ${item.width}px`).toBeCloseTo(item.expectedFont, 1);
+      expect(geometry.monumentHeight, `monument height at ${item.width}px`).toBeCloseTo(item.expectedMonument, 0);
+
+      expect(geometry.visual.left).toBeGreaterThanOrEqual(geometry.hero.left - 1);
+      expect(geometry.visual.right).toBeLessThanOrEqual(geometry.hero.right + 1);
+      expect(geometry.visual.top).toBeGreaterThanOrEqual(geometry.hero.top - 1);
+      expect(geometry.visual.bottom).toBeLessThanOrEqual(geometry.hero.bottom + 1);
+
+      if (item.expectedColumns === 1) {
+        expect(geometry.visual.top, `stacked visual follows copy at ${item.width}px`).toBeGreaterThanOrEqual(geometry.copy.bottom - 1);
+      } else {
+        expect(geometry.visual.left, `split visual clears copy at ${item.width}px`).toBeGreaterThan(geometry.copy.right);
+      }
+
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `Homepage horizontal overflow at ${item.width}px`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test('captures fresh hero seam evidence', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Focused evidence is captured once in Chromium.');
+    for (const width of [980, 981, 1023, 1024, 1025]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      await page.locator('.home-page .hero').screenshot({
+        path: testInfo.outputPath(`homepage-hero-${width}.png`),
+        animations: 'disabled',
+      });
+    }
+  });
+});

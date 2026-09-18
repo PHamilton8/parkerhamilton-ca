@@ -527,10 +527,9 @@ body {
   .home-page .contact-band > h2 { font-size: 64px; }
 }
 
-@media (max-width: 980px) {
-  .site-header .site-nav { gap: 20px; }
-  .site-header .site-nav a { font-size: 12px; }
-
+/* The hero keeps its pre-desktop composition through 1023px.
+   Homepage cards/media retain their existing 981px desktop seam below. */
+@media (max-width: 1023px) {
   .home-page .hero {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -565,6 +564,12 @@ body {
   .home-page .hero-monument-zone {
     height: 16.25rem !important;
   }
+
+}
+
+@media (max-width: 980px) {
+  .site-header .site-nav { gap: 20px; }
+  .site-header .site-nav a { font-size: 12px; }
 
   .home-page .work-section,
   .home-page .more-section {
