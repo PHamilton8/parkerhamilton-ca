@@ -214,3 +214,75 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
     }
   });
 });
+
+
+test.describe('Wave 2 Revision A Compound Growth rendered acceptance', () => {
+  test('desktop research question and explorer instruction use the locked wrapping behavior', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A pixel acceptance is Chromium-specific.');
+
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/compound-growth');
+      await page.waitForLoadState('networkidle');
+
+      const question = page.locator('.cg-research-question h2');
+      expect((await question.textContent())?.replace(/\s+/g, ' ').trim()).toBe(
+        'Can the same retirement projection produce different judgments when shown as a table or line graph?',
+      );
+      const lineStyles = await page.locator('.cg-research-question .rq-line').evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const style = getComputedStyle(node);
+          return { display: style.display, whiteSpace: style.whiteSpace };
+        }),
+      );
+      expect(lineStyles).toHaveLength(2);
+      for (const style of lineStyles) {
+        expect(style.display).toBe('inline');
+        expect(style.whiteSpace).toBe('normal');
+      }
+
+      const instruction = page.locator('.cg-explorer-instruction');
+      await expect(instruction).toHaveText(
+        'Change the assumptions, then view the same results as a table or line graph.',
+      );
+      const instructionGeometry = await instruction.evaluate((node) => {
+        const style = getComputedStyle(node);
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return {
+          whiteSpace: style.whiteSpace,
+          maxWidth: style.maxWidth,
+          lineRects: range.getClientRects().length,
+          scrollWidth: (node as HTMLElement).scrollWidth,
+          clientWidth: (node as HTMLElement).clientWidth,
+        };
+      });
+      expect(instructionGeometry.whiteSpace).toBe('nowrap');
+      expect(instructionGeometry.maxWidth).toBe('none');
+      expect(instructionGeometry.lineRects).toBe(1);
+      expect(instructionGeometry.scrollWidth).toBeLessThanOrEqual(instructionGeometry.clientWidth + 1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-compound-' + width + '.png'), fullPage: true });
+    }
+  });
+
+  test('Compound Growth wraps naturally without overflow at tablet and phone widths', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A responsive evidence is Chromium-specific.');
+    for (const width of [1024, 820, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/work/compound-growth');
+      await page.waitForLoadState('networkidle');
+
+      const instructionWhiteSpace = await page.locator('.cg-explorer-instruction').evaluate((node) => getComputedStyle(node).whiteSpace);
+      expect(instructionWhiteSpace).toBe('normal');
+      const lineDisplays = await page.locator('.cg-research-question .rq-line').evaluateAll((nodes) =>
+        nodes.map((node) => getComputedStyle(node).display),
+      );
+      expect(lineDisplays).toEqual(['inline', 'inline']);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-compound-' + width + '.png'), fullPage: true });
+    }
+  });
+});

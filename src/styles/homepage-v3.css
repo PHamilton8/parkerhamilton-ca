@@ -1282,3 +1282,87 @@ body.route-home .site-footer {
     font-size: 12px;
   }
 }
+
+
+/* ========================================================================
+   Wave 2 Owner Review — Revision A
+   Locked corrections H-RA1 through H-RA6.
+   ======================================================================== */
+
+/* H-RA1: visual-only project-number lift. Heading flow and card semantics stay put. */
+.home-page .project-number {
+  position: relative;
+  top: -3px;
+}
+
+/* H-RA2: global.css already owns the li + li ::before separator.
+   Disable the Homepage-only trailing-dot mechanism and center the one surviving dot. */
+.home-page .project-metadata li {
+  margin-right: 0;
+}
+.home-page .project-metadata li + li::before {
+  content: '·';
+  margin: 0 10px;
+  color: #8b999d;
+  font-weight: 600;
+}
+.home-page .project-metadata li:not(:last-child)::after {
+  content: none;
+  margin: 0;
+}
+
+/* H-RA6: defeat the more-specific global .hero h1 span accent rule. */
+.home-page .hero h1,
+.home-page .hero h1 .h1-line {
+  color: #F5FAF8;
+}
+
+/* H-RA5: the approved split composition has no rule above About. */
+.home-page .about-statement {
+  border-top: 0;
+}
+
+/* H-RA3/H-RA4: deterministic wide-desktop compact tracks, plus actual
+   featured media surfaces filling the already-aligned media row. */
+@media (min-width: 64.01rem) {
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 8rem 2.35rem 9.125rem auto;
+  }
+
+  .home-page .featured-card .design-day-media {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
+}
+
+/* H-RA5: derive the green panel's visible top/bottom from the About content.
+   The 42px/24px offsets mirror the About column's content padding. */
+@media (min-width: 68.76rem) {
+  .home-page .split-contact {
+    position: relative;
+    margin: 42px 0 24px;
+    padding: 16px 32px;
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .home-page .split-contact .eyebrow {
+    position: absolute;
+    top: 16px;
+    left: 32px;
+    margin: 0;
+  }
+
+  .home-page .split-question-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .home-page .home-email-action {
+    justify-self: end;
+  }
+}

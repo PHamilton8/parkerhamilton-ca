@@ -190,3 +190,61 @@ test.describe('Final Grocery / AskWill / Smith / Wealthsimple authority gates', 
     await expect(page.getByText(/owner review|choose graph|select option/i)).toHaveCount(0);
   });
 });
+
+
+test.describe('Wave 2 Revision A AskWill rendered acceptance', () => {
+  test('Business fact stays on one desktop line without colliding with Result', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A pixel acceptance is Chromium-specific.');
+
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/askwill');
+      await page.waitForLoadState('networkidle');
+
+      const facts = page.locator('.askwill-facts > div');
+      await expect(facts).toHaveCount(2);
+      const business = facts.nth(0).locator('dd');
+      await expect(business).toHaveText('Family-run water-treatment and well-services business');
+      const businessGeometry = await business.evaluate((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return {
+          lineRects: range.getClientRects().length,
+          whiteSpace: getComputedStyle(node).whiteSpace,
+          scrollWidth: (node as HTMLElement).scrollWidth,
+          clientWidth: (node as HTMLElement).clientWidth,
+        };
+      });
+      expect(businessGeometry.lineRects).toBe(1);
+      expect(businessGeometry.whiteSpace).toBe('normal');
+      expect(businessGeometry.scrollWidth).toBeLessThanOrEqual(businessGeometry.clientWidth + 1);
+
+      const cellGeometry = await facts.evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { left: rect.left, right: rect.right };
+        }),
+      );
+      expect(cellGeometry[0].right).toBeLessThanOrEqual(cellGeometry[1].left + 1);
+      await expect(facts.nth(1).locator('dt')).toHaveText('Result');
+      await expect(facts.nth(1).locator('dd')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-askwill-' + width + '.png'), fullPage: true });
+    }
+  });
+
+  test('AskWill fact layout remains responsive and overflow-free', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A responsive evidence is Chromium-specific.');
+    for (const width of [1024, 820, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/work/askwill');
+      await page.waitForLoadState('networkidle');
+      const business = page.locator('.askwill-facts > div').nth(0).locator('dd');
+      await expect(business).toHaveText('Family-run water-treatment and well-services business');
+      expect(await business.evaluate((node) => getComputedStyle(node).whiteSpace)).toBe('normal');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath('revision-a-askwill-' + width + '.png'), fullPage: true });
+    }
+  });
+});

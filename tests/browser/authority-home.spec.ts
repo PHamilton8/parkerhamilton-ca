@@ -178,3 +178,153 @@ test.describe('Homepage latest-authority locked contracts', () => {
     await expect(page.locator('main#main')).toBeFocused();
   });
 });
+
+
+test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
+  const spread = (values: number[]) => Math.max(...values) - Math.min(...values);
+
+  test('desktop Homepage corrections match the locked Revision A geometry', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A pixel acceptance is Chromium-specific.');
+
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      const numberStyles = await page.locator('.home-page .project-number').evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const style = getComputedStyle(node);
+          return { position: style.position, top: style.top };
+        }),
+      );
+      expect(numberStyles).toHaveLength(7);
+      for (const style of numberStyles) {
+        expect(style.position).toBe('relative');
+        expect(style.top).toBe('-3px');
+      }
+
+      const separators = await page.locator('.home-page .project-metadata').evaluateAll((lists) =>
+        lists.map((list) =>
+          Array.from(list.children).map((node) => ({
+            before: getComputedStyle(node, '::before').content,
+            after: getComputedStyle(node, '::after').content,
+          })),
+        ),
+      );
+      expect(separators).toHaveLength(7);
+      for (const items of separators) {
+        expect(items.length).toBeGreaterThan(0);
+        expect(['none', 'normal']).toContain(items[0].before);
+        for (let i = 1; i < items.length; i += 1) expect(items[i].before).toContain('·');
+        for (const item of items) expect(item.after).toBe('none');
+      }
+
+      const compact = await page.locator('.home-page .secondary-card').evaluateAll((cards) =>
+        cards.map((card) => {
+          const box = (selector: string) => {
+            const element = card.querySelector(selector) as HTMLElement;
+            const rect = element.getBoundingClientRect();
+            return {
+              top: rect.top,
+              bottom: rect.bottom,
+              height: rect.height,
+              scrollHeight: element.scrollHeight,
+              clientHeight: element.clientHeight,
+            };
+          };
+          return {
+            premise: box('.project-premise'),
+            metadata: box('.project-metadata'),
+            media: box('.secondary-visual'),
+            link: box('.project-link'),
+          };
+        }),
+      );
+      expect(compact).toHaveLength(4);
+      for (const key of ['premise', 'metadata', 'media', 'link'] as const) {
+        expect(spread(compact.map((card) => card[key].top)), key + ' top alignment').toBeLessThanOrEqual(2);
+      }
+      expect(spread(compact.map((card) => card.media.bottom)), 'compact media bottom alignment').toBeLessThanOrEqual(2);
+      expect(spread(compact.map((card) => card.link.bottom)), 'Case study bottom alignment').toBeLessThanOrEqual(2);
+      for (const card of compact) {
+        expect(card.premise.scrollHeight).toBeLessThanOrEqual(card.premise.clientHeight + 1);
+        expect(card.metadata.scrollHeight).toBeLessThanOrEqual(card.metadata.clientHeight + 1);
+      }
+
+      const featured = await page.locator(
+        '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
+      ).evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { top: rect.top, bottom: rect.bottom };
+        }),
+      );
+      expect(featured).toHaveLength(3);
+      expect(spread(featured.map((item) => item.top)), 'featured visible-media top alignment').toBeLessThanOrEqual(2);
+      expect(spread(featured.map((item) => item.bottom)), 'featured visible-media bottom alignment').toBeLessThanOrEqual(2);
+
+      const about = await page.evaluate(() => {
+        const heading = document.querySelector('#about-title') as HTMLElement;
+        const copy = document.querySelector('.home-page .about-copy') as HTMLElement;
+        const statement = document.querySelector('.home-page .about-statement') as HTMLElement;
+        const contact = document.querySelector('.home-page .split-contact') as HTMLElement;
+        const eyebrow = document.querySelector('.home-page .split-contact .eyebrow') as HTMLElement;
+        const row = document.querySelector('.home-page .split-question-row') as HTMLElement;
+        const question = document.querySelector('#home-contact-title') as HTMLElement;
+        const email = document.querySelector('.home-page .home-email-action') as HTMLElement;
+        const rect = (element: HTMLElement) => element.getBoundingClientRect();
+        const h = rect(heading);
+        const c = rect(copy);
+        const panel = rect(contact);
+        const e = rect(eyebrow);
+        const r = rect(row);
+        const q = rect(question);
+        const mail = rect(email);
+        return {
+          borderTopWidth: getComputedStyle(statement).borderTopWidth,
+          headingTop: h.top,
+          copyBottom: c.bottom,
+          panelTop: panel.top,
+          panelBottom: panel.bottom,
+          panelCenter: panel.top + panel.height / 2,
+          rowCenter: r.top + r.height / 2,
+          questionCenter: q.top + q.height / 2,
+          emailCenter: mail.top + mail.height / 2,
+          eyebrowContained: e.top >= panel.top && e.bottom <= panel.bottom,
+        };
+      });
+      expect(about.borderTopWidth).toBe('0px');
+      expect(Math.abs(about.panelTop - about.headingTop)).toBeLessThanOrEqual(2);
+      expect(Math.abs(about.panelBottom - about.copyBottom)).toBeLessThanOrEqual(2);
+      expect(Math.abs(about.questionCenter - about.emailCenter)).toBeLessThanOrEqual(2);
+      expect(Math.abs(about.rowCenter - about.panelCenter)).toBeLessThanOrEqual(2);
+      expect(about.eyebrowContained).toBe(true);
+
+      const heroColours = await page.evaluate(() => ({
+        parent: getComputedStyle(document.querySelector('.home-page .hero h1') as HTMLElement).color,
+        lines: Array.from(document.querySelectorAll('.home-page .hero h1 .h1-line')).map(
+          (node) => getComputedStyle(node).color,
+        ),
+      }));
+      expect(heroColours.parent).toBe('rgb(245, 250, 248)');
+      expect(heroColours.lines).toHaveLength(3);
+      expect(new Set(heroColours.lines)).toEqual(new Set(['rgb(245, 250, 248)']));
+
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath('revision-a-home-' + width + '.png'), fullPage: true });
+    }
+  });
+
+  test('Homepage remains contained at the required responsive widths', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A responsive evidence is Chromium-specific.');
+    for (const width of [1024, 820, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+      const columns = await page.locator('.home-page .about-section').evaluate((node) => getComputedStyle(node).gridTemplateColumns);
+      expect(columns.trim().split(/\s+/)).toHaveLength(1);
+      await page.screenshot({ path: testInfo.outputPath('revision-a-home-' + width + '.png'), fullPage: true });
+    }
+  });
+});

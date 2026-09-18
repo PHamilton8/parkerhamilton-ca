@@ -405,3 +405,35 @@
     margin-top:.35rem;
   }
 }
+
+
+/* ========================================================================
+   Wave 2 Owner Review — Revision A
+   Locked corrections CG-RA1 and CG-RA2.
+   ======================================================================== */
+
+/* CG-RA2: override the earlier p:last-child measure at greater specificity.
+   Desktop may stay on one line only where the full sentence has room. */
+.cg-explorer-boundary__statement > p.cg-explorer-instruction:last-child {
+  width: 100%;
+  max-width: none;
+  white-space: normal;
+}
+
+@media (min-width: 64.01rem) {
+  /* CG-RA1: both source spans participate in one normal heading flow. */
+  .cg-research-question .rq-line {
+    display: inline;
+    white-space: normal;
+  }
+
+  .cg-explorer-boundary__statement > p.cg-explorer-instruction:last-child {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 64rem) {
+  .cg-explorer-boundary__statement > p.cg-explorer-instruction:last-child {
+    white-space: normal;
+  }
+}

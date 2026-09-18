@@ -368,3 +368,20 @@
   .askwill-comparison[data-kind="contact"]{--media-ratio:1.8321/1!important;--zoom:1!important}
   .askwill-section--contact-change{padding-block:3.2rem}
 }
+
+
+/* ========================================================================
+   Wave 2 Owner Review — Revision A
+   Locked correction AW-RA1.
+   ======================================================================== */
+
+@media (min-width: 64.01rem) {
+  .askwill-facts {
+    grid-template-columns: minmax(31rem, 1.35fr) minmax(18rem, 0.65fr);
+    max-width: 68rem;
+  }
+
+  .askwill-facts dd {
+    max-width: none;
+  }
+}
