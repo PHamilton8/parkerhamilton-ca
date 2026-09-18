@@ -1416,3 +1416,17 @@ body.route-home .site-footer {
     align-self: center;
   }
 }
+
+
+/* Wave 2 compact metadata refinement: keep the first two long financial tags
+   on one line through the narrow four-column desktop range without changing
+   featured-card metadata or underlying project data. */
+@media (min-width: 61.26rem) and (max-width: 82rem) {
+  .home-page .secondary-card .project-metadata {
+    font-size: 11px;
+  }
+
+  .home-page .secondary-card .project-metadata li + li::before {
+    margin: 0 7px;
+  }
+}

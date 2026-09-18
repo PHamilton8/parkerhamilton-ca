@@ -274,6 +274,21 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         expect(card.metadata.scrollHeight).toBeLessThanOrEqual(card.metadata.clientHeight + 1);
       }
 
+      if (width === 1280) {
+        for (const route of ['/work/smith-manoeuvre', '/work/coast-fi']) {
+          const firstTwoTagTops = await page.locator(
+            '.secondary-card:has(a[href="' + route + '"]) .project-metadata li',
+          ).evaluateAll((nodes) =>
+            nodes.slice(0, 2).map((node) => node.getBoundingClientRect().top),
+          );
+          expect(firstTwoTagTops).toHaveLength(2);
+          expect(
+            Math.abs(firstTwoTagTops[0] - firstTwoTagTops[1]),
+            route + ' first two metadata tags share a line at 1280',
+          ).toBeLessThanOrEqual(1);
+        }
+      }
+
       const compoundHeadingGeometry = await page.locator(
         '.featured-card:has(a[href="/work/compound-growth"]) h3',
       ).evaluate((node) => {
