@@ -3,6 +3,7 @@ name: compound-targeted-qa
 on:
   push:
     branches: ['feat/wave2-compound-growth-layout']
+  pull_request:
 
 permissions:
   contents: read
