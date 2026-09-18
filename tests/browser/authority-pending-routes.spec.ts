@@ -14,6 +14,25 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
     const track = video.locator('track[kind="captions"]');
     await expect(track).toHaveCount(1);
     await expect(track).toHaveAttribute('src', '/assets/projects/design-day/design-day-working-demo.vtt');
+    expect(await track.getAttribute('default')).toBeNull();
+    await expect(video).toHaveAttribute('aria-describedby', 'design-video-equivalent');
+    const equivalent = page.locator('#design-video-equivalent');
+    await expect(equivalent).toHaveCount(1);
+    await expect(equivalent).toHaveClass(/\\bsr-only\\b/);
+    const equivalentStyle = await equivalent.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return {
+        position: style.position,
+        width: style.width,
+        height: style.height,
+        overflow: style.overflow,
+      };
+    });
+    expect(equivalentStyle).toEqual({ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden' });
+    await expect(page.locator('details.design-demo-transcript')).toHaveCount(0);
+    await expect(page.getByText('Video transcript and visual description', { exact: true })).toHaveCount(0);
+    await video.focus();
+    await expect(video).toBeFocused();
     const duration = await video.evaluate(async (v: HTMLVideoElement) => {
       if (Number.isFinite(v.duration) && v.duration > 0) return v.duration;
       await new Promise<void>((resolve) => v.addEventListener('loadedmetadata', () => resolve(), { once: true }));
@@ -29,6 +48,10 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
       expect(cue.start).toBeGreaterThanOrEqual(0);
       expect(cue.end).toBeGreaterThan(cue.start);
       expect(cue.end).toBeLessThanOrEqual(8.475);
+    }
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
     }
   });
 
