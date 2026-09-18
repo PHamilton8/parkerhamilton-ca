@@ -56,3 +56,47 @@ test.describe('Coast FI locked final-RC contracts', () => {
     expect(await details.locator('tbody tr').count()).toBeGreaterThan(0);
   });
 });
+
+
+test('CF-D01 keeps Coast terminal spacing route-local and preserves non-Coast ContactBand spacing', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Route-local spacing matrix is exercised once in Chromium.');
+
+  const widths = [1440, 1280, 1024, 820, 390] as const;
+  const expectedNonCoastMargin = (width: number) => width <= 480 ? 18 : width <= 980 ? 28 : 42;
+
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: width >= 820 ? 900 : 844 });
+    await open(page);
+
+    await expect(page.locator('.case-hero__premise')).toHaveText(
+      'This tool models how early retirement contributions can give compound growth more time to work and reduce future contribution needs.',
+    );
+
+    const coastGeometry = await page.evaluate(() => {
+      const coast = document.querySelector<HTMLElement>('.coast-page')!;
+      const limits = document.querySelector<HTMLElement>('.limits-section')!;
+      const lastCopy = document.querySelector<HTMLElement>('.limits-copy > p:last-child')!;
+      const contact = document.querySelector<HTMLElement>('.contact-band')!;
+      return {
+        coastBottomPadding: parseFloat(getComputedStyle(coast).paddingBottom),
+        limitsBottomPadding: parseFloat(getComputedStyle(limits).paddingBottom),
+        contactMarginTop: parseFloat(getComputedStyle(contact).marginTop),
+        visibleGap: contact.getBoundingClientRect().top - lastCopy.getBoundingClientRect().bottom,
+      };
+    });
+
+    expect(coastGeometry.coastBottomPadding, `Coast bottom padding at ${width}px`).toBe(0);
+    expect(coastGeometry.contactMarginTop, `Coast ContactBand margin at ${width}px`).toBe(0);
+    expect(
+      Math.abs(coastGeometry.visibleGap - coastGeometry.limitsBottomPadding),
+      `Coast terminal gap at ${width}px: ${JSON.stringify(coastGeometry)}`,
+    ).toBeLessThanOrEqual(1);
+
+    const response = await page.goto('/work/askwill', { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBe(200);
+    const nonCoastMargin = await page.locator('.contact-band').evaluate(
+      (el) => parseFloat(getComputedStyle(el).marginTop),
+    );
+    expect(nonCoastMargin, `AskWill ContactBand margin at ${width}px`).toBe(expectedNonCoastMargin(width));
+  }
+});
