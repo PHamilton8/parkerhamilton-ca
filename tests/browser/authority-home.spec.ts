@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { requiresAuthority } from './qa-profile';
 
-const WIDTHS = [1440, 820, 390, 320] as const;
+const WIDTHS = [1440, 1280, 1024, 820, 390, 320] as const;
 const expectedMoreWork = [
   ['/work/smith-manoeuvre', '/assets/projects/smith-manoeuvre/smith.svg'],
   ['/work/reporting-workflow', '/assets/projects/reporting-workflow/workflow.svg'],
@@ -130,9 +130,41 @@ test.describe('Homepage latest-authority locked contracts', () => {
     await expect(askwill.locator('.project-premise')).toHaveText('A website rethink for a family-run water-service business, covering structure, content, SEO, and QA.');
     const coast = page.locator('.secondary-card:has(a[href="/work/coast-fi"])');
     await expect(coast.getByRole('heading', { level: 3 })).toHaveText('Coast FI Calculator');
+    await expect(coast.locator('.project-premise')).toHaveText('This tool models how early retirement contributions can give compound growth more time to work and reduce future contribution needs.');
     await expect(coast.locator('.project-metadata li')).toHaveText(['Financial Decision-Making', 'Modelling']);
     const smith = page.locator('.secondary-card:has(a[href="/work/smith-manoeuvre"])');
     await expect(smith.locator('.project-metadata li')).toHaveText(['Financial Decision-Making', 'Modelling']);
+  });
+
+
+  test('AskWill uses the owner-approved rebuilt-site asset with left/top framing', async ({ page }) => {
+    await open(page);
+    const askwill = page.locator('.featured-card:has(a[href="/work/askwill"])');
+    const image = askwill.locator('img');
+    await expect(image).toHaveAttribute('src', '/assets/projects/askwill/case-home-rebuilt-approved.png');
+    expect(await image.evaluate((el) => getComputedStyle(el).objectPosition)).toMatch(/^(left top|0% 0%)$/);
+  });
+
+  test('Homepage cards expose one semantic case-study link and no nested controls', async ({ page }) => {
+    await open(page);
+    const cards = page.locator('.project-card');
+    await expect(cards).toHaveCount(7);
+    for (let index = 0; index < await cards.count(); index += 1) {
+      const card = cards.nth(index);
+      await expect(card.locator('a.project-link')).toHaveCount(1);
+      await expect(card.locator('a a, a button, button')).toHaveCount(0);
+    }
+  });
+
+  test('Homepage uses the approved split About and compact Contact composition', async ({ page }) => {
+    await open(page);
+    await expect(page.locator('.about-section > .about-statement')).toHaveCount(1);
+    await expect(page.locator('.about-statement .about-copy')).toHaveCount(1);
+    const contact = page.locator('.about-section > .split-contact');
+    await expect(contact).toHaveCount(1);
+    await expect(contact.getByRole('heading', { name: 'Have a question?' })).toHaveCount(1);
+    await expect(contact.getByRole('link', { name: 'Email me' })).toHaveCount(1);
+    await expect(page.locator('.home-page > .contact-band')).toHaveCount(0);
   });
 
   test('skip link remains first-focus and transfers focus to main', async ({ page, browserName }) => {
