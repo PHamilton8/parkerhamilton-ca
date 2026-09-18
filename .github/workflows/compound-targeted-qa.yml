@@ -29,7 +29,11 @@ jobs:
         run: node --experimental-strip-types --test tests/compound-growth.test.ts
       - run: npx playwright install --with-deps chromium firefox webkit
       - name: Compound authority + no-overflow matrix
-        run: npx playwright test tests/browser/authority-compound-growth.spec.ts tests/browser/site.spec.ts --grep "Compound Growth final monthly-simulator contracts|compound-growth: responsive baseline and screenshots"
+        run: >
+          npx playwright test
+          tests/browser/authority-compound-growth.spec.ts
+          tests/browser/site.spec.ts
+          --grep "Compound Growth final monthly-simulator contracts|compound-growth: responsive baseline and screenshots"
 
       - name: Record targeted QA success
         if: ${{ success() }}
