@@ -261,7 +261,7 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
       expect(
         geometry.renderedWidth,
         `Smith strategy H2 route-local measure clears measured threshold at ${width}px`,
-      ).toBeGreaterThanOrEqual((geometry.thresholdPx ?? 0) + 1);
+      ).toBeGreaterThanOrEqual((geometry.thresholdPx ?? 0) + 8);
       expect(geometry.h2Left).toBeGreaterThanOrEqual(geometry.shellLeft - 1);
       expect(geometry.h2Right).toBeLessThanOrEqual(geometry.shellRight + 1);
       expect(geometry.readingTop, `Smith strategy body follows H2 at ${width}px`).toBeGreaterThan(geometry.h2Bottom);

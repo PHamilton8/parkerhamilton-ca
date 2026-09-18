@@ -192,12 +192,13 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
   @media (min-width: 70rem) {
     .case-section > .section-heading { display: block; max-width: var(--content-reading); margin-bottom: 0; }
     .case-section > .section-heading h2 { margin: .65rem 0 0; max-width: var(--content-reading); }
-    /* SMITH-WIDE-H2-01: the strategy title needs more measure than the generic
-       46rem reading heading as its fluid type reaches the desktop cap. Restore
-       only this lockup to Smith's existing 58rem section-heading capacity. */
+    /* SMITH-WIDE-H2-01: rendered measurement found a worst-case one-line
+       threshold of 852px (53.25rem) once the H2 reaches its desktop type cap.
+       Give only this lockup a 54rem measure, retaining a small safety reserve
+       without widening the generic 46rem Smith reading-heading system. */
     .case-section[aria-labelledby="strategy-title"] > .section-heading,
     .case-section[aria-labelledby="strategy-title"] > .section-heading h2 {
-      max-width: min(58rem, 100%);
+      max-width: min(54rem, 100%);
     }
     .case-section > .reading-copy { margin-top: 1.45rem; }
     .case-section { padding-block: clamp(4.25rem,6.4vw,6.45rem); }
