@@ -1366,3 +1366,53 @@ body.route-home .site-footer {
     justify-self: end;
   }
 }
+
+
+/* Wave 2 spacing refinement: keep body-to-metadata rhythm stable as copy wraps. */
+@media (min-width: 82.01rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 3.5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 6.25rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 73.76rem) and (max-width: 82rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 7.5rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 68.76rem) and (max-width: 73.75rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 6.5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 8.5rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 61.26rem) and (max-width: 68.75rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 8rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 10rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}

@@ -223,6 +223,18 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         for (const item of items) expect(item.after).toBe('none');
       }
 
+      const featuredBodyMetadataGaps = await page.locator('.home-page .featured-card').evaluateAll((cards) =>
+        cards.map((card) => {
+          const premise = card.querySelector('.project-premise') as HTMLElement;
+          const metadata = card.querySelector('.project-metadata') as HTMLElement;
+          return metadata.getBoundingClientRect().top - premise.getBoundingClientRect().bottom;
+        }),
+      );
+      for (const gap of featuredBodyMetadataGaps) {
+        expect(gap, 'featured body-to-metadata gap').toBeGreaterThanOrEqual(10);
+        expect(gap, 'featured body-to-metadata gap').toBeLessThanOrEqual(24);
+      }
+
       const compact = await page.locator('.home-page .secondary-card').evaluateAll((cards) =>
         cards.map((card) => {
           const box = (selector: string) => {
@@ -245,6 +257,11 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         }),
       );
       expect(compact).toHaveLength(4);
+      const compactBodyMetadataGaps = compact.map((card) => card.metadata.top - card.premise.bottom);
+      for (const gap of compactBodyMetadataGaps) {
+        expect(gap, 'compact body-to-metadata gap').toBeGreaterThanOrEqual(8);
+        expect(gap, 'compact body-to-metadata gap').toBeLessThanOrEqual(26);
+      }
       for (const key of ['premise', 'metadata', 'media', 'link'] as const) {
         expect(spread(compact.map((card) => card[key].top)), key + ' top alignment').toBeLessThanOrEqual(2);
       }
