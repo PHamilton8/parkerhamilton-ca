@@ -1,0 +1,30 @@
+name: compound-targeted-qa
+
+on:
+  push:
+    branches: ['feat/wave2-compound-growth-layout']
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+  QA_AUTHORITY_PROFILE: 'final-rc'
+
+jobs:
+  compound-targeted:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - name: Compound source contract
+        run: node --test --test-name-pattern="Compound Growth" tests/source-contract.test.mjs
+      - name: Compound engine tests
+        run: node --experimental-strip-types --test tests/compound-growth.test.ts
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Compound authority + no-overflow matrix
+        run: npx playwright test tests/browser/authority-compound-growth.spec.ts tests/browser/site.spec.ts --grep "Compound Growth final monthly-simulator contracts|compound-growth: responsive baseline and screenshots"
