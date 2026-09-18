@@ -16,7 +16,7 @@ test.describe('Design Day accessibility gate', () => {
     await expect(video).toHaveAttribute('aria-describedby', 'design-video-equivalent');
     const equivalent = page.locator('#design-video-equivalent');
     await expect(equivalent).toHaveCount(1);
-    await expect(equivalent).toHaveClass(/\\bsr-only\\b/);
+    await expect(equivalent).toHaveClass(/\bsr-only\b/);
     const equivalentStyle = await equivalent.evaluate((el) => {
       const style = getComputedStyle(el);
       return {
