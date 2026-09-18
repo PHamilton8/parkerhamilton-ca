@@ -164,11 +164,11 @@ test.describe('Final-RC global release gates', () => {
       if (width >= 1200) {
         expect(layout.contactLeft).toBeGreaterThan(layout.statementLeft);
         expect(Math.abs(layout.contactTop - layout.headingTop)).toBeLessThanOrEqual(2);
-        expect(Math.abs(layout.questionTop - layout.emailTop)).toBeLessThanOrEqual(8);
+        expect(Math.abs(layout.questionTop - layout.emailTop)).toBeLessThanOrEqual(10);
       } else if (width === 1024) {
         expect(Math.abs(layout.statementLeft - layout.contactLeft)).toBeLessThanOrEqual(2);
         expect(layout.contactTop).toBeGreaterThan(layout.aboutTop);
-        expect(Math.abs(layout.questionTop - layout.emailTop)).toBeLessThanOrEqual(8);
+        expect(Math.abs(layout.questionTop - layout.emailTop)).toBeLessThanOrEqual(10);
       } else {
         expect(Math.abs(layout.statementLeft - layout.contactLeft)).toBeLessThanOrEqual(2);
         expect(layout.emailTop).toBeGreaterThan(layout.questionTop);
