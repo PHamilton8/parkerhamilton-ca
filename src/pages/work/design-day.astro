@@ -37,18 +37,8 @@ if (!project) throw new Error('Design Day project data is unavailable.');
 <ol aria-label="How the prototype works" class="design-mechanism design-mechanism-desktop"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol>
 </div>
 
-<div class="demo-mobile-row"><ol aria-label="How the prototype works" class="design-mechanism design-mechanism-mobile"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol><div class="demo-media"><video aria-describedby="design-video-equivalent" aria-label="Demo of the final instrument being played." class="design-video" controls="" height="848" poster="/assets/projects/design-day/design-day-demo-poster.jpg" preload="metadata" width="480"><source src="/assets/projects/design-day/design-day-working-demo.mp4" type="video/mp4"/><track kind="captions" src="/assets/projects/design-day/design-day-working-demo.vtt" srclang="en" label="English" default />Your browser does not support the working demonstration video.</video></div></div></div>
-<div class="design-video-accessibility">
+<div class="demo-mobile-row"><ol aria-label="How the prototype works" class="design-mechanism design-mechanism-mobile"><li>Break the beam</li><li>Arduino</li><li>synthesizer</li><li>sound</li></ol><div class="demo-media"><video aria-describedby="design-video-equivalent" aria-label="Demo of the final instrument being played." class="design-video" controls="" height="848" poster="/assets/projects/design-day/design-day-demo-poster.jpg" preload="metadata" width="480"><source src="/assets/projects/design-day/design-day-working-demo.mp4" type="video/mp4"/><track kind="captions" src="/assets/projects/design-day/design-day-working-demo.vtt" srclang="en" label="English" />Your browser does not support the working demonstration video.</video></div></div></div>
 <p class="sr-only" id="design-video-equivalent">A hand moves around the circular instrument and engages illuminated interaction points around its rim. As different points respond, the instrument produces synthesized notes at changing pitches. The clip repeats this interaction at several positions to show the prototype working.</p>
-<details class="design-demo-transcript">
-  <summary>Video transcript and visual description</summary>
-  <dl>
-    <dt>0:00.240–0:03.720</dt><dd>A sequence of synthesized notes changes pitch. A hand moves around the circular instrument and engages illuminated interaction points around its rim.</dd>
-    <dt>0:03.720–0:04.100</dt><dd>The view stays fixed on the same circular prototype.</dd>
-    <dt>0:04.100–0:08.475</dt><dd>Synthesized notes continue. As different points respond, the instrument produces synthesized notes at changing pitches. The clip repeats this interaction at several positions to show the prototype working.</dd>
-  </dl>
-</details>
-</div>
 </section>
 <section aria-labelledby="build-title" class="design-section design-build"><div class="build-layout"><div class="section-copy build-copy"><p class="eyebrow">Process</p><h2 id="build-title">Building the prototype</h2><div class="design-reading"><p>We 3D-printed the mounts, soldered the circuitry, wired the lasers and sensors, and tested the electronics before putting everything together. I’d be giving myself far too much credit if I pretended I was an electronics expert, but I was fortunate to have teammates who were.</p></div></div><div class="design-gallery build-gallery">
 <figure><img alt="Purple components being made on a 3D printer during fabrication." height="1080" loading="lazy" src="/assets/projects/design-day/design-day-print-components.jpg" width="1920"/><figcaption>3D-printing the mounts for the final instrument.</figcaption></figure>
@@ -60,15 +50,6 @@ if (!project) throw new Error('Design Day project data is unavailable.');
 </BaseLayout>
 
 <style>
-.design-video-accessibility { margin-top: 1.25rem; }
-.design-video-accessibility > p { max-width: var(--content-reading); margin: 0; font-size: 1.04rem; line-height: 1.6; }
-.design-demo-transcript { margin-top: 1.25rem; color: var(--color-text); border-top: 1px solid var(--color-line); }
-.design-demo-transcript summary { min-height: 44px; padding-block: .7rem; cursor: pointer; font-weight: 700; }
-.design-demo-transcript p, .design-demo-transcript dl { max-width: var(--content-reading); }
-.design-demo-transcript dt { font-weight: 700; margin-top: .85rem; }
-.design-demo-transcript dd { margin: .2rem 0 0; }
-
-
 img{display:block;max-width:100%} a{color:inherit} :focus-visible{outline:3px solid var(--color-focus);outline-offset:4px}
 .eyebrow{margin:0 0 1rem;color:var(--color-teal);font-size:.75rem;line-height:1.35;font-weight:820;letter-spacing:.13em;text-transform:uppercase}
 
