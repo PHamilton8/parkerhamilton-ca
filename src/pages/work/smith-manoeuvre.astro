@@ -13,7 +13,6 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
       <div class="smith-hero-copy">
         <h1>{title}</h1>
         <p class="hero-dek">I built the model to compare a Smith Manoeuvre investing strategy with a non-leveraged alternative, then kept refining it to better estimate how the incremental benefits and costs change under different assumptions.</p>
-        <p class="advice-badge">Educational scenario model only. Not financial, tax, legal, or lending advice.</p>
       </div>
 
     </header>
@@ -127,7 +126,6 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
   .section-kicker { color: var(--color-teal); }
   .smith-hero h1 { max-width: 58rem; margin: 0; font-size: clamp(3.35rem,7vw,6.6rem); line-height: .94; letter-spacing: -.065em; }
   .hero-dek { max-width: 50rem; margin: 1.5rem 0 0; color: var(--color-text); font-size: clamp(1.08rem,1.8vw,1.35rem); line-height: 1.54; }
-  .advice-badge { display: inline-block; max-width: 44rem; margin: 1.35rem 0 0; padding: .72rem .9rem; border: 1px solid var(--color-line-strong); border-radius: var(--radius-sm); background: var(--color-surface-warm); color: var(--color-ink); font-size: .86rem; font-weight: 690; }
   .proof-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); margin: 0; border-top: 1px solid var(--color-line-strong); }
   .proof-grid div { min-width: 0; padding: 1rem; border-bottom: 1px solid var(--color-line-strong); }
   .proof-grid dt { color: var(--color-muted); font-size: .72rem; font-weight: 720; letter-spacing: .08em; text-transform: uppercase; }
@@ -137,6 +135,10 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
   .section-heading h2, .fairness-copy h2, .calculator-intro h2, .qa-copy h2, .workbook-inner h2 { margin: .65rem 0 0; color: var(--color-ink); font-size: clamp(2.2rem,4.2vw,4rem); line-height: 1.02; letter-spacing: -.045em; }
   .reading-copy { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(1.5rem,4vw,4rem); max-width: 69rem; margin-top: 2rem; }
   .reading-copy--single { grid-template-columns: 1fr; max-width: var(--content-reading); }
+  .case-section[aria-labelledby="strategy-title"] > .reading-copy--single,
+  .case-section[aria-labelledby="limits-title"] > .reading-copy--single { max-width: min(46rem, 100%); gap: clamp(1rem,1.3vw,1.25rem); }
+  .case-section[aria-labelledby="public-title"] > .section-heading,
+  .case-section[aria-labelledby="public-title"] > .section-heading h2 { max-width: min(72rem, 100%); }
   .reading-copy p { margin: 0; color: var(--color-text); font-size: clamp(1rem,1.25vw,1.12rem); line-height: 1.7; }
   .mechanism-flowline { margin: 2rem 0 0; padding: 1.4rem; border: 1px solid var(--color-line); background: var(--color-surface); color: var(--color-ink); font-weight: 760; line-height: 1.8; }
   .calculator-section { padding-block: clamp(4.5rem,8vw,7.5rem); background: var(--color-surface-soft); }
@@ -167,21 +169,44 @@ const description = 'A calculator for comparing leveraged and non-leveraged inve
   .workbook-section { padding-block: clamp(4.5rem,8vw,7.5rem); border-top: 1px solid var(--color-line); }
   .workbook-inner { display: grid; grid-template-columns: minmax(0,1fr) minmax(18rem,.6fr); gap: 2rem; align-items: end; }
   .workbook-inner p { color: var(--color-text); }
+  .workbook-inner > div > p:not(.section-kicker) { max-width: min(32rem, 100%); }
   .download-link { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; border: 1px solid var(--color-deep-teal); border-radius: .75rem; color: var(--color-deep-teal); font-weight: 800; text-decoration: none; }
   @media (max-width: 56rem) { .smith-hero, .qa-layout, .workbook-inner { grid-template-columns: 1fr; } }
   @media (max-width: 44rem) { .reading-copy, .detail-grid, .cash-identity { grid-template-columns: 1fr; } .cash-divider { display: none; } }
   @media (max-width: 35rem) { .smith-hero h1 { font-size: clamp(3rem,15vw,4.4rem); } }
   .smith-hero { display: block; max-width: var(--content-main); padding-block: clamp(4.25rem,8vw,7.5rem) clamp(4.75rem,8vw,7rem); }
-  .smith-hero-copy { max-width: 66rem; }
-  .smith-hero h1 { max-width: 62rem; }
+  .smith-hero-copy { max-width: 68rem; }
+  .smith-hero h1 { max-width: 68rem; }
   .hero-dek { max-width: 55rem; }
   .calculator-intro { margin-bottom: 0; }
   .calculator-intro h2 { max-width: 50rem; }
+  @media (min-width: 56rem) and (max-width: 69.999rem) {
+    .case-section[aria-labelledby="strategy-title"] > .reading-copy--single,
+    .case-section[aria-labelledby="limits-title"] > .reading-copy--single { max-width: min(52rem, 100%); }
+  }
+  /* Smith's section-intro lockups should never inherit the shared two-column
+     .section-heading composition in the 821–1119px gap. */
+  @media (min-width: 51.26rem) and (max-width: 69.999rem) {
+    .smith-page .case-section > .section-heading { display: block; }
+  }
   @media (min-width: 70rem) {
     .case-section > .section-heading { display: block; max-width: var(--content-reading); margin-bottom: 0; }
     .case-section > .section-heading h2 { margin: .65rem 0 0; max-width: var(--content-reading); }
+    /* SMITH-WIDE-H2-01: rendered measurement found a worst-case one-line
+       threshold of 852px (53.25rem) once the H2 reaches its desktop type cap.
+       Give only this lockup a 54rem measure, retaining a small safety reserve
+       without widening the generic 46rem Smith reading-heading system. */
+    .case-section[aria-labelledby="strategy-title"] > .section-heading,
+    .case-section[aria-labelledby="strategy-title"] > .section-heading h2 {
+      max-width: min(54rem, 100%);
+    }
     .case-section > .reading-copy { margin-top: 1.45rem; }
     .case-section { padding-block: clamp(4.25rem,6.4vw,6.45rem); }
+    .case-section[aria-labelledby="strategy-title"] > .reading-copy--single,
+    .case-section[aria-labelledby="limits-title"] > .reading-copy--single { max-width: min(60rem, 100%); }
+    .case-section[aria-labelledby="public-title"] > .section-heading,
+    .case-section[aria-labelledby="public-title"] > .section-heading h2 { max-width: min(72rem, 100%); }
+    .workbook-inner > div > p:not(.section-kicker) { max-width: min(39rem, 100%); }
   }
   @media (max-width: 56rem) { .smith-hero { padding-top: 3.5rem; } }
   @media (max-width: 44rem) { .cash-divider { display: grid; place-items: center; min-height: 1.8rem; color: #9bd7d0; font-size: 1.55rem; line-height: 1; padding: .05rem 0; } }

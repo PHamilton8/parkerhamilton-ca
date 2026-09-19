@@ -117,7 +117,7 @@ test('Homepage and global ContactBand final source authority remain intact', () 
   assert.match(contact, /min-height:\s*44px/i);
   assert.match(contact, /padding:\s*10px 12px/i);
   assert.match(contact, /gap:\s*8px/i);
-  assert.equal(gitBlob('src/components/layout/ContactBand.astro'), '22c9bc116b64153205797f2e14924d9d380884e2');
+  assert.equal(gitBlob('src/components/layout/ContactBand.astro'), '711e5ac0ee1ff64aab9aa393ad35a276b1faf187');
 });
 
 test('Design Day final media and caption timing are release exact', () => {

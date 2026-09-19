@@ -367,3 +367,53 @@ button, a { -webkit-tap-highlight-color: transparent; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Wave 2 Shared Lane A — owner-locked Option 6 canvas and shared-shell scoping. */
+body.portfolio-canvas {
+  background:
+    radial-gradient(1180px 820px at -10% 24%, rgba(12, 144, 135, 0.17), transparent 64%),
+    radial-gradient(1120px 820px at 108% 58%, rgba(19, 131, 123, 0.14), transparent 62%),
+    radial-gradient(900px 620px at 48% 82%, rgba(64, 164, 155, 0.08), transparent 68%),
+    linear-gradient(180deg, #F9FBFA 0%, #EAF3F0 35%, #F2F7F5 66%, #F8FAF9 100%);
+}
+
+/* Auxiliary/utility routes were not part of the visual redesign. Preserve their
+   pre-Wave-2 flat palette while portfolio routes consume the new global tokens. */
+html.route-utility,
+body.route-utility {
+  --color-canvas: #f5f7f4;
+  --color-surface: #ffffff;
+  --color-surface-soft: #eef4f2;
+  --color-ink: #132124;
+  --color-text: #26383b;
+  --color-muted: #657477;
+  --color-line: #d5dfdc;
+  --color-line-strong: #bdcdca;
+  --color-teal: #0a817d;
+  --color-deep-teal: #0a3f3d;
+  --color-deep-teal-2: #072f2e;
+  --color-pale-teal: #dcefeb;
+  --color-on-deep: #f7fbfa;
+  --color-on-deep-muted: #c7dad7;
+  background: #f5f7f4;
+}
+
+/* Utility routes can be shorter than the viewport. Keep their shared header/main/footer
+   in normal flow while letting main absorb any remaining viewport height. */
+body.route-utility {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body.route-utility > main {
+  flex: 1;
+}
+
+/* G-02: desktop normal portfolio routes use page-end/footer geometry to make
+   the 42px post-ContactBand gap match the canonical 42px pre-band gap.
+   The ContactBand footprint itself is deliberately untouched. */
+@media (min-width: 61.3125rem) {
+  body.route-work .site-footer {
+    padding-top: 42px;
+  }
+}

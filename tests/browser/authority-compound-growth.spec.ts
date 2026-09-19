@@ -95,6 +95,103 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
     expect(associatedText.trim().length).toBeGreaterThan(0);
   });
 
+
+  test('owner-approved removals preserve fixed evidence, point interaction, and Gate 0 wrapping', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await open(page);
+
+    const metaLabels = await page.locator('.cg-page-meta dt').allTextContents();
+    expect(metaLabels).toEqual(['Program', 'Population']);
+    await expect(page.getByText('1,248 participants', { exact: true })).toHaveCount(0);
+
+    const fixed = page.locator('[data-fixed-recreation]');
+    await expect(fixed.getByText('Total account balance — $559,461', { exact: true })).toHaveCount(0);
+    await expect(fixed.getByText('Your contributions — $48,000', { exact: true })).toHaveCount(0);
+    await expect(fixed.locator('.cg-axis-title')).toHaveText('Years invested');
+
+    const fixedPoints = fixed.locator('[role="button"][data-year]');
+    await expect(fixedPoints).toHaveCount(18);
+    const year40Balance = fixedPoints.nth(16);
+    await year40Balance.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#fixed-point-detail')).toContainText('40 years invested');
+    await expect(page.locator('#fixed-point-detail')).toContainText('$559,461');
+    await page.keyboard.press('Space');
+    await expect(page.locator('#fixed-point-detail')).toContainText('$48,000');
+    await expect(page.locator('#fixed-a11y-table')).toContainText('$559,461');
+    await expect(page.locator('#fixed-a11y-table')).toContainText('$48,000');
+
+    for (const selector of [
+      '.cg-research-question .rq-line',
+      '.cg-explorer-boundary__statement h2',
+      '.cg-explorer-boundary__statement > .cg-explorer-instruction',
+    ]) {
+      const whiteSpace = await page.locator(selector).first().evaluate((element) => getComputedStyle(element).whiteSpace);
+      expect(whiteSpace, selector).toBe('normal');
+    }
+  });
+
+  test('owner-approved wide alignment and responsive stacking match the locked layout contract', async ({ page }) => {
+    const close = (left: number, right: number, tolerance = 2) => expect(Math.abs(left - right)).toBeLessThanOrEqual(tolerance);
+    const box = async (selector: string) => {
+      const value = await page.locator(selector).first().boundingBox();
+      expect(value, selector).not.toBeNull();
+      return value!;
+    };
+
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await open(page);
+
+    const fixedHeading = page.locator('[data-fixed-recreation] .cg-module__heading');
+    const fixedSwitch = page.locator('[data-fixed-recreation] .cg-switch');
+    expect(await fixedSwitch.evaluate((element) => element.parentElement?.classList.contains('cg-module__heading'))).toBe(true);
+    const toggleButtons = fixedSwitch.locator('button');
+    for (let index = 0; index < await toggleButtons.count(); index += 1) {
+      const toggleBox = await toggleButtons.nth(index).boundingBox();
+      expect(toggleBox).not.toBeNull();
+      expect(toggleBox!.width).toBeGreaterThanOrEqual(148);
+      expect(toggleBox!.height).toBeGreaterThanOrEqual(49);
+    }
+
+    const upperLeft = await box('.cg-representation-head .cg-narrative__heading');
+    const upperRight = await box('.cg-representation-head .cg-representation-note');
+    const lowerLeft = await box('.cg-narrative--representation .cg-narrative-grid > div:nth-child(1)');
+    const lowerRight = await box('.cg-narrative--representation .cg-narrative-grid > div:nth-child(2)');
+    close(upperLeft.x, lowerLeft.x);
+    close(upperLeft.width, lowerLeft.width);
+    close(upperRight.x, lowerRight.x);
+    close(upperRight.width, lowerRight.width);
+
+    const year30 = await box('.cg-egr__points > div:nth-child(2)');
+    const year40 = await box('.cg-egr__points > div:nth-child(3)');
+    const ratio = await box('[data-egr-ratio]');
+    const interpretation = await box('[data-egr-interpretation]');
+    close(ratio.x + ratio.width / 2, year30.x + year30.width / 2);
+    close(interpretation.x, year40.x, 3);
+
+    await page.setViewportSize({ width: 820, height: 900 });
+    const headingLead = await box('[data-fixed-recreation] .cg-module__heading > div:first-child');
+    const stackedSwitch = await box('[data-fixed-recreation] .cg-switch');
+    expect(stackedSwitch.y).toBeGreaterThanOrEqual(headingLead.y + headingLead.height - 1);
+    const stackedRepHeading = await box('.cg-representation-head .cg-narrative__heading');
+    const stackedRepNote = await box('.cg-representation-head .cg-representation-note');
+    expect(stackedRepNote.y).toBeGreaterThanOrEqual(stackedRepHeading.y + stackedRepHeading.height - 1);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const phoneResult = await box('.cg-egr__result');
+    const phoneRatio = await box('[data-egr-ratio]');
+    const phoneInterpretation = await box('[data-egr-interpretation]');
+    expect(phoneInterpretation.y).toBeGreaterThan(phoneRatio.y + phoneRatio.height - 1);
+    close(phoneInterpretation.x, phoneResult.x, 3);
+    close(phoneInterpretation.width, phoneResult.width, 3);
+
+    const overflow = await page.evaluate(() => ({
+      documentWidth: document.documentElement.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+    }));
+    expect(overflow.documentWidth).toBeLessThanOrEqual(overflow.viewportWidth + 1);
+  });
+
   test('interactive graph points have at least 24 by 24 CSS-pixel hit targets on phone width', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await open(page);
@@ -114,6 +211,78 @@ test.describe('Compound Growth final monthly-simulator contracts', () => {
       expect(box, `simulator graph point ${i} must have a hit box`).not.toBeNull();
       expect(box!.width, `simulator graph point ${i} width`).toBeGreaterThanOrEqual(24);
       expect(box!.height, `simulator graph point ${i} height`).toBeGreaterThanOrEqual(24);
+    }
+  });
+});
+
+
+test.describe('Wave 2 Revision A Compound Growth rendered acceptance', () => {
+  test('desktop research question and explorer instruction use the locked wrapping behavior', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A pixel acceptance is Chromium-specific.');
+
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/compound-growth');
+      await page.waitForLoadState('networkidle');
+
+      const question = page.locator('.cg-research-question h2');
+      expect((await question.textContent())?.replace(/\s+/g, ' ').trim()).toBe(
+        'Can the same retirement projection produce different judgments when shown as a table or line graph?',
+      );
+      const lineStyles = await page.locator('.cg-research-question .rq-line').evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const style = getComputedStyle(node);
+          return { display: style.display, whiteSpace: style.whiteSpace };
+        }),
+      );
+      expect(lineStyles).toHaveLength(2);
+      for (const style of lineStyles) {
+        expect(style.display).toBe('inline');
+        expect(style.whiteSpace).toBe('normal');
+      }
+
+      const instruction = page.locator('.cg-explorer-instruction');
+      await expect(instruction).toHaveText(
+        'Change the assumptions, then view the same results as a table or line graph.',
+      );
+      const instructionGeometry = await instruction.evaluate((node) => {
+        const style = getComputedStyle(node);
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return {
+          whiteSpace: style.whiteSpace,
+          maxWidth: style.maxWidth,
+          lineRects: range.getClientRects().length,
+          scrollWidth: (node as HTMLElement).scrollWidth,
+          clientWidth: (node as HTMLElement).clientWidth,
+        };
+      });
+      expect(instructionGeometry.whiteSpace).toBe('nowrap');
+      expect(instructionGeometry.maxWidth).toBe('none');
+      expect(instructionGeometry.lineRects).toBe(1);
+      expect(instructionGeometry.scrollWidth).toBeLessThanOrEqual(instructionGeometry.clientWidth + 1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-compound-' + width + '.png'), fullPage: true });
+    }
+  });
+
+  test('Compound Growth wraps naturally without overflow at tablet and phone widths', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A responsive evidence is Chromium-specific.');
+    for (const width of [1024, 820, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/work/compound-growth');
+      await page.waitForLoadState('networkidle');
+
+      const instructionWhiteSpace = await page.locator('.cg-explorer-instruction').evaluate((node) => getComputedStyle(node).whiteSpace);
+      expect(instructionWhiteSpace).toBe('normal');
+      const lineDisplays = await page.locator('.cg-research-question .rq-line').evaluateAll((nodes) =>
+        nodes.map((node) => getComputedStyle(node).display),
+      );
+      expect(lineDisplays).toEqual(['inline', 'inline']);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-compound-' + width + '.png'), fullPage: true });
     }
   });
 });

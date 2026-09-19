@@ -527,10 +527,9 @@ body {
   .home-page .contact-band > h2 { font-size: 64px; }
 }
 
-@media (max-width: 980px) {
-  .site-header .site-nav { gap: 20px; }
-  .site-header .site-nav a { font-size: 12px; }
-
+/* The hero keeps its pre-desktop composition through 1023px.
+   Homepage cards/media retain their existing 981px desktop seam below. */
+@media (max-width: 1023px) {
   .home-page .hero {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -565,6 +564,12 @@ body {
   .home-page .hero-monument-zone {
     height: 16.25rem !important;
   }
+
+}
+
+@media (max-width: 980px) {
+  .site-header .site-nav { gap: 20px; }
+  .site-header .site-nav a { font-size: 12px; }
 
   .home-page .work-section,
   .home-page .more-section {
@@ -858,5 +863,624 @@ body {
     flex-direction: row;
     gap: 16px;
     font-size: 6px;
+  }
+}
+
+/* ========================================================================
+   Wave 2 Shared Lane A — FINAL OWNER-APPROVED Homepage implementation
+   HP-01 / HP-02 / HP-D01–D07 + Option 6 Layered Depth
+   ======================================================================== */
+
+/* Option 6 hero: exact approved layered treatment, including the subtle overlay. */
+.home-page .hero {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 28%, transparent 70%, rgba(113, 218, 204, 0.065)),
+    radial-gradient(56% 112% at 83% 32%, rgba(118, 227, 212, 0.48) 0%, rgba(40, 164, 153, 0.26) 32%, transparent 70%),
+    radial-gradient(45% 120% at 4% 96%, rgba(20, 126, 117, 0.42), transparent 66%),
+    linear-gradient(116deg, #0B554E 0%, #063936 42%, #022321 100%);
+}
+.home-page .hero h1 {
+  color: #F5FAF8;
+}
+.home-page .hero-lede {
+  max-width: 26rem;
+}
+.home-page .hero-visual-zone {
+  background:
+    radial-gradient(88% 90% at 48% 44%, rgba(199, 231, 225, 0.88), rgba(244, 248, 245, 0.99) 66%),
+    linear-gradient(145deg, #F2F6F3, #E9F2EF);
+  box-shadow:
+    inset 0 0 0 1px rgba(7, 63, 60, 0.08),
+    0 16px 32px rgba(3, 39, 37, 0.07);
+}
+
+/* The Work section alone gets the approved restrained tonal lift. */
+.home-page .work-section {
+  position: relative;
+  isolation: isolate;
+}
+.home-page .work-section::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -3.5rem 0 -2rem;
+  pointer-events: none;
+  background: radial-gradient(70% 95% at 50% 28%, rgba(255, 255, 255, 0.58), transparent 72%);
+}
+
+/* HP-01 + Option 6 card foundation. One semantic link remains in each card;
+   its pseudo-element fills the positioned article without adding controls. */
+.home-page .project-card {
+  position: relative;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.99) 0%, rgba(239, 247, 245, 0.97) 100%);
+  border-color: #B9CBC7;
+  box-shadow: 0 18px 38px rgba(7, 63, 60, 0.055);
+  transform: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.home-page .featured-card[data-kind='askwill'] {
+  background: linear-gradient(150deg, #EEF6F4 0%, #E1EDEB 100%);
+}
+.home-page .project-card:hover {
+  border-color: #9EB4AF;
+  transform: none;
+  box-shadow: 0 18px 38px rgba(7, 63, 60, 0.08);
+  cursor: pointer;
+}
+.home-page .project-card > .project-link {
+  position: static;
+  z-index: auto;
+}
+.home-page .project-card > .project-link::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+}
+.home-page .project-card > .project-link span {
+  position: relative;
+  z-index: 2;
+}
+.home-page .project-link:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+@supports selector(.project-card:has(.project-link:focus-visible)) {
+  .home-page .project-card:has(.project-link:focus-visible) {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 4px;
+  }
+  .home-page .project-card:has(.project-link:focus-visible) .project-link:focus-visible {
+    outline: none;
+  }
+}
+
+/* HP-D02/D03/D04/D06: stacked title bands and aligned featured regions. */
+.home-page .featured-card {
+  min-width: 0;
+  min-height: 0;
+  padding: 30px 24px 20px;
+  display: grid;
+  grid-template-rows: 4.35rem 4.5rem 2.35rem 20.5rem auto;
+  row-gap: 8px;
+  align-items: start;
+}
+.home-page .title-band {
+  min-width: 0;
+}
+.home-page .featured-card .title-band {
+  min-height: 4.35rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+}
+.home-page .featured-card[data-kind='thesis'] .title-band h3 {
+  max-width: 17rem;
+}
+.home-page .featured-card > .title-band,
+.home-page .featured-card > .project-premise,
+.home-page .featured-card > .project-metadata,
+.home-page .featured-card > .project-media,
+.home-page .featured-card > .project-link {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.home-page .featured-card .project-premise {
+  margin-top: 0;
+}
+.home-page .featured-card .project-metadata {
+  margin-top: 0;
+}
+.home-page .featured-card .project-media {
+  width: min(100%, 24.1rem);
+  height: 20.5rem;
+  min-height: 20.5rem;
+  margin: 0 auto;
+  align-self: stretch;
+}
+.home-page .featured-card .project-link {
+  align-self: end;
+}
+
+/* HP-02: preserve the approved AskWill asset's left/title edge. */
+.home-page .askwill-browser > img {
+  object-fit: cover;
+  object-position: left top;
+}
+
+/* HP-D05/D06: compact cards keep source-faithful four-card desktop rhythm
+   without a flexible dead-space spacer. */
+.home-page .secondary-card {
+  min-width: 0;
+  min-height: 0;
+  padding: 24px 22px 16px;
+  display: grid;
+  grid-template-rows: minmax(4.55rem, auto) minmax(5.1rem, auto) minmax(2.2rem, auto) 9.125rem auto;
+  row-gap: 8px;
+  align-items: start;
+}
+.home-page .secondary-card .title-band {
+  min-height: 4.55rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+}
+.home-page .secondary-card > .title-band,
+.home-page .secondary-card > .project-premise,
+.home-page .secondary-card > .project-metadata,
+.home-page .secondary-card > .secondary-visual,
+.home-page .secondary-card > .project-link {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.home-page .secondary-card .project-premise,
+.home-page .secondary-card .project-metadata {
+  margin-top: 0;
+}
+.home-page .secondary-card .secondary-visual {
+  height: 9.125rem;
+  min-height: 9.125rem;
+  margin-top: 0;
+}
+.home-page .secondary-card .project-link {
+  margin-top: 0;
+  align-self: end;
+}
+
+/* HP-D07: Homepage-only About + compact Contact composition. */
+.home-page .about-section {
+  margin-top: 72px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+  border-top: 0;
+}
+.home-page .about-statement {
+  padding: 42px 38px 24px;
+  border-top: 1px solid #B8CCC7;
+}
+.home-page .about-statement h2 {
+  margin: 0 0 24px;
+  font-size: clamp(34px, 3.2vw, 48px);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+.home-page .about-copy {
+  max-width: none;
+  margin: 0;
+  justify-self: stretch;
+  color: #33494D;
+  font-size: 17px;
+  line-height: 1.65;
+}
+.home-page .split-contact {
+  min-width: 0;
+  min-height: 0;
+  margin: 42px 0 0;
+  padding: 16px 32px;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  align-items: stretch;
+  justify-content: center;
+  border-radius: 24px;
+  color: #F8FBFA;
+  background:
+    radial-gradient(76% 180% at 82% 8%, rgba(106, 216, 202, 0.40), transparent 58%),
+    radial-gradient(72% 170% at 2% 100%, rgba(17, 127, 117, 0.36), transparent 60%),
+    linear-gradient(116deg, #0B544D 0%, #04332F 48%, #022321 100%);
+  box-shadow: 0 20px 44px rgba(3, 39, 37, 0.08);
+}
+.home-page .split-contact .eyebrow {
+  margin: 0 0 8px;
+  color: #A6DAD3;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 820;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.home-page .split-question-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.home-page .split-contact h2 {
+  margin: 0;
+  font-size: clamp(31px, 3vw, 46px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+.home-page .home-email-action {
+  min-height: 48px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border-radius: 999px;
+  background: #F4F7F4;
+  color: #075E5A;
+  font-size: 14px;
+  font-weight: 820;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.home-page .home-email-action:hover {
+  background: #FFFFFF;
+}
+body.route-home .site-footer {
+  padding-top: 0;
+}
+
+@media (min-width: 75rem) {
+  .home-page .split-question-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .home-page .home-email-action {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 73.75rem) {
+  .home-page .split-contact {
+    padding: 34px;
+  }
+}
+
+@media (max-width: 68.75rem) {
+  .home-page .about-section {
+    grid-template-columns: 1fr;
+  }
+  .home-page .about-statement {
+    padding: 32px 0;
+  }
+  .home-page .split-contact {
+    margin: 0;
+    padding: 28px 32px;
+    align-self: auto;
+  }
+  .home-page .split-question-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .home-page .home-email-action {
+    justify-self: end;
+  }
+  body.route-home .site-footer {
+    padding-top: 30px;
+  }
+}
+
+/* HOME-SEAM-981-01: keep only the hero in its stacked pre-desktop regime
+   from 981–1023px; cards/media continue using their existing desktop seam. */
+@media (min-width: 61.3125rem) and (max-width: 63.9375rem) {
+  .home-page .hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 24px 18px 20px;
+    border-radius: 22px;
+  }
+  .home-page .hero-copy { padding: 0 2px; }
+  .home-page .hero h1 {
+    max-width: none;
+    font-size: 54px;
+    line-height: 0.98;
+  }
+  .home-page .hero-lede {
+    max-width: 38rem;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  .home-page .credential {
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .home-page .hero-link {
+    margin-top: 18px;
+    padding-bottom: 7px;
+    font-size: 12px;
+  }
+  .home-page .hero-visual-zone {
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+  .home-page .hero-monument-zone {
+    height: 16.25rem !important;
+  }
+}
+
+@media (max-width: 61.25rem) {
+  .home-page .hero-lede {
+    max-width: 38rem;
+  }
+  .home-page .featured-card {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    row-gap: 12px;
+  }
+  .home-page .featured-card .title-band,
+  .home-page .secondary-card .title-band {
+    min-height: 0;
+  }
+  .home-page .featured-card .project-premise,
+  .home-page .featured-card .project-metadata,
+  .home-page .featured-card .project-media,
+  .home-page .featured-card .project-link,
+  .home-page .secondary-card .project-premise,
+  .home-page .secondary-card .project-metadata,
+  .home-page .secondary-card .secondary-visual,
+  .home-page .secondary-card .project-link {
+    margin-top: 0;
+  }
+  /* Stacked cards are content-height driven: the actual media establishes
+     this row, so the CTA always follows the visible surface in normal flow. */
+  .home-page .featured-card .project-media {
+    height: auto;
+    min-height: 0;
+  }
+  .home-page .secondary-card {
+    display: grid;
+    grid-template-rows: auto auto auto 7.5rem auto;
+    row-gap: 10px;
+  }
+  .home-page .secondary-card .secondary-visual {
+    height: 7.5rem;
+    min-height: 7.5rem;
+  }
+  .home-page .secondary-card .project-link {
+    margin-top: 0;
+  }
+  .home-page .split-contact {
+    padding: 30px 28px;
+  }
+  .home-page .split-question-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .home-page .home-email-action {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 51.25rem) {
+  .home-page .hero-lede {
+    max-width: 100%;
+  }
+  .home-page .featured-card,
+  .home-page .secondary-card {
+    grid-template-rows: auto auto auto auto auto;
+  }
+  .home-page .featured-card .project-media {
+    height: auto;
+    min-height: 0;
+  }
+  .home-page .secondary-card .secondary-visual {
+    height: auto;
+    min-height: 7.5rem;
+  }
+}
+
+@media (max-width: 35rem) {
+  .home-page .split-contact {
+    padding: 28px 24px;
+  }
+}
+
+@media (max-width: 30rem) {
+  .home-page .hero h1 {
+    font-size: clamp(2.6rem, 12.5vw, 3.05rem);
+  }
+  .home-page .about-section {
+    margin-top: 28px;
+    padding-inline: 12px;
+  }
+  .home-page .about-statement {
+    padding: 28px 0 22px;
+  }
+  .home-page .about-statement h2 {
+    margin-bottom: 18px;
+    font-size: 30px;
+  }
+  .home-page .about-copy {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .home-page .split-contact {
+    padding: 22px 20px;
+    border-radius: 16px;
+  }
+  .home-page .split-contact h2 {
+    font-size: 24px;
+  }
+  .home-page .home-email-action {
+    min-height: 44px;
+    padding-inline: 16px;
+    font-size: 12px;
+  }
+}
+
+
+/* ========================================================================
+   Wave 2 Revision A
+   Locked corrections H-RA1 through H-RA6.
+   ======================================================================== */
+
+/* H-RA1: visual-only project-number lift. Heading flow and card semantics stay put. */
+.home-page .project-number {
+  position: relative;
+  top: -3px;
+}
+
+/* H-RA2: global.css already owns the li + li ::before separator.
+   Disable the Homepage-only trailing-dot mechanism and center the one surviving dot. */
+.home-page .project-metadata li {
+  margin-right: 0;
+}
+.home-page .project-metadata li + li::before {
+  content: '·';
+  margin: 0 10px;
+  color: #8b999d;
+  font-weight: 600;
+}
+.home-page .project-metadata li:not(:last-child)::after {
+  content: none;
+  margin: 0;
+}
+
+/* H-RA6: defeat the more-specific global .hero h1 span accent rule. */
+.home-page .hero h1,
+.home-page .hero h1 .h1-line {
+  color: #F5FAF8;
+}
+
+/* H-RA5: the approved split composition has no rule above About. */
+.home-page .about-statement {
+  border-top: 0;
+}
+
+/* H-RA3/H-RA4: deterministic wide-desktop compact tracks, plus actual
+   featured media surfaces filling the already-aligned media row. */
+@media (min-width: 64.01rem) {
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 8rem 2.35rem 9.125rem auto;
+  }
+}
+
+/* The three-column featured-card regime begins at 61.26rem. Keep Design
+   Day on the same deterministic desktop media surface across that entire
+   regime instead of leaving a 981–1024px gap. */
+@media (min-width: 61.26rem) {
+  .home-page .featured-card .design-day-media {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
+}
+
+/* H-RA5: derive the green panel's visible top/bottom from the About content.
+   The 42px/24px offsets mirror the About column's content padding. */
+@media (min-width: 68.76rem) {
+  .home-page .split-contact {
+    position: relative;
+    margin: 42px 0 24px;
+    padding: 16px 32px;
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .home-page .split-contact .eyebrow {
+    position: absolute;
+    top: 16px;
+    left: 32px;
+    margin: 0;
+  }
+
+  .home-page .split-question-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .home-page .home-email-action {
+    justify-self: end;
+  }
+}
+
+
+/* Wave 2 spacing refinement: keep body-to-metadata rhythm stable as copy wraps. */
+@media (min-width: 82.01rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 3.5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 6.25rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 73.76rem) and (max-width: 82rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 7.5rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 68.76rem) and (max-width: 73.75rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 6.5rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    grid-template-rows: 4.55rem 8.5rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+@media (min-width: 61.26rem) and (max-width: 68.75rem) {
+  .home-page .featured-card {
+    grid-template-rows: 4.35rem 8rem 2.35rem 20.5rem auto;
+  }
+  .home-page .secondary-card {
+    /* Shared three-line title capacity for the narrow four-column band.
+       Keep every compact card on the same deterministic track so the
+       metadata, media, and Case study rows remain aligned. */
+    grid-template-rows: 5.6rem 10rem 2.35rem 9.125rem auto;
+  }
+  .home-page .secondary-card .project-premise {
+    align-self: center;
+  }
+}
+
+
+/* Wave 2 compact metadata refinement: keep the first two long financial tags
+   on one line through the narrow four-column desktop range without changing
+   featured-card metadata or underlying project data. */
+@media (min-width: 61.26rem) and (max-width: 82rem) {
+  .home-page .secondary-card .project-metadata {
+    font-size: 11px;
+  }
+
+  .home-page .secondary-card .project-metadata li + li::before {
+    margin: 0 7px;
   }
 }

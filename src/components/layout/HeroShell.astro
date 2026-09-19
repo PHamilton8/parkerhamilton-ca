@@ -18,7 +18,12 @@ import CathedralMonument from '../visualization/CathedralMonument.astro';
     height: 27.5rem;
     aspect-ratio: auto;
     padding: 0;
-    background: #f4f5f2;
+    background:
+      radial-gradient(88% 90% at 48% 44%, rgba(199, 231, 225, 0.88), rgba(244, 248, 245, 0.99) 66%),
+      linear-gradient(145deg, #F2F6F3, #E9F2EF);
+    box-shadow:
+      inset 0 0 0 1px rgba(7, 63, 60, 0.08),
+      0 16px 32px rgba(3, 39, 37, 0.07);
   }
 
   .hero-monument-zone::before {

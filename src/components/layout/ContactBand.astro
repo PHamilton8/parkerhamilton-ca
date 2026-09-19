@@ -28,14 +28,18 @@ import { site } from '../../data/site';
     row-gap: 16px;
     align-items: center;
     border-radius: 26px;
-    background: linear-gradient(180deg, #0a4f4a 0%, #084843 100%);
+    background:
+      radial-gradient(76% 180% at 82% 8%, rgba(106, 216, 202, 0.40), transparent 58%),
+      radial-gradient(72% 170% at 2% 100%, rgba(17, 127, 117, 0.36), transparent 60%),
+      linear-gradient(116deg, #0B544D 0%, #04332F 48%, #022321 100%);
     color: #f8fbfa;
+    box-shadow: 0 20px 44px rgba(3, 39, 37, 0.08);
   }
 
   .contact-band > .eyebrow {
     grid-area: eyebrow;
     margin: 0;
-    color: #9fd1ca;
+    color: #A6DAD3;
     font-size: 12px;
     line-height: normal;
     font-weight: 800;
@@ -73,8 +77,8 @@ import { site } from '../../data/site';
     overflow: hidden;
     border: 0;
     border-radius: 12px;
-    background: #f4f7f4;
-    color: #0a4f4a;
+    background: #F4F7F4;
+    color: #075E5A;
     box-shadow: none;
     font-size: 15px;
     line-height: normal;
@@ -87,7 +91,7 @@ import { site } from '../../data/site';
   .contact-email-action:hover {
     transform: translateY(-1px);
     background: #fff;
-    color: #073f3b;
+    color: #075E5A;
   }
 
   .contact-email-arrow {

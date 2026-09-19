@@ -3,8 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroShell from '../components/layout/HeroShell.astro';
 import ProjectCardFeatured from '../components/project/ProjectCardFeatured.astro';
 import ProjectCardCompact from '../components/project/ProjectCardCompact.astro';
-import ContactBand from '../components/layout/ContactBand.astro';
 import { featuredProjects, secondaryProjects } from '../data/projects';
+import { site } from '../data/site';
 import '../styles/homepage-v3.css';
 ---
 <BaseLayout>
@@ -27,12 +27,17 @@ import '../styles/homepage-v3.css';
     <section class="about-section" id="about" aria-labelledby="about-title">
       <div class="about-statement">
         <h2 id="about-title">About me</h2>
+        <div class="about-copy">
+          <p>I like digging into problems, testing ideas, and building useful solutions. Some of my interests include consumer insights, behavioural science, financial decision-making, and automation.</p>
+        </div>
       </div>
-      <div class="about-copy">
-        <p>I like digging into problems, testing ideas, and building useful solutions. Some of my interests include consumer insights, behavioural science, financial decision-making, and automation.</p>
-      </div>
+      <aside class="split-contact" id="contact" aria-labelledby="home-contact-title">
+        <p class="eyebrow">Contact</p>
+        <div class="split-question-row">
+          <h2 id="home-contact-title">Have a question?</h2>
+          <a class="home-email-action" href={`mailto:${site.email}`}>Email me</a>
+        </div>
+      </aside>
     </section>
-
-    <ContactBand />
   </div>
 </BaseLayout>

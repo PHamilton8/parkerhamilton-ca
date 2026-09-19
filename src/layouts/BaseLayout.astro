@@ -9,9 +9,15 @@ const { title = site.defaultTitle, description = site.description, canonicalPath
 const canonical = new URL(canonicalPath, site.origin);
 const pageTitle = title === site.defaultTitle ? title : `${title} — ${site.name}`;
 const ogImage = new URL(site.ogImage, site.origin);
+const normalizedPath = canonicalPath.replace(/\/+$/, '') || '/';
+const layoutClass = normalizedPath === '/'
+  ? 'route-home portfolio-canvas'
+  : normalizedPath.startsWith('/work/')
+    ? 'route-work portfolio-canvas'
+    : 'route-utility';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class={layoutClass}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,7 +36,7 @@ const ogImage = new URL(site.ogImage, site.origin);
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body>
+  <body class={layoutClass}>
     <SkipLink />
     <SiteHeader />
     <main id="main" tabindex="-1"><slot /></main>

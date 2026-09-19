@@ -68,3 +68,34 @@ test.describe('Reporting Workflow V3 authority', () => {
     });
   }
 });
+
+
+test.describe('Reporting result metric semantics', () => {
+  for (const width of [430, 390, 375, 360, 320]) {
+    test(`number and unit groups remain intact at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 320 ? 568 : 932 });
+      await open(page);
+
+      const groups = page.locator('.reporting-result-value');
+      await expect(groups).toHaveCount(2);
+      const geometry = await groups.evaluateAll((nodes) => nodes.map((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const tops: number[] = [];
+        for (const rect of Array.from(range.getClientRects())) {
+          if (rect.width <= 0 || rect.height <= 0) continue;
+          const top = Math.round(rect.top * 2) / 2;
+          if (!tops.some((value) => Math.abs(value - top) <= 0.5)) tops.push(top);
+        }
+        return { lines: tops.length, text: node.textContent };
+      }));
+
+      expect(geometry).toEqual([
+        { lines: 1, text: '45+ min' },
+        { lines: 1, text: '< 10 min' },
+      ]);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  }
+});

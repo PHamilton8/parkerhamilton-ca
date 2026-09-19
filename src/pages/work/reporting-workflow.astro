@@ -42,7 +42,7 @@ const stages = [
       <p class="reporting-label">Excel/VBA · Internal reporting</p>
       <h1>Automating a Reporting Workflow</h1>
       <div class="reporting-result" aria-label="Report preparation reduced from 45 plus minutes to less than 10 minutes">
-        <strong>45+ min<span class="reporting-result-arrow" aria-hidden="true">→</span>&lt; 10 min</strong>
+        <strong><span class="reporting-result-value">45+ min</span><span class="reporting-result-arrow" aria-hidden="true">→</span><span class="reporting-result-value">&lt; 10 min</span></strong>
         <div class="reporting-result-copy"><p>Recurring report preparation time.</p><p>Built for and used by a 12-person team.</p></div>
       </div>
       <p class="reporting-lede">I redesigned a repetitive internal reporting process around structured lookup, auto-populated fields, reusable text, and user-triggered preparation actions.</p>
@@ -144,9 +144,10 @@ const stages = [
   .reporting-case { max-width: var(--content-main); margin-inline: auto; padding: clamp(3.5rem, 8vw, 7rem) clamp(1.125rem, 3vw, 2.25rem) clamp(4.5rem, 8vw, 7rem); }
   .reporting-hero { max-width: 65rem; padding-bottom: clamp(3.5rem, 7vw, 6rem); border-bottom: 1px solid var(--color-line); }
   .reporting-label { margin: 0 0 1.1rem; color: var(--color-muted); font-size: .84rem; font-weight: 740; letter-spacing: .06em; text-transform: uppercase; }
-  .reporting-hero h1 { margin: 0; max-width: 52rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
+  .reporting-hero h1 { margin: 0; max-width: 53.25rem; font-size: clamp(3.25rem, 7vw, 6.3rem); line-height: .96; letter-spacing: -.06em; }
   .reporting-result { display: grid; grid-template-columns: auto minmax(0, 20rem); align-items: end; gap: 1.2rem 2rem; margin-top: clamp(2rem, 4vw, 3.25rem); padding: 1.25rem 0; border-block: 1px solid var(--color-line-strong); }
   .reporting-result strong { color: var(--color-teal); font-size: clamp(2rem, 4.7vw, 4rem); line-height: 1; letter-spacing: -.055em; white-space: nowrap; }
+  .reporting-result-value { display: inline-block; white-space: nowrap; }
   .reporting-result-arrow { display: inline-block; margin-inline: .72em; letter-spacing: 0; }
   .reporting-result-copy { display: grid; gap: .35rem; }
   .reporting-result p { margin: 0; color: var(--color-muted); font-size: .86rem; font-weight: 650; }
@@ -201,6 +202,12 @@ const stages = [
   .reporting-human .reporting-reading p { font-size: .95rem; }
   .reporting-human .reporting-heading h2::after { content: ''; display: block; width: 2.2rem; height: 2px; margin-top: .55rem; background: var(--color-teal); }
 
+  @media (min-width: 51.26rem) {
+    .reporting-problem .reporting-editorial-split {
+      grid-template-columns: minmax(0, .71fr) minmax(0, 1.29fr);
+      gap: clamp(2rem, 3vw, 2.25rem);
+    }
+  }
   @media (max-width: 51.25rem) {
     .reporting-result { grid-template-columns: 1fr; }
     .reporting-editorial-split { grid-template-columns: 1fr; gap: 1.35rem; }

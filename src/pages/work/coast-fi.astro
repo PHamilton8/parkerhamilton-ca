@@ -12,7 +12,7 @@ import ContactBand from '../../components/layout/ContactBand.astro';
   <article class="coast-page">
     <header class="case-hero">
       <h1>Coast FI Calculator</h1>
-      <p class="case-hero__premise">A planning model that connects today’s savings, future contributions, and investment growth to retirement targets.</p>
+      <p class="case-hero__premise">This tool models how early retirement contributions can give compound growth more time to work and reduce future contribution needs.</p>
       <p class="case-hero__lede">I started with a detailed retirement-planning spreadsheet, then audited it and turned the Coast FI part into a simpler four-mode web calculator.</p>
     </header>
 
@@ -112,7 +112,7 @@ import ContactBand from '../../components/layout/ContactBand.astro';
 </BaseLayout>
 
 <style>
-  .coast-page { max-width: var(--content-wide); margin-inline: auto; padding: clamp(3rem, 6vw, 5.75rem) clamp(1.125rem, 3vw, 2.25rem) clamp(5.25rem, 8vw, 7.5rem); }
+  .coast-page { max-width: var(--content-wide); margin-inline: auto; padding: clamp(3rem, 6vw, 5.75rem) clamp(1.125rem, 3vw, 2.25rem) 0; }
   .case-hero, .story-section { max-width: var(--content-main); margin-inline: auto; }
   .case-hero { padding-bottom: clamp(3.5rem, 7vw, 6.5rem); }
   .case-hero h1 { max-width: 64rem; margin: 0; font-size: clamp(3.15rem, 7vw, 6.5rem); line-height: .96; letter-spacing: -.06em; }
@@ -140,6 +140,10 @@ import ContactBand from '../../components/layout/ContactBand.astro';
   .workbook-download strong, .workbook-download small { display: block; }
   .workbook-download small { margin-top: .2rem; color: var(--color-muted); }
   .limits-copy { max-width: var(--content-reading); }
+  /* CF-D01: the limitations section owns the terminal Coast gap. Keep the shared
+     ContactBand's normal spacing everywhere else and neutralize it only for this
+     direct Coast-page adjacency. */
+  .coast-page + :global(.contact-band) { margin-top: 0; }
   @media (max-width: 56rem) { .story-section--split, .workbook-section { grid-template-columns: 1fr; } }
   @media (max-width: 40rem) { .refactor-grid { grid-template-columns: 1fr; } }
   @media (max-width: 35rem) { .coast-page { padding-inline: 1.125rem; } .case-hero h1 { font-size: clamp(3rem, 15vw, 4.4rem); } }

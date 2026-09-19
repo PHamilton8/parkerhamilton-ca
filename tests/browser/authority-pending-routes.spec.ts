@@ -2,9 +2,7 @@ import { test, expect } from '@playwright/test';
 import { requiresAuthority } from './qa-profile';
 import { createHash } from 'node:crypto';
 
-test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', () => {
-  test.skip(!requiresAuthority('designDay'), 'Final route assertions are required only for final-rc.');
-
+test.describe('Design Day accessibility gate', () => {
   test('Design Day uses the approved replacement video and a synchronized caption track', async ({ page }) => {
     await page.goto('/work/design-day');
     const video = page.locator('video.design-video');
@@ -14,6 +12,25 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
     const track = video.locator('track[kind="captions"]');
     await expect(track).toHaveCount(1);
     await expect(track).toHaveAttribute('src', '/assets/projects/design-day/design-day-working-demo.vtt');
+    expect(await track.getAttribute('default')).toBeNull();
+    await expect(video).toHaveAttribute('aria-describedby', 'design-video-equivalent');
+    const equivalent = page.locator('#design-video-equivalent');
+    await expect(equivalent).toHaveCount(1);
+    await expect(equivalent).toHaveClass(/\bsr-only\b/);
+    const equivalentStyle = await equivalent.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return {
+        position: style.position,
+        width: style.width,
+        height: style.height,
+        overflow: style.overflow,
+      };
+    });
+    expect(equivalentStyle).toEqual({ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden' });
+    await expect(page.locator('details.design-demo-transcript')).toHaveCount(0);
+    await expect(page.getByText('Video transcript and visual description', { exact: true })).toHaveCount(0);
+    await video.focus();
+    await expect(video).toBeFocused();
     const duration = await video.evaluate(async (v: HTMLVideoElement) => {
       if (Number.isFinite(v.duration) && v.duration > 0) return v.duration;
       await new Promise<void>((resolve) => v.addEventListener('loadedmetadata', () => resolve(), { once: true }));
@@ -30,7 +47,15 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
       expect(cue.end).toBeGreaterThan(cue.start);
       expect(cue.end).toBeLessThanOrEqual(8.475);
     }
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+    }
   });
+});
+
+test.describe('Final Grocery / AskWill / Smith / Wealthsimple authority gates', () => {
+  test.skip(!requiresAuthority('designDay'), 'Final route assertions are required only for final-rc.');
 
   test('Wealthsimple final owner-confirmed native captions load, stay within the exact media, and preserve verbatim wording', async ({ page, request }, testInfo) => {
     await page.goto('/wealthsimple-2026');
@@ -163,5 +188,63 @@ test.describe('Final Design Day / Grocery / AskWill / Smith authority gates', ()
       expect(labelled).toBe(true);
     }
     await expect(page.getByText(/owner review|choose graph|select option/i)).toHaveCount(0);
+  });
+});
+
+
+test.describe('Wave 2 Revision A AskWill rendered acceptance', () => {
+  test('Business fact stays on one desktop line without colliding with Result', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A pixel acceptance is Chromium-specific.');
+
+    for (const width of [1440, 1280]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/work/askwill');
+      await page.waitForLoadState('networkidle');
+
+      const facts = page.locator('.askwill-facts > div');
+      await expect(facts).toHaveCount(2);
+      const business = facts.nth(0).locator('dd');
+      await expect(business).toHaveText('Family-run water-treatment and well-services business');
+      const businessGeometry = await business.evaluate((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return {
+          lineRects: range.getClientRects().length,
+          whiteSpace: getComputedStyle(node).whiteSpace,
+          scrollWidth: (node as HTMLElement).scrollWidth,
+          clientWidth: (node as HTMLElement).clientWidth,
+        };
+      });
+      expect(businessGeometry.lineRects).toBe(1);
+      expect(businessGeometry.whiteSpace).toBe('normal');
+      expect(businessGeometry.scrollWidth).toBeLessThanOrEqual(businessGeometry.clientWidth + 1);
+
+      const cellGeometry = await facts.evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const rect = node.getBoundingClientRect();
+          return { left: rect.left, right: rect.right };
+        }),
+      );
+      expect(cellGeometry[0].right).toBeLessThanOrEqual(cellGeometry[1].left + 1);
+      await expect(facts.nth(1).locator('dt')).toHaveText('Result');
+      await expect(facts.nth(1).locator('dd')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+
+      await page.screenshot({ path: testInfo.outputPath('revision-a-askwill-' + width + '.png'), fullPage: true });
+    }
+  });
+
+  test('AskWill fact layout remains responsive and overflow-free', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Revision A responsive evidence is Chromium-specific.');
+    for (const width of [1024, 820, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/work/askwill');
+      await page.waitForLoadState('networkidle');
+      const business = page.locator('.askwill-facts > div').nth(0).locator('dd');
+      await expect(business).toHaveText('Family-run water-treatment and well-services business');
+      expect(await business.evaluate((node) => getComputedStyle(node).whiteSpace)).toBe('normal');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath('revision-a-askwill-' + width + '.png'), fullPage: true });
+    }
   });
 });
