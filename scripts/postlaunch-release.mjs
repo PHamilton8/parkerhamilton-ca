@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const WORKER_NAME = 'parkerhamilton-ca';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -21,12 +22,76 @@ function requiredEnv(name) {
   assert.ok(value, `Missing required environment variable: ${name}`);
   return value;
 }
-async function fetchJson(url, options = {}) {
+const ERROR_BODY_LIMIT = 8000;
+const SENSITIVE_KEY = /(?:authorization|api[-_]?key|token|secret|password)/i;
+const SECRET_ENV_NAMES = ['GITHUB_TOKEN', 'CLOUDFLARE_API_TOKEN', 'CF_ACCESS_CLIENT_SECRET'];
+
+function redactString(value) {
+  let text = String(value);
+  for (const name of SECRET_ENV_NAMES) {
+    const secret = process.env[name];
+    if (secret) text = text.split(secret).join('[REDACTED]');
+  }
+  const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+  if (account) text = text.split(account).join('[ACCOUNT]');
+  return text;
+}
+function redactForLogs(value, depth = 0) {
+  if (depth > 6) return '[TRUNCATED]';
+  if (typeof value === 'string') return redactString(value);
+  if (Array.isArray(value)) return value.slice(0, 20).map((item) => redactForLogs(item, depth + 1));
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [key, item] of Object.entries(value).slice(0, 50)) {
+      out[key] = SENSITIVE_KEY.test(key) ? '[REDACTED]' : redactForLogs(item, depth + 1);
+    }
+    return out;
+  }
+  return value;
+}
+function boundedJson(value) {
+  const serialized = JSON.stringify(value);
+  if (serialized.length <= ERROR_BODY_LIMIT) return serialized;
+  return serialized.slice(0, ERROR_BODY_LIMIT) + '...[TRUNCATED]';
+}
+function apiErrorSummary(body, rawText) {
+  if (!body || typeof body !== 'object') return { body: redactString(rawText).slice(0, ERROR_BODY_LIMIT) };
+  const sanitized = redactForLogs(body);
+  const pick = (entry) => ({
+    code: entry?.code ?? null,
+    message: entry?.message ?? null,
+    ...(entry?.documentation_url ? { documentation_url: entry.documentation_url } : {}),
+    ...(entry?.source ? { source: entry.source } : {}),
+  });
+  return {
+    success: sanitized.success ?? null,
+    errors: Array.isArray(sanitized.errors) ? sanitized.errors.slice(0, 20).map(pick) : [],
+    messages: Array.isArray(sanitized.messages) ? sanitized.messages.slice(0, 20).map(pick) : [],
+    ...((!Array.isArray(sanitized.errors) || sanitized.errors.length === 0) &&
+       (!Array.isArray(sanitized.messages) || sanitized.messages.length === 0)
+      ? { body: sanitized }
+      : {}),
+  };
+}
+export async function fetchJson(url, options = {}) {
   const response = await fetch(url, options);
+  const rawText = await response.text();
   let body;
-  try { body = await response.json(); }
-  catch { throw new Error(`Expected JSON from ${url}; HTTP ${response.status}`); }
-  assert.ok(response.ok, `HTTP ${response.status} from ${url}`);
+  let parsed = false;
+  try {
+    body = JSON.parse(rawText);
+    parsed = true;
+  } catch {}
+
+  if (!response.ok) {
+    const safeUrl = redactString(url);
+    const detail = apiErrorSummary(parsed ? body : null, rawText);
+    throw new Error(`HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ''} from ${safeUrl}: ${boundedJson(detail)}`);
+  }
+
+  if (!parsed) {
+    throw new Error(`Expected JSON from ${redactString(url)}; HTTP ${response.status}; body=${redactString(rawText).slice(0, ERROR_BODY_LIMIT)}`);
+  }
   return body;
 }
 function githubHeaders() {
@@ -277,8 +342,9 @@ async function productionSmoke() {
   json({ origin, routes: results });
 }
 
-const [command, ...args] = process.argv.slice(2);
-switch (command) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const [command, ...args] = process.argv.slice(2);
+  switch (command) {
   case 'dist-hash':
     json(distHash(args[0] ?? 'dist'));
     break;
@@ -321,6 +387,7 @@ switch (command) {
   case 'production-smoke':
     await productionSmoke();
     break;
-  default:
-    throw new Error(`Unknown post-launch release command: ${command ?? '(none)'}`);
+    default:
+      throw new Error(`Unknown post-launch release command: ${command ?? '(none)'}`);
+  }
 }
