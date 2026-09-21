@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { fetchJson } from '../scripts/postlaunch-release.mjs';
 
 const read = (path) => fs.readFileSync(path, 'utf8');
 const candidate = read('.github/workflows/cloudflare-preview.yml');
@@ -86,4 +88,128 @@ test('Candidate artifact resolution fails closed unless exactly one non-expired 
   assert.match(helper, /review-candidate-\$\{tree\}/);
   assert.match(helper, /artifacts\.length, 1/);
   assert.match(helper, /Expected exactly one non-expired candidate artifact/);
+});
+
+
+async function withMockFetch(mock, fn) {
+  const previous = globalThis.fetch;
+  globalThis.fetch = mock;
+  try {
+    return await fn();
+  } finally {
+    globalThis.fetch = previous;
+  }
+}
+
+test('fetchJson returns successful JSON unchanged', { concurrency: false }, async () => {
+  const expected = { success: true, result: { id: 'ok' } };
+  await withMockFetch(
+    async () => new Response(JSON.stringify(expected), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+    async () => assert.deepEqual(await fetchJson('https://example.test/success'), expected),
+  );
+});
+
+test('fetchJson preserves structured Cloudflare HTTP errors and redacts secrets', { concurrency: false }, async () => {
+  const previousToken = process.env.CLOUDFLARE_API_TOKEN;
+  const previousAccount = process.env.CLOUDFLARE_ACCOUNT_ID;
+  process.env.CLOUDFLARE_API_TOKEN = 'super-secret-token';
+  process.env.CLOUDFLARE_ACCOUNT_ID = 'secret-account-id';
+  try {
+    await withMockFetch(
+      async () => new Response(JSON.stringify({
+        success: false,
+        errors: [{
+          code: 10099,
+          message: 'Bad deployment super-secret-token',
+          documentation_url: 'https://developers.cloudflare.com/example',
+          source: { pointer: '/annotations/workers/triggered_by' },
+        }],
+        messages: [{ code: 10100, message: 'Additional context' }],
+        token: 'super-secret-token',
+      }), {
+        status: 400,
+        statusText: 'Bad Request',
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      async () => {
+        await assert.rejects(
+          fetchJson('https://api.cloudflare.com/client/v4/accounts/secret-account-id/workers/scripts/example/deployments'),
+          (error) => {
+            assert.match(error.message, /HTTP 400 Bad Request/);
+            assert.match(error.message, /10099/);
+            assert.match(error.message, /Bad deployment \[REDACTED\]/);
+            assert.match(error.message, /documentation_url/);
+            assert.match(error.message, /workers\/triggered_by/);
+            assert.match(error.message, /10100/);
+            assert.doesNotMatch(error.message, /super-secret-token/);
+            assert.doesNotMatch(error.message, /secret-account-id/);
+            assert.match(error.message, /\[ACCOUNT\]/);
+            return true;
+          },
+        );
+      },
+    );
+  } finally {
+    if (previousToken === undefined) delete process.env.CLOUDFLARE_API_TOKEN;
+    else process.env.CLOUDFLARE_API_TOKEN = previousToken;
+    if (previousAccount === undefined) delete process.env.CLOUDFLARE_ACCOUNT_ID;
+    else process.env.CLOUDFLARE_ACCOUNT_ID = previousAccount;
+  }
+});
+
+test('fetchJson preserves bounded non-JSON error text without leaking secrets', { concurrency: false }, async () => {
+  const previousToken = process.env.CLOUDFLARE_API_TOKEN;
+  process.env.CLOUDFLARE_API_TOKEN = 'plain-text-secret';
+  try {
+    await withMockFetch(
+      async () => new Response('upstream failure plain-text-secret', { status: 502, statusText: 'Bad Gateway' }),
+      async () => {
+        await assert.rejects(
+          fetchJson('https://example.test/non-json-error'),
+          (error) => {
+            assert.match(error.message, /HTTP 502 Bad Gateway/);
+            assert.match(error.message, /upstream failure \[REDACTED\]/);
+            assert.doesNotMatch(error.message, /plain-text-secret/);
+            return true;
+          },
+        );
+      },
+    );
+  } finally {
+    if (previousToken === undefined) delete process.env.CLOUDFLARE_API_TOKEN;
+    else process.env.CLOUDFLARE_API_TOKEN = previousToken;
+  }
+});
+
+test('fetchJson redacts sensitive response keys even when their values do not match known env secrets', { concurrency: false }, async () => {
+  await withMockFetch(
+    async () => new Response(JSON.stringify({
+      success: false,
+      api_token: 'unregistered-secret',
+      nested: { authorization: 'Bearer should-not-appear' },
+    }), { status: 400, headers: { 'Content-Type': 'application/json' } }),
+    async () => {
+      await assert.rejects(
+        fetchJson('https://example.test/sensitive-fields'),
+        (error) => {
+          assert.match(error.message, /\[REDACTED\]/);
+          assert.doesNotMatch(error.message, /unregistered-secret/);
+          assert.doesNotMatch(error.message, /should-not-appear/);
+          return true;
+        },
+      );
+    },
+  );
+});
+
+
+test('postlaunch-release remains executable as a CLI after importing fetchJson for tests', () => {
+  const result = spawnSync(process.execPath, ['scripts/postlaunch-release.mjs', 'definitely-unknown-command'], {
+    encoding: 'utf8',
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Unknown post-launch release command: definitely-unknown-command/);
 });
