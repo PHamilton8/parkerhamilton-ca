@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { fetchJson } from '../scripts/postlaunch-release.mjs';
 
 const read = (path) => fs.readFileSync(path, 'utf8');
@@ -202,4 +203,13 @@ test('fetchJson redacts sensitive response keys even when their values do not ma
       );
     },
   );
+});
+
+
+test('postlaunch-release remains executable as a CLI after importing fetchJson for tests', () => {
+  const result = spawnSync(process.execPath, ['scripts/postlaunch-release.mjs', 'definitely-unknown-command'], {
+    encoding: 'utf8',
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Unknown post-launch release command: definitely-unknown-command/);
 });
