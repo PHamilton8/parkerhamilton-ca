@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { fetchJson } from '../scripts/postlaunch-release.mjs';
+import { fetchJson, fetchPreviewSameOrigin } from '../scripts/postlaunch-release.mjs';
 
 const read = (path) => fs.readFileSync(path, 'utf8');
 const candidate = read('.github/workflows/cloudflare-preview.yml');
@@ -212,4 +212,74 @@ test('postlaunch-release remains executable as a CLI after importing fetchJson f
   });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /Unknown post-launch release command: definitely-unknown-command/);
+});
+
+const origin = 'https://12345678-parkerhamilton-ca.example.workers.dev';
+const headers = { 'CF-Access-Client-Id': 'invented-id', 'CF-Access-Client-Secret': 'invented-marker' };
+function fixture(responses) {
+  const calls = [];
+  return { calls, fetch: async (url, options) => {
+    calls.push({ url: String(url), options });
+    assert.equal(options.redirect, 'manual');
+    assert.equal(new URL(url).origin, origin, 'Every credentialed request stays on the approved origin');
+    return responses.shift();
+  } };
+}
+test('Successful response and headers are preserved', async () => {
+  const response = new Response('ok', { status: 200, headers: { 'x-robots-tag': 'noindex' } });
+  const mock = fixture([response]);
+  assert.equal(await fetchPreviewSameOrigin(origin, headers, mock.fetch), response);
+  assert.equal(mock.calls.length, 1);
+  assert.equal(mock.calls[0].options.headers, headers);
+});
+for (const status of [301, 302, 303, 307, 308]) {
+  test(`Same-origin ${status} canonical redirect works`, async () => {
+    const mock = fixture([new Response(null, { status, headers: { location: '/work/coast-fi/' } }), new Response('ok')]);
+    assert.equal((await fetchPreviewSameOrigin(origin, headers, mock.fetch)).status, 200);
+    assert.equal(mock.calls.length, 2);
+    assert.equal(mock.calls[1].url, origin + '/work/coast-fi/');
+  });
+  test(`Cross-origin ${status} sends no credentialed follow-up`, async () => {
+    const mock = fixture([new Response(null, { status, headers: { location: 'https://other.example/' } })]);
+    await assert.rejects(fetchPreviewSameOrigin(origin, headers, mock.fetch), /cannot forward Access credentials/);
+    assert.equal(mock.calls.length, 1);
+  });
+}
+for (const location of ['//other.example/', origin.replace('https:', 'http:') + '/', origin.replace('.dev', '.dev:444') + '/', origin.replace('https://', 'https://user:password@') + '/']) {
+  test('Protocol-relative, downgrade, changed port, and userinfo redirects fail closed: ' + new URL(location, origin).protocol + '/' + (location.includes('@') ? 'userinfo' : location.includes(':444') ? 'port' : location.startsWith('//') ? 'host' : 'scheme'), async () => {
+    const mock = fixture([new Response(null, { status: 302, headers: { location } })]);
+    await assert.rejects(fetchPreviewSameOrigin(origin, headers, mock.fetch), /cannot forward Access credentials/);
+    assert.equal(mock.calls.length, 1);
+  });
+}
+test('Missing and invalid Location fail without a second request', async () => {
+  for (const location of [null, 'http://[invalid']) {
+    const mock = fixture([new Response(null, { status: 302, headers: location ? { location } : {} })]);
+    await assert.rejects(fetchPreviewSameOrigin(origin, headers, mock.fetch), /Location/);
+    assert.equal(mock.calls.length, 1);
+  }
+});
+test('Redirect loop is bounded to six same-origin requests', async () => {
+  const mock = fixture(Array.from({ length: 6 }, () => new Response(null, { status: 302, headers: { location: '/' } })));
+  await assert.rejects(fetchPreviewSameOrigin(origin, headers, mock.fetch), /Too many preview redirects/);
+  assert.equal(mock.calls.length, 6);
+});
+test('Blob URL with an embedded same HTTPS origin is not a credential destination', async () => {
+  const mock = fixture([new Response(null, { status: 302, headers: { location: 'blob:' + origin + '/invented' } })]);
+  await assert.rejects(fetchPreviewSameOrigin(origin, headers, mock.fetch), /cannot forward Access credentials/);
+  assert.equal(mock.calls.length, 1);
+});
+test('404 and Access denial remain available to existing status assertions', async () => {
+  for (const status of [401, 403, 404]) {
+    const mock = fixture([new Response(null, { status })]);
+    assert.equal((await fetchPreviewSameOrigin(origin, headers, mock.fetch)).status, status);
+    assert.equal(mock.calls.length, 1);
+  }
+});
+test('Unsafe initial URL makes no request', async () => {
+  for (const url of ['http://example.test', 'https://user:password@example.test']) {
+    let calls = 0;
+    await assert.rejects(fetchPreviewSameOrigin(url, headers, async () => { calls++; }), /Clean HTTPS/);
+    assert.equal(calls, 0);
+  }
 });

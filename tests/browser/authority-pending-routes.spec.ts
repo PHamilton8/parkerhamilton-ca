@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
 import { requiresAuthority } from './qa-profile';
 import { createHash } from 'node:crypto';
 
@@ -109,7 +109,7 @@ test.describe('Final Grocery / AskWill / Smith / Wealthsimple authority gates', 
     await expect(rules.locator('h3')).toHaveText(['Scale', 'Preferences', 'Constraints', 'Pantry']);
     await expect(rules.locator('p')).toHaveText([
       'Exactly 6 dinners for 9 adult portions.',
-      'Chicken thighs, ground beef, tacos, smash burgers, Greek and Mexican flavours.',
+      'Chicken thighs, ground beef, Greek and Mexican flavours.',
       "Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale (sorry beef tenderloin, $2 off per kilo still doesn't make you a budget protein).",
       'Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.',
     ]);
@@ -247,4 +247,74 @@ test.describe('Wave 2 Revision A AskWill rendered acceptance', () => {
       await page.screenshot({ path: testInfo.outputPath('revision-a-askwill-' + width + '.png'), fullPage: true });
     }
   });
+});
+
+
+// These owner-requested line starts are target-specific: viewport 1440px.
+// Keep the complete text lock and measure natural browser lines, not containers.
+async function renderedLines(locator: Locator) {
+  return locator.evaluate((element) => {
+    const lines: Array<{ top: number; words: string[] }> = [];
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      for (const match of (node.textContent ?? '').matchAll(/\S+/g)) {
+        const range = document.createRange();
+        range.setStart(node, match.index!);
+        range.setEnd(node, match.index! + match[0].length);
+        const top = range.getBoundingClientRect().top;
+        let line = lines.find((item) => Math.abs(item.top - top) < 1);
+        if (!line) { line = { top, words: [] }; lines.push(line); }
+        line.words.push(match[0]);
+      }
+    }
+    return lines.map((line) => line.words.join(' '));
+  });
+}
+
+test('Grocery JSON copy has no single-word costs line at 1440px', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Owner line-position targets use pinned Chromium at 1440px; cross-engine content and interaction gates remain separate.');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/work/grocery-automation', { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+  const paragraph = page.locator('.json-split .section-copy p').first();
+  await expect(paragraph).toHaveText('The first version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.');
+  await expect(paragraph.locator('br')).toHaveCount(0);
+  const lines = await renderedLines(paragraph);
+  expect(lines.at(-1)).toMatch(/\S+\s+costs\.$/);
+  expect(lines).not.toContain('costs.');
+  const alignment = await page.locator('.json-split').evaluate((element) => ({
+    gridLeft: element.getBoundingClientRect().left,
+    titleLeft: element.querySelector('#json-title')!.getBoundingClientRect().left,
+  }));
+  expect(alignment.titleLeft - alignment.gridLeft).toBeGreaterThanOrEqual(764.25);
+});
+
+test('Home Grocery card starts its I and and lines as requested at 1440px', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'Owner line-position targets use pinned Chromium at 1440px; cross-engine content and interaction gates remain separate.');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/', { waitUntil: 'load' });
+  await page.evaluate(() => document.fonts.ready);
+  const paragraph = page.locator('.secondary-card[data-project-slug="grocery-automation"] .project-premise');
+  await expect(paragraph).toHaveText('To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists.');
+  await expect(paragraph.locator('br')).toHaveCount(0);
+  expect(await renderedLines(paragraph)).toEqual([
+    'To automate a recurring task at work,',
+    'I built a Python workflow that turns',
+    'weekly flyer data into menu options',
+    'and grocery lists.',
+  ]);
+});
+
+test('corrected mobile footer colour is scoped to the three approved routes', async ({ page }) => {
+  for (const route of ['/', '/work/askwill', '/work/grocery-automation']) {
+    for (const width of [390, 560]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto(route, { waitUntil: 'load' });
+      await expect(page.locator('.site-footer-inner')).toHaveCSS('color', 'rgb(95, 111, 117)');
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/work/reporting-workflow', { waitUntil: 'load' });
+  await expect(page.locator('body')).not.toHaveClass(/approved-mobile-contact/);
+  await expect(page.locator('.site-footer-inner')).not.toHaveCSS('color', 'rgb(95, 111, 117)');
 });

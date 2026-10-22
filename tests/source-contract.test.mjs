@@ -84,7 +84,7 @@ function excludesAll(corpus, phrases) {
 }
 
 test('homepage copy lock is present and obsolete homepage copy is absent', () => {
-  includesAll(files.hero + files.home + files.projects + files.contact, [
+  includesAll(normalizedText(files.hero + files.home + files.projects + files.contact), [
     'I like figuring things out.',
     'Most of my projects start with a research question or something I think could work better.',
     'MSc · Marketing Research & Behavioural Science',

@@ -12,7 +12,7 @@ const homepageTags = (project.slug === 'smith-manoeuvre' || project.slug === 'co
   ? project.tags.filter((tag) => tag !== 'Builds and Systems')
   : project.tags;
 ---
-<article class="project-card secondary-card">
+<article data-project-slug={project.slug} class="project-card secondary-card">
   <div class="title-band">
     <span class="project-number">{project.number}</span>
     <h3>{homepageTitle}</h3>

@@ -1,5 +1,47 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+import acceptedMedia from './fixtures/approved-homepage-media.json' with { type: 'json' };
 import { requiresAuthority } from './qa-profile';
+
+type MediaRect = {
+  slug: string; outerTop: number; outerBottom: number; outerHeight: number;
+  outerWidth: number; innerTop: number; innerBottom: number; innerHeight: number; innerWidth: number;
+};
+const acceptedMediaFrames: Record<string, MediaRect[]> = acceptedMedia.frames;
+const acceptedFeaturedCopyGaps: Record<string, Array<{ slug: string; gap: number }>> = acceptedMedia.featuredCopyGaps;
+async function capturedMedia(page: Page) {
+  return page.locator('.featured-grid').evaluate((grid) => {
+    const gridTop = grid.getBoundingClientRect().top;
+    const rects = Array.from(grid.querySelectorAll('.featured-card')).map((card) => {
+      const outer = card.querySelector('.project-media')!.getBoundingClientRect();
+      const inner = card.querySelector('.compound-media,.design-day-media,.askwill-browser')!.getBoundingClientRect();
+      return { slug: card.getAttribute('data-project-slug') ?? '',
+        outerTop: outer.top - gridTop, outerBottom: outer.bottom - gridTop,
+        outerHeight: outer.height, outerWidth: outer.width,
+        innerTop: inner.top - gridTop, innerBottom: inner.bottom - gridTop,
+        innerHeight: inner.height, innerWidth: inner.width };
+    });
+    return { rects, rootRem: parseFloat(getComputedStyle(document.documentElement).fontSize) };
+  });
+}
+function assertAcceptedMedia(actual: MediaRect[], expected: MediaRect[], rootRem: number, width: number) {
+  expect(expected, `frozen accepted frame exists at ${width}`).toBeDefined();
+  expect(actual.map((r) => r.slug)).toEqual(expected.map((r) => r.slug));
+  expect(actual).toHaveLength(3);
+  actual.forEach((r, i) => {
+    expect(Math.abs(r.outerHeight - 15.5 * rootRem),
+      `${r.slug} accepted 15.5rem media row at ${width}`).toBeLessThanOrEqual(1);
+    for (const key of ['outerTop','outerBottom','outerHeight','innerTop','innerBottom','innerHeight'] as const) {
+      expect(Math.abs(r[key] - expected[i][key]),
+        `${r.slug}/${key} accepted geometry at ${width}`).toBeLessThanOrEqual(1.1);
+    }
+    expect(r.innerHeight).toBeGreaterThan(0);
+    expect(r.innerWidth).toBeGreaterThan(0);
+    expect(r.outerWidth).toBeGreaterThan(0);
+    // Every measured accepted frame confirms containment, including seam widths.
+    expect(r.innerTop).toBeGreaterThanOrEqual(r.outerTop - 1.1);
+    expect(r.innerBottom).toBeLessThanOrEqual(r.outerBottom + 1.1);
+  });
+}
 
 const WIDTHS = [1440, 1280, 1024, 820, 390, 320] as const;
 const expectedMoreWork = [
@@ -227,12 +269,16 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         cards.map((card) => {
           const premise = card.querySelector('.project-premise') as HTMLElement;
           const metadata = card.querySelector('.project-metadata') as HTMLElement;
-          return metadata.getBoundingClientRect().top - premise.getBoundingClientRect().bottom;
+          return { slug: card.getAttribute('data-project-slug') ?? '',
+            gap: metadata.getBoundingClientRect().top - premise.getBoundingClientRect().bottom };
         }),
       );
-      for (const gap of featuredBodyMetadataGaps) {
-        expect(gap, 'featured body-to-metadata gap').toBeGreaterThanOrEqual(10);
-        expect(gap, 'featured body-to-metadata gap').toBeLessThanOrEqual(24);
+      const expectedCopyGaps = acceptedFeaturedCopyGaps[String(width)];
+      expect(featuredBodyMetadataGaps.map((card) => card.slug)).toEqual(expectedCopyGaps.map((card) => card.slug));
+      for (const [index, card] of featuredBodyMetadataGaps.entries()) {
+        expect(card.gap, 'featured body-to-metadata clearance').toBeGreaterThanOrEqual(10);
+        expect(Math.abs(card.gap - expectedCopyGaps[index].gap),
+          'frozen accepted featured body-to-metadata gap').toBeLessThanOrEqual(1.1);
       }
 
       const compact = await page.locator('.home-page .secondary-card').evaluateAll((cards) =>
@@ -257,13 +303,17 @@ test.describe('Wave 2 Revision A Homepage rendered acceptance', () => {
         }),
       );
       expect(compact).toHaveLength(4);
-      const compactBodyMetadataGaps = compact.map((card) => card.metadata.top - card.premise.bottom);
-      for (const gap of compactBodyMetadataGaps) {
-        expect(gap, 'compact body-to-metadata gap').toBeGreaterThanOrEqual(8);
-        expect(gap, 'compact body-to-metadata gap').toBeLessThanOrEqual(26);
+      const maxPremiseBottom = Math.max(...compact.map((card) => card.premise.bottom));
+      expect(spread(compact.map((card) => card.premise.top)),
+        'accepted compact premise row alignment').toBeLessThanOrEqual(2);
+      for (const card of compact) {
+        expect(Math.abs((card.metadata.top - maxPremiseBottom) - 12),
+          'accepted compact shared row gap is 12px').toBeLessThanOrEqual(1);
+        expect(card.metadata.top - card.premise.bottom,
+          'compact copy never overlaps metadata').toBeGreaterThanOrEqual(11);
       }
-      // Premise blocks may sit slightly higher/lower within their deterministic row so
-      // the body-to-metadata rhythm stays compact; metadata/media/link rows remain aligned.
+      // Accepted subgrid aligns premise starts and shared metadata/media/link rows.
+      // Shorter copy leaves additional space inside its shared premise row.
       for (const key of ['metadata', 'media', 'link'] as const) {
         expect(spread(compact.map((card) => card[key].top)), key + ' top alignment').toBeLessThanOrEqual(2);
       }
@@ -481,22 +531,8 @@ test.describe('Wave 2 prelaunch visual repairs — featured media contract', () 
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
-      const surfaces = await page.locator(
-        '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
-      ).evaluateAll((nodes) =>
-        nodes.map((node) => {
-          const rect = node.getBoundingClientRect();
-          return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
-        }),
-      );
-
-      expect(surfaces).toHaveLength(3);
-      expect(spread(surfaces.map((item) => item.top)), `visible media top spread at ${width}px`).toBeLessThanOrEqual(2);
-      expect(spread(surfaces.map((item) => item.bottom)), `visible media bottom spread at ${width}px`).toBeLessThanOrEqual(2);
-      for (const surface of surfaces) {
-        expect(surface.width).toBeGreaterThan(0);
-        expect(surface.height).toBeGreaterThan(0);
-      }
+      const media = await capturedMedia(page);
+      assertAcceptedMedia(media.rects, acceptedMediaFrames[String(width)], media.rootRem, width);
 
       const designFit = await page.locator('.design-day-media img').evaluate((node) => getComputedStyle(node).objectFit);
       expect(designFit).toBe('cover');
@@ -577,14 +613,8 @@ test.describe('Wave 2 prelaunch visual repairs — featured media contract', () 
       expect(overflow.documentWidth, `no document overflow at ${width}px`).toBeLessThanOrEqual(overflow.viewportWidth + 1);
 
       if (width >= 981) {
-        const surfaces = await page.locator(
-          '.home-page .compound-media, .home-page .design-day-media, .home-page .askwill-browser',
-        ).evaluateAll((nodes) => nodes.map((node) => {
-          const rect = node.getBoundingClientRect();
-          return { top: rect.top, bottom: rect.bottom };
-        }));
-        expect(spread(surfaces.map((item) => item.top)), `desktop media top spread at ${width}px`).toBeLessThanOrEqual(2);
-        expect(spread(surfaces.map((item) => item.bottom)), `desktop media bottom spread at ${width}px`).toBeLessThanOrEqual(2);
+        const media = await capturedMedia(page);
+        assertAcceptedMedia(media.rects, acceptedMediaFrames[String(width)], media.rootRem, width);
       } else {
         const clearances = await page.locator('.home-page .featured-card').evaluateAll((nodes) =>
           nodes.map((node) => {
@@ -628,9 +658,9 @@ test.describe('Final prelaunch V2 — Homepage hero split threshold', () => {
       { width: 980, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
       { width: 981, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
       { width: 1023, expectedLines: 1, expectedColumns: 1, expectedFont: 54, expectedMonument: 260, expectedLedeMax: 608 },
-      { width: 1024, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
-      { width: 1025, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
-      { width: 1180, expectedLines: 3, expectedColumns: 2, expectedFont: 80, expectedMonument: 440, expectedLedeMax: 416 },
+      { width: 1024, expectedLines: 2, expectedColumns: 2, expectedFont: 80, expectedMonument: 384, expectedLedeMax: 416 },
+      { width: 1025, expectedLines: 2, expectedColumns: 2, expectedFont: 80, expectedMonument: 384, expectedLedeMax: 416 },
+      { width: 1180, expectedLines: 2, expectedColumns: 2, expectedFont: 80, expectedMonument: 384, expectedLedeMax: 416 },
     ] as const;
 
     for (const item of cases) {

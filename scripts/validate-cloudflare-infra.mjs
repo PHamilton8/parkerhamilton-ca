@@ -58,7 +58,7 @@ for (const key of forbiddenWranglerKeys) {
 
 assert.equal(
   packageJson.devDependencies?.wrangler,
-  '4.131.1',
+  '4.151.3',
   'Wrangler must be pinned exactly for reproducible builds',
 );
 

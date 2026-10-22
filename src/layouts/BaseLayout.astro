@@ -1,11 +1,12 @@
 ---
 import '../styles/global.css';
+import '../styles/approved-mobile-contact.css';
 import SkipLink from '../components/ui/SkipLink.astro';
 import SiteHeader from '../components/navigation/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import { site } from '../data/site';
-interface Props { title?: string; description?: string; canonicalPath?: string; robots?: string }
-const { title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname, robots = canonicalPath === '/404' ? 'noindex, nofollow, noarchive' : undefined } = Astro.props;
+interface Props { title?: string; description?: string; canonicalPath?: string; robots?: string; approvedMobileContact?: boolean }
+const { approvedMobileContact = false, title = site.defaultTitle, description = site.description, canonicalPath = Astro.url.pathname, robots = canonicalPath === '/404' ? 'noindex, nofollow, noarchive' : undefined } = Astro.props;
 const canonical = new URL(canonicalPath, site.origin);
 const pageTitle = title === site.defaultTitle ? title : `${title} — ${site.name}`;
 const ogImage = new URL(site.ogImage, site.origin);
@@ -36,7 +37,7 @@ const layoutClass = normalizedPath === '/'
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body class={layoutClass}>
+  <body class:list={[layoutClass, { 'approved-mobile-contact': approvedMobileContact }]}>
     <SkipLink />
     <SiteHeader />
     <main id="main" tabindex="-1"><slot /></main>

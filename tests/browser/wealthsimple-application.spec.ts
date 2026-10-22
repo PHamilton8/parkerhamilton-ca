@@ -11,7 +11,7 @@ async function assertNoDocumentOverflow(page: Page) {
 }
 
 test.describe('Wealthsimple noindex auxiliary application route', () => {
-  test('is reachable, responsive, minimal, and correctly noindexed', async ({ page }, testInfo) => {
+  test('is reachable, responsive, minimal, and correctly noindexed', async ({ page, baseURL }, testInfo) => {
     const widths = testInfo.project.name === 'chromium' ? responsiveWidths : [390];
 
     for (const width of widths) {
@@ -51,7 +51,9 @@ test.describe('Wealthsimple noindex auxiliary application route', () => {
       expect(ratio).toBeLessThan(1.80);
       await assertNoDocumentOverflow(page);
 
-      expect([...requestOrigins].every((origin) => origin === 'http://127.0.0.1:4321')).toBe(true);
+      const expectedOrigin = new URL(baseURL!).origin;
+      expect(expectedOrigin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+      expect([...requestOrigins].every((origin) => origin === expectedOrigin)).toBe(true);
       expect(consoleErrors).toEqual([]);
       expect(pageErrors).toEqual([]);
       page.off('console', onConsole);

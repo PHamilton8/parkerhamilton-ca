@@ -16,6 +16,11 @@ concurrency:
   group: parker-production-release
   cancel-in-progress: false
 
+env:
+  WRANGLER_SEND_METRICS: 'false'
+  EXPECTED_WORKERS_SUBDOMAIN: ${{ vars.EXPECTED_WORKERS_SUBDOMAIN }}
+  EXPECTED_CLOUDFLARE_ACCOUNT_ID: ${{ vars.EXPECTED_CLOUDFLARE_ACCOUNT_ID }}
+
 jobs:
   promote:
     if: github.ref == 'refs/heads/main' && inputs.confirm == 'PROMOTE parkerhamilton.ca'
@@ -28,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
 
       - name: Freeze authoritative main tree
         id: main
@@ -46,7 +51,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p .release-production
-          node scripts/postlaunch-release.mjs resolve-candidate-artifact "$TREE_SHA" > .release-production/artifact.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs resolve-candidate-artifact "$TREE_SHA" > .release-production/artifact.json
           echo "name=$(node -e "const j=require('./.release-production/artifact.json');process.stdout.write(j.name)")" >> "$GITHUB_OUTPUT"
           echo "run_id=$(node -e "const j=require('./.release-production/artifact.json');process.stdout.write(String(j.runId))")" >> "$GITHUB_OUTPUT"
 
@@ -65,7 +70,7 @@ jobs:
           TREE_SHA: ${{ steps.main.outputs.tree }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs verify-manifest .reviewed-candidate/candidate.json "$TREE_SHA" > .release-production/candidate.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-manifest .reviewed-candidate/candidate.json "$TREE_SHA" .release-production/artifact.json > .release-production/candidate.json
           echo "version_id=$(node -e "const j=require('./.release-production/candidate.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
           echo "dist_sha=$(node -e "const j=require('./.release-production/candidate.json');process.stdout.write(j.distSha256)")" >> "$GITHUB_OUTPUT"
           echo "preview_url=$(node -e "const j=require('./.release-production/candidate.json');process.stdout.write(j.previewUrl)")" >> "$GITHUB_OUTPUT"
@@ -75,7 +80,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VERSION_ID: ${{ steps.manifest.outputs.version_id }}
-        run: node scripts/postlaunch-release.mjs verify-version "$VERSION_ID" > .release-production/version-exists.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-version "$VERSION_ID" > .release-production/version-exists.json
 
       - name: Snapshot exact current production rollback identity
         id: before
@@ -84,9 +89,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-production/production-before.json
-          node scripts/postlaunch-release.mjs single-active-version .release-production/production-before.json > .release-production/previous.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-production/production-before.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs single-active-version .release-production/production-before.json > .release-production/previous.json
           echo "version_id=$(node -e "const j=require('./.release-production/previous.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
+
+      - name: Revalidate latest exact candidate CI immediately before promotion
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-promotion-ci .release-production/candidate.json > .release-production/ci-current.json
 
       - name: Promote the exact reviewed version at 100 percent
         id: promotion
@@ -94,22 +104,29 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VERSION_ID: ${{ steps.manifest.outputs.version_id }}
-        run: node scripts/postlaunch-release.mjs activate-version "$VERSION_ID" "Reviewed ParkerHamilton release ${{ steps.main.outputs.sha }}" > .release-production/promotion.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs activate-version "$VERSION_ID" "Reviewed ParkerHamilton release ${{ steps.main.outputs.sha }}" > .release-production/promotion.json
 
-      - name: Verify Cloudflare reports that exact version live
+      - name: Always retain production after-state after a promotion attempt
+        if: ${{ always() && steps.before.outcome == 'success' && steps.promotion.outcome != 'skipped' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          VERSION_ID: ${{ steps.manifest.outputs.version_id }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-production/production-after.json
-          node scripts/postlaunch-release.mjs assert-active-version .release-production/production-after.json "$VERSION_ID" > .release-production/active-version.json
+          if ! bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-production/production-after.json; then
+            printf '{"status":"NON_PROMOTABLE_OPERATION_EVIDENCE","reconciliationRequired":true,"afterState":"unavailable"}\n' > .release-production/after-state-unavailable.json
+            exit 1
+          fi
+
+      - name: Verify Cloudflare reports that exact version live
+        env:
+          VERSION_ID: ${{ steps.manifest.outputs.version_id }}
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-active-version .release-production/production-after.json "$VERSION_ID" > .release-production/active-version.json
 
       - name: Focused live production smoke
         id: smoke
         continue-on-error: true
-        run: node scripts/postlaunch-release.mjs production-smoke > .release-production/live-smoke.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs production-smoke > .release-production/live-smoke.json
 
       - name: Roll back exactly if live smoke fails
         if: steps.smoke.outcome != 'success'
@@ -119,19 +136,37 @@ jobs:
           PREVIOUS_VERSION_ID: ${{ steps.before.outputs.version_id }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs activate-version "$PREVIOUS_VERSION_ID" "Automatic rollback after failed ParkerHamilton live smoke" > .release-production/rollback.json
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-production/rollback-after.json
-          node scripts/postlaunch-release.mjs assert-active-version .release-production/rollback-after.json "$PREVIOUS_VERSION_ID" > .release-production/rollback-verified.json
-          node scripts/postlaunch-release.mjs production-smoke > .release-production/rollback-smoke.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs activate-version "$PREVIOUS_VERSION_ID" "Automatic rollback after failed ParkerHamilton live smoke" > .release-production/rollback.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-production/rollback-after.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-active-version .release-production/rollback-after.json "$PREVIOUS_VERSION_ID" > .release-production/rollback-verified.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs production-smoke > .release-production/rollback-smoke.json
 
       - name: Preserve failed-release evidence
-        if: steps.smoke.outcome != 'success'
+        if: ${{ always() && (!success() || steps.smoke.outcome == 'failure') }}
         uses: actions/upload-artifact@v4
         with:
-          name: failed-production-release-${{ steps.main.outputs.sha }}
-          path: .release-production/
+          name: failed-production-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .release-production/artifact.json
+            .release-production/candidate.json
+            .release-production/ci-current.json
+            .release-production/version-exists.json
+            .release-production/production-before.json
+            .release-production/previous.json
+            .release-production/promotion.json
+            .release-production/production-after.json
+            .release-production/after-state-unavailable.json
+            .release-production/active-version.json
+            .release-production/live-smoke.json
+            .release-production/rollback.json
+            .release-production/rollback-after.json
+            .release-production/rollback-verified.json
+            .release-production/rollback-smoke.json
+            .release-production/production-release-record.json
+            .release-production/release-notes.md
+            .release-production/release-tag.txt
           include-hidden-files: true
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
 
       - name: Fail after verified rollback
@@ -200,7 +235,25 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: production-release-${{ steps.main.outputs.sha }}
-          path: .release-production/
+          path: |
+            .release-production/artifact.json
+            .release-production/candidate.json
+            .release-production/ci-current.json
+            .release-production/version-exists.json
+            .release-production/production-before.json
+            .release-production/previous.json
+            .release-production/promotion.json
+            .release-production/production-after.json
+            .release-production/after-state-unavailable.json
+            .release-production/active-version.json
+            .release-production/live-smoke.json
+            .release-production/rollback.json
+            .release-production/rollback-after.json
+            .release-production/rollback-verified.json
+            .release-production/rollback-smoke.json
+            .release-production/production-release-record.json
+            .release-production/release-notes.md
+            .release-production/release-tag.txt
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 90

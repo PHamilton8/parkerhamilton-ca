@@ -1,12 +1,14 @@
 ---
 import { site } from '../../data/site';
+interface Props { mobileEmailLabel?: boolean }
+const { mobileEmailLabel = false } = Astro.props;
 ---
 <section class="contact-band" id="contact" aria-labelledby="contact-title">
   <p class="eyebrow">Contact</p>
   <h2 id="contact-title">Have a question?</h2>
   <div class="contact-actions">
     <a class="contact-email-action" href={`mailto:${site.email}`}>
-      <span>Email</span>
+      {mobileEmailLabel ? <><span class="desktop-email-label">Email</span><span class="mobile-email-label">Email me</span></> : <span>Email</span>}
       <svg class="contact-email-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
         <path d="M4.75 11.25 11.25 4.75M6.25 4.75h5v5" />
       </svg>

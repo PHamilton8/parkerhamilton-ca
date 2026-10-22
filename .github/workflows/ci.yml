@@ -14,15 +14,20 @@ concurrency:
 
 env:
   ASTRO_TELEMETRY_DISABLED: '1'
+  EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+      - name: Verify exact source checkout
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: npm
       - run: npm ci
       - run: npm run check
@@ -31,14 +36,29 @@ jobs:
       - run: npm run public-safety
       - run: npm run qa:contrast
       - run: npm audit --audit-level=high
+      - name: Record successful source provenance
+        if: success()
+        run: node scripts/ci-release-evidence.mjs write-provenance
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ci-provenance-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: .ci-provenance/ci-provenance.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
 
   browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+      - name: Verify exact source checkout
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
@@ -51,4 +71,15 @@ jobs:
             artifacts/baseline/
             test-results/
           if-no-files-found: warn
+          retention-days: 14
+      - name: Record successful source provenance
+        if: success()
+        run: node scripts/ci-release-evidence.mjs write-provenance
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ci-provenance-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: .ci-provenance/ci-provenance.json
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14

@@ -10,6 +10,7 @@ if (!project) throw new Error('AskWill project record is missing.');
 ---
 
 <BaseLayout
+  approvedMobileContact
   title="Rebuilding AskWill.ca"
   description="A full website rethink for a family-run water-service business, covering structure, content, SEO, privacy, and QA."
   canonicalPath={project.route}
@@ -17,6 +18,7 @@ if (!project) throw new Error('AskWill project record is missing.');
 <article class="askwill-case"><header class="askwill-hero">
 <h1>Rebuilding AskWill.ca</h1>
 <p class="askwill-lede">I built the original AskWill site in Wix and maintained it for several years. It worked well, although visually it had a bit of an “amateur PowerPoint deck” vibe. Over that time, I conducted usability testing and monitored customer feedback and GA4 data to identify opportunities for improvement. By the time I rebuilt it, I had a pretty good idea of what I wanted to change.</p>
+<p class="askwill-lede">For the rebuild, I organized the service pages around recognizable problems such as staining and odour, and made the owner’s contact options more prominent. I also migrated the site from Wix to an Astro-based build hosted on Cloudflare.</p>
 <ProjectMetadata tags={project.tags} />
 <dl aria-label="Project context" class="askwill-facts">
 <div><dt>Business</dt><dd>Family-run water-treatment and well-services business</dd></div>
@@ -33,7 +35,12 @@ if (!project) throw new Error('AskWill project record is missing.');
 <div role="listitem"><p><span>V1</span>Changes were difficult to review before publishing.</p><p><span>V2</span>A source-controlled workflow where changes could be tested and reviewed before going live.</p></div>
 </div>
 </section>
-</div><section aria-labelledby="visual-direction-title" class="askwill-section askwill-section--visual">
+</div><section class="askwill-section askwill-section--research" aria-labelledby="research-title">
+<div class="askwill-intro">
+<div><p class="askwill-eyebrow">Research behind the rebuild</p><h2 id="research-title">Listening before rearranging</h2></div>
+<p>I analyzed 1000+ customer inquiries and search queries and moderated 15+ interviews/usability sessions to understand customers’ questions, terminology and points of confusion. Those findings helped me decide what to make clearer, what to bring forward, and where people needed an easier way to reach Will.</p>
+</div>
+</section><section aria-labelledby="visual-direction-title" class="askwill-section askwill-section--visual">
 <div class="askwill-intro">
 <div><p class="askwill-eyebrow">Visual direction</p><h2 id="visual-direction-title">A cleaner visual system</h2></div>
 <p>Version 1 had the right identity, but over time the presentation had become visually busy. For the rebuild, I kept the familiar AskWill colours and Will's owner-led presence while simplifying the hierarchy, spacing, typography, and overall page structure.</p>
@@ -46,14 +53,13 @@ if (!project) throw new Error('AskWill project record is missing.');
 </figure>
 </section><section aria-labelledby="clearest-change" class="askwill-section askwill-section--comparison">
 <div class="askwill-intro">
-<div><p class="askwill-eyebrow">Services</p><h2 id="clearest-change">Starting with the problem</h2></div>
+<div><p class="askwill-eyebrow">Services</p><h2 id="clearest-change"><span class="askwill-services-title-line">Starting with</span> <span class="askwill-services-title-line">the problem</span></h2></div>
+<div class="askwill-intro-copy">
 <p>Version 1 already had detailed service pages, but customers often knew the problem they were seeing before they knew which service or equipment they needed.</p>
-</div>
-<figure aria-labelledby="services-comparison-title" class="askwill-comparison" data-kind="services">
-<div class="askwill-comparison-copy">
-<div><p class="askwill-index">01</p><h3 id="services-comparison-title">Services</h3><p class="askwill-summary">Service directory → problem-led service guide.</p></div>
 <p>The rebuilt Services page lets homeowners start with problems such as hard water, staining, odour, or low pressure, then points them toward the relevant service.</p>
 </div>
+</div>
+<figure id="services-comparison-title" aria-label="AskWill Services page before and after" class="askwill-comparison" data-kind="services">
 <div class="askwill-compare-grid">
 <div class="askwill-panel">
 <p class="askwill-panel-label">V1 · Wix</p>
@@ -65,20 +71,6 @@ if (!project) throw new Error('AskWill project record is missing.');
 </div>
 </div>
 </figure>
-</section><section aria-label="Contact comparison" class="askwill-section askwill-section--contact-change">
-
-<div class="askwill-comparison-stack">
-<figure aria-labelledby="contact-comparison-title" class="askwill-comparison" data-kind="contact">
-<div class="askwill-comparison-copy">
-<div><p class="askwill-index">02</p><h3 id="contact-comparison-title">Contact</h3><p class="askwill-summary">Form-first contact page → call-first contact with additional options.</p></div>
-<p>In practice, phone calls were producing faster responses than form submissions. For the rebuild, I gave the call option more prominence and made the form one path rather than the whole focus.</p>
-</div>
-<div class="askwill-compare-grid">
-<div class="askwill-panel"><p class="askwill-panel-label">V1 · Wix</p><div class="askwill-browser"><div aria-hidden="true" class="askwill-browser-bar"><i></i><i></i><i></i></div><div class="askwill-media-window"><img alt="Parker-supplied Wix Contact screenshot showing the original call-and-form contact page." src="/assets/projects/askwill/case-contact-wix-approved.png" width="1004" height="548"/></div></div></div>
-<div class="askwill-panel"><p class="askwill-panel-label">V2 · Rebuild</p><div class="askwill-browser"><div aria-hidden="true" class="askwill-browser-bar"><i></i><i></i><i></i></div><div class="askwill-media-window"><img alt="Parker-supplied current AskWill Contact screenshot showing the direct-to-owner contact page." src="/assets/projects/askwill/case-contact-rebuilt-approved.png" width="1088" height="621"/></div></div></div>
-</div>
-</figure>
-</div>
 </section><section aria-labelledby="system-title" class="askwill-section askwill-section--system">
 <div class="askwill-intro">
 <div><p class="askwill-eyebrow">The rebuild</p><h2 id="system-title"><span class="askwill-system-title-line">Structure, SEO,</span> <span class="askwill-system-title-line">and hosting</span></h2></div>
@@ -109,5 +101,5 @@ if (!project) throw new Error('AskWill project record is missing.');
 <div><strong>Firefox + WebKit</strong><span>cross-engine checks</span></div>
 </div>
 </section><section aria-label="Final live result" class="askwill-section askwill-section--live-final"><p class="askwill-live-result">The rebuilt site is now live at <a class="askwill-live-link" href="https://askwill.ca/" rel="noopener noreferrer" target="_blank">AskWill.ca</a>.</p></section></article>
-  <ContactBand />
+  <ContactBand mobileEmailLabel />
 </BaseLayout>

@@ -66,6 +66,9 @@ test.describe('Final-RC global release gates', () => {
       await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
       for (const route of publicRoutes) {
         await open(page, route);
+        // DOMContentLoaded does not wait for route stylesheets; measure styled layout.
+        await page.waitForLoadState('load');
+        await page.evaluate(() => document.fonts.ready);
         const overflowState = await page.evaluate(() => {
           const root = document.documentElement;
           const client = root.clientWidth;
@@ -158,6 +161,12 @@ test.describe('Final-RC global release gates', () => {
           headingTop: hd.top,
           questionTop: q.top,
           emailTop: em.top,
+          questionRight: q.right,
+          questionCenterY: q.top + q.height / 2,
+          emailLeft: em.left,
+          emailCenterY: em.top + em.height / 2,
+          emailWidth: em.width,
+          emailHeight: em.height,
         };
       });
 
@@ -169,6 +178,14 @@ test.describe('Final-RC global release gates', () => {
         expect(Math.abs(layout.statementLeft - layout.contactLeft)).toBeLessThanOrEqual(2);
         expect(layout.contactTop).toBeGreaterThan(layout.aboutTop);
         expect(Math.abs(layout.questionTop - layout.emailTop)).toBeLessThanOrEqual(10);
+      } else if (width <= 560) {
+        expect(Math.abs(layout.statementLeft - layout.contactLeft)).toBeLessThanOrEqual(2);
+        expect(Math.abs(layout.questionCenterY - layout.emailCenterY),
+          'accepted mobile title/email center alignment').toBeLessThanOrEqual(1);
+        expect(layout.emailLeft - layout.questionRight,
+          'mobile title/email non-overlap').toBeGreaterThanOrEqual(10);
+        expect(layout.emailHeight, 'mobile email touch height').toBeGreaterThanOrEqual(44);
+        expect(layout.emailWidth, 'mobile email touch width').toBeGreaterThanOrEqual(44);
       } else {
         expect(Math.abs(layout.statementLeft - layout.contactLeft)).toBeLessThanOrEqual(2);
         expect(layout.emailTop).toBeGreaterThan(layout.questionTop);
