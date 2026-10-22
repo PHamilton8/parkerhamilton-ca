@@ -19,7 +19,7 @@
     "artifact": {
       "algorithm": "sha256-manifest-v1",
       "fileCount": 70,
-      "sha256": "c0e42fe31b4f293206714ff90566c695636afe8ad4432ec2a978daed8edbe4ef"
+      "sha256": "cf8a878e1f5038ad3f1d7ef54e3dab88a47dd8e4128cabda0520f50484a4d16e"
     },
     "toolchain": {
       "node": "v24.22.1",
@@ -87,7 +87,15 @@
       "release-risk-exception.json",
       "scripts/postlaunch-release.mjs",
       "scripts/release-risk-audit.mjs",
+      "src/pages/work/coast-fi.astro",
+      "src/pages/work/compound-growth.astro",
+      "src/pages/work/design-day.astro",
+      "src/pages/work/grocery-automation.astro",
+      "src/pages/work/reporting-workflow.astro",
+      "src/pages/work/smith-manoeuvre.astro",
+      "tests/browser/authority-pending-routes.spec.ts",
       "tests/ci-release-evidence.test.mjs",
+      "tests/final-rc-contract.test.mjs",
       "tests/postlaunch-release-architecture.test.mjs",
       "tests/release-risk-exception.test.mjs"
     ]
@@ -184,6 +192,6 @@
   "binding": {
     "algorithm": "sha256-git-inputs-v1",
     "excludedSelfDescribingPath": "release-risk-exception.json",
-    "inputsSha256": "77d56d9d765f3ca6c53aa8801242b6d19459c4abef37b98c75ab2aa48ef3f087"
+    "inputsSha256": "da0748943194fe8ea91fd3a62d5051017f3644f186d299eb5160c2af633317aa"
   }
 }

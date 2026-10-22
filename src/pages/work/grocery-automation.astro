@@ -149,8 +149,14 @@ const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Wa
 @media (min-width:56.26rem) {
   .json-split { grid-template-columns:minmax(0,1.28fr) minmax(21rem,.72fr); gap:2.5rem; }
 }
-@media (min-width:35.01rem) and (max-width:56.25rem) {
+@media (max-width:56.25rem) {
   .grocery-section[aria-labelledby="grocery-build-title"] .section-copy { margin-top:1.25rem; }
+}
+@media (max-width:35rem) {
+  #grocery-build-title { max-width:12ch; }
+  .grocery-build-title-tail { display:block; }
+  /* Together with the contact band's 18px margin, reduce the final gap from 90px to 45px. */
+  .grocery-case { padding-bottom:27px; }
 }
 @media (min-width:61.26rem) { .grocery-build-title-tail { display:block; } }
 </style>
