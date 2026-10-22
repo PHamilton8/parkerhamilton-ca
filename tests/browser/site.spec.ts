@@ -181,7 +181,7 @@ test.describe('copy-locked integrated visual-review baseline', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     for (const route of routes) {
       const monitor = await collectPageErrors(page);
-      const response = await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+      const response = await page.goto(route.path, { waitUntil: 'load' });
       expect(response?.status()).toBe(200);
       await expect(page.getByRole('heading', { level: 1, name: route.h1 })).toBeVisible();
       await assertNoDocumentOverflow(page);
