@@ -19,7 +19,7 @@
     "artifact": {
       "algorithm": "sha256-manifest-v1",
       "fileCount": 70,
-      "sha256": "cf8a878e1f5038ad3f1d7ef54e3dab88a47dd8e4128cabda0520f50484a4d16e"
+      "sha256": "cab425e69cb8cde2c1626a32237a4904ad8045ed9c15b6bab3a3db00ef3117f6"
     },
     "toolchain": {
       "node": "v24.22.1",
@@ -192,6 +192,6 @@
   "binding": {
     "algorithm": "sha256-git-inputs-v1",
     "excludedSelfDescribingPath": "release-risk-exception.json",
-    "inputsSha256": "da0748943194fe8ea91fd3a62d5051017f3644f186d299eb5160c2af633317aa"
+    "inputsSha256": "4a2af5e8d61996765f38e4ced61c1a67f7291ecc8d21ccc22e3e18312c03577a"
   }
 }
