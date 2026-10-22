@@ -184,6 +184,6 @@
   "binding": {
     "algorithm": "sha256-git-inputs-v1",
     "excludedSelfDescribingPath": "release-risk-exception.json",
-    "inputsSha256": "bfe4cc065854a8c96f86f39318c80b48ddbe3f0afdf75f3af6ed3f3c25a4b9be"
+    "inputsSha256": "77d56d9d765f3ca6c53aa8801242b6d19459c4abef37b98c75ab2aa48ef3f087"
   }
 }

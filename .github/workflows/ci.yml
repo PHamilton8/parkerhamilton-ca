@@ -69,7 +69,8 @@ jobs:
           retention-days: 14
 
   browser:
-    runs-on: ubuntu-latest
+    # Locked visual fixtures use the approved macOS 26 Intel system-font environment.
+    runs-on: macos-26-intel
     steps:
       - uses: actions/checkout@v4
         with:
