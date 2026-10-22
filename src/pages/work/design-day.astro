@@ -5,7 +5,7 @@ import { projects } from '../../data/projects';
 const project = projects.find((item) => item.slug === 'design-day');
 if (!project) throw new Error('Design Day project data is unavailable.');
 ---
-<BaseLayout title="Design Day 2023" description="Our team built a laser-powered musical instrument that won 1st place at uOttawa's Design Day 2023." canonicalPath={project.route}>
+<BaseLayout approvedMobileContact title="Design Day 2023" description="Our team built a laser-powered musical instrument that won 1st place at uOttawa's Design Day 2023." canonicalPath={project.route}>
 <article class="design-case visual-75" data-design-layout="media-led" data-prototype-layout="minimal">
 <header class="design-hero">
 <div class="design-hero-copy">
@@ -46,7 +46,7 @@ if (!project) throw new Error('Design Day project data is unavailable.');
 <figure><img alt="Illuminated components and wiring being tested on a workbench before final assembly." height="912" loading="lazy" src="/assets/projects/design-day/design-day-bench-test.jpg" width="1200"/><figcaption>A reassuring moment: the lights worked before we put everything together.</figcaption></figure>
 </div></div></section>
 </article>
-  <ContactBand />
+  <ContactBand mobileEmailLabel />
 </BaseLayout>
 
 <style>

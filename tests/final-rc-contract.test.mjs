@@ -123,7 +123,10 @@ test('Homepage and global ContactBand final source authority remain intact', () 
   assert.match(layout, /approvedMobileContact = false/);
   const optedIn = walk(path.join(root, 'src/pages')).filter((p) => p.endsWith('.astro') && /<BaseLayout\b[^>]*\bapprovedMobileContact\b/.test(fs.readFileSync(p, 'utf8')));
   assert.deepEqual(optedIn.map((p) => path.relative(root, p).replaceAll(path.sep, '/')).sort(), [
-    'src/pages/index.astro', 'src/pages/work/askwill.astro', 'src/pages/work/grocery-automation.astro',
+    'src/pages/index.astro', 'src/pages/work/askwill.astro', 'src/pages/work/coast-fi.astro',
+    'src/pages/work/compound-growth.astro', 'src/pages/work/design-day.astro',
+    'src/pages/work/grocery-automation.astro', 'src/pages/work/reporting-workflow.astro',
+    'src/pages/work/smith-manoeuvre.astro',
   ]);
 });
 

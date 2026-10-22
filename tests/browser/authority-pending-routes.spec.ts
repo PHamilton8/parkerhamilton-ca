@@ -305,8 +305,8 @@ test('Home Grocery card starts its I and and lines as requested at 1440px', asyn
   ]);
 });
 
-test('corrected mobile footer colour is scoped to the three approved routes', async ({ page }) => {
-  for (const route of ['/', '/work/askwill', '/work/grocery-automation']) {
+test('approved mobile contact and footer treatment covers portfolio routes only', async ({ page }) => {
+  for (const route of ['/', '/work/askwill', '/work/grocery-automation', '/work/design-day', '/work/compound-growth', '/work/reporting-workflow', '/work/smith-manoeuvre', '/work/coast-fi']) {
     for (const width of [390, 560]) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(route, { waitUntil: 'load' });
@@ -314,7 +314,68 @@ test('corrected mobile footer colour is scoped to the three approved routes', as
     }
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/work/reporting-workflow', { waitUntil: 'load' });
+  await page.goto('/wealthsimple-2026', { waitUntil: 'load' });
   await expect(page.locator('body')).not.toHaveClass(/approved-mobile-contact/);
   await expect(page.locator('.site-footer-inner')).not.toHaveCSS('color', 'rgb(95, 111, 117)');
+});
+
+
+test('remaining case pages match the approved mobile contact geometry and retain email keyboard access', async ({ page }) => {
+  for (const width of [320, 390, 560]) {
+    await page.setViewportSize({ width, height: 844 });
+    const metrics = async () => page.evaluate(() => {
+      const band = document.querySelector('.contact-band')!;
+      const title = band.querySelector('h2')!.getBoundingClientRect();
+      const email = band.querySelector('a')!.getBoundingClientRect();
+      const b = band.getBoundingClientRect();
+      const footer = document.querySelector('.site-footer-inner')!;
+      const f = footer.getBoundingClientRect();
+      return { bandWidth: b.width, bandHeight: b.height, titleX: title.x - b.x,
+        titleY: title.y - b.y, emailX: email.x - b.x, emailY: email.y - b.y,
+        emailHeight: email.height, footerWidth: f.width, footerHeight: f.height,
+        footerFlow: getComputedStyle(footer).flexDirection,
+        footerColor: getComputedStyle(footer).color };
+    });
+    await page.goto('/work/askwill', { waitUntil: 'load' });
+    const approved = await metrics();
+    for (const route of ['design-day', 'compound-growth', 'reporting-workflow', 'smith-manoeuvre', 'coast-fi']) {
+      await page.goto(`/work/${route}`, { waitUntil: 'load' });
+      const actual = await metrics();
+      for (const key of Object.keys(approved) as (keyof typeof approved)[]) {
+        // Firefox rects at different document Y positions differ by < 0.001px.
+        if (typeof approved[key] === 'number') expect(actual[key]).toBeCloseTo(approved[key] as number, 2);
+        else expect(actual[key]).toBe(approved[key]);
+      }
+      const email = page.locator('.contact-band').getByRole('link', { name: 'Email me', exact: true });
+      await expect(email).toHaveAttribute('href', /^mailto:/);
+      await email.focus();
+      await expect(email).toBeFocused();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+      await expect(page.locator('.site-footer-inner > span').nth(1)).toHaveText('Ottawa, Canada');
+    }
+  }
+});
+
+test('Grocery mobile iteration heading has three lines, breathing room, and a compact contact gap', async ({ page }) => {
+  for (const width of [320, 390, 430, 560]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/work/grocery-automation', { waitUntil: 'load' });
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('#grocery-build-title')).toHaveText('Getting from working code to a useful file');
+    expect(await renderedLines(page.locator('#grocery-build-title'))).toEqual([
+      'Getting from', 'working code', 'to a useful file',
+    ]);
+    const layout = await page.evaluate(() => {
+      const section = document.querySelector('[aria-labelledby="grocery-build-title"]')!;
+      const title = section.querySelector('h2')!.getBoundingClientRect();
+      const first = section.querySelector('.section-copy p')!.getBoundingClientRect();
+      const last = section.querySelector('.section-copy p:last-child')!.getBoundingClientRect();
+      const contact = document.querySelector('.contact-band')!.getBoundingClientRect();
+      return { headingGap: first.top - title.bottom, contactGap: contact.top - last.bottom,
+        overflow: document.documentElement.scrollWidth - innerWidth };
+    });
+    expect(layout.headingGap).toBeCloseTo(20, 0);
+    expect(layout.contactGap).toBeCloseTo(45, 0);
+    expect(layout.overflow).toBeLessThanOrEqual(1);
+  }
 });
