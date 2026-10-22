@@ -381,10 +381,16 @@ test('CI preserves every existing check and branch filter while attesting explic
   const workflow = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
   assert.match(workflow, /branches: \[main, 'chore\/\*\*', 'feat\/\*\*', 'integration\/\*\*'\]/);
   for (const command of ['npm ci', 'npm run check', 'npm test', 'npm run build', 'npm run public-safety',
-    'npm run qa:contrast', 'npm audit --audit-level=high', 'npx playwright install --with-deps chromium firefox webkit', 'npm run test:browser']) {
+    'npm run qa:contrast', 'npx playwright install --with-deps chromium firefox webkit', 'npm run test:browser']) {
     assert.ok(workflow.includes(`- run: ${command}\n`), `Missing CI command: ${command}`);
   }
   assert.ok(!workflow.includes('--omit') && !workflow.includes('continue-on-error'));
+  assert.match(workflow, /run: bash scripts\/release-node.sh scripts\/release-risk-audit.mjs run dist/);
+  assert.match(workflow, /run: node --test tests\/release-risk-exception.test.mjs/);
+  const audit = readFileSync(new URL('../scripts/release-risk-audit.mjs', import.meta.url), 'utf8');
+  assert.match(audit, /AUDIT_ARGS = \['audit', '--audit-level=high', '--json', '--include=dev', '--include=optional', '--include=peer'/);
+  assert.match(audit, /originalExitCode: result.status/);
+  assert.match(audit, /status: 'ACCEPTED_KNOWN_RISK'/);
   assert.match(workflow, /EXPECTED_SOURCE_SHA: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
   assert.equal(workflow.match(/ref: \$\{\{ env.EXPECTED_SOURCE_SHA \}\}/g)?.length, 2);
   assert.equal(workflow.match(/test "\$\(git rev-parse HEAD\)" = "\$EXPECTED_SOURCE_SHA"/g)?.length, 2);

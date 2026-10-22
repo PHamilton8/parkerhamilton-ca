@@ -77,7 +77,7 @@ test('Rollback Production uses exact known-good identity and contains no rebuild
 });
 
 test('Exact-version activation is a single-version 100% Cloudflare deployment', () => {
-  assert.match(helper, /async function activateVersion\(versionId, message\)/);
+  assert.match(helper, /async function activateVersion\(versionId, message, beforeDispatch\)/);
   assert.match(helper, /strategy:\s*'percentage'/);
   assert.match(helper, /versions:\s*\[\{ version_id: versionId, percentage: 100 \}\]/);
   assert.match(helper, /assert\.equal\(Number\(versions\[0\]\.percentage\), 100\)/);

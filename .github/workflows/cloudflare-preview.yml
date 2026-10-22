@@ -123,6 +123,7 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
         shell: bash
         run: |
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-risk-artifact dist > /dev/null
           set +e
           bash scripts/release-node.sh --wrangler versions upload --message "ParkerHamilton review candidate $CANDIDATE_SHA" > "${{ runner.temp }}/wrangler-upload.log" 2>&1
           result=$?

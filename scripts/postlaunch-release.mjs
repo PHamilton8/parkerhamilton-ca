@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { verifyCiEvidence, refreshPromotionCi, readCiProvenanceArtifact, assertSuccessfulRun } from './ci-release-evidence.mjs';
 import { assertPreviewDestination, reconcileUploadEvidence, assertCompleteCandidateEvidence } from './release-evidence.mjs';
+import { assertCurrentApproval, assertApprovedArtifact, assertApprovalDeadline } from './release-risk-audit.mjs';
 
 const WORKER_NAME = 'parkerhamilton-ca';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -77,7 +78,7 @@ function apiErrorSummary(body, rawText) {
       : {}),
   };
 }
-export async function fetchJson(url, options = {}) {
+export async function fetchJson(url, options = {}, beforeDispatch) {
   const target = new URL(url);
   const headers = new Headers(options.headers);
   if (headers.has('authorization')) {
@@ -85,6 +86,7 @@ export async function fetchJson(url, options = {}) {
     assert.ok((target.origin === API && target.pathname.startsWith(`/repos/${RELEASE_REPOSITORY}/`)) ||
       (target.origin === 'https://api.cloudflare.com' && /^\/client\/v4\/accounts\/[a-f0-9]{32}\/workers\//.test(target.pathname)), 'Authenticated API request destination rejected');
   }
+  if (beforeDispatch) beforeDispatch();
   const response = await fetch(url, { ...options, redirect: 'manual', signal: options.signal ?? AbortSignal.timeout(30000) });
   const rawText = await response.text();
   let body;
@@ -140,25 +142,29 @@ function distHash(root) {
   return { algorithm: 'sha256-manifest-v1', fileCount: rows.length, sha256: sha256(Buffer.from(canonical)), files: rows };
 }
 export async function verifyCi(sha) {
+  assertCurrentApproval(process.cwd());
   const repository = requiredEnv('GITHUB_REPOSITORY');
   const checkoutSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const result = await verifyCiEvidence({ sha, checkoutSha, repository,
     readJson: (pathname) => fetchJson(API + pathname, { headers: githubHeaders() }),
     readArtifact: (artifactId) => readCiProvenanceArtifact({ repository, artifactId, headers: githubHeaders() }),
   });
+  assertCurrentApproval(process.cwd());
   json(result);
 }
-async function verifyPromotionCi(file) {
+export async function verifyPromotionCi(file, { checkApproval = () => assertCurrentApproval(process.cwd()), refresh = refreshPromotionCi } = {}) {
+  checkApproval();
   const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.match(manifest.sourceSha ?? '', SHA, 'Exact reviewed source required');
   const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
   git('diff', '--quiet', 'HEAD', '--');
-  const result = await refreshPromotionCi({ manifest, repository: requiredEnv('GITHUB_REPOSITORY'),
+  const result = await refresh({ manifest, repository: requiredEnv('GITHUB_REPOSITORY'),
     mainSha: git('rev-parse', 'HEAD'), mainTree: git('rev-parse', 'HEAD^{tree}'),
     candidateTree: git('rev-parse', `${manifest.sourceSha}^{tree}`),
     readJson: (pathname) => fetchJson(API + pathname, { headers: githubHeaders() }),
     readArtifact: (artifactId) => readCiProvenanceArtifact({ repository: requiredEnv('GITHUB_REPOSITORY'), artifactId, headers: githubHeaders() }),
   });
+  checkApproval();
   json(result);
 }
 function releaseEnvironment() {
@@ -394,7 +400,7 @@ function verifyManifest(file, tree, artifactFile) {
   json(manifest);
 }
 
-async function activateVersion(versionId, message) {
+export async function activateVersion(versionId, message, beforeDispatch) {
   assert.match(versionId, UUID, 'Exact Worker Version UUID required');
   assert.ok(message && message.length <= 1000, 'Deployment message required and must fit Cloudflare annotation limit');
   const account = requiredAccount();
@@ -407,7 +413,7 @@ async function activateVersion(versionId, message) {
       versions: [{ version_id: versionId, percentage: 100 }],
       annotations: { 'workers/message': message, 'workers/triggered_by': 'deployment' },
     }),
-  });
+  }, beforeDispatch);
   assert.equal(body.success, true, 'Cloudflare exact-version deployment must succeed');
   assert.match(body.result?.id ?? '', UUID, 'Deployment UUID required');
   const versions = body.result?.versions ?? [];
@@ -416,6 +422,11 @@ async function activateVersion(versionId, message) {
   assert.equal(Number(versions[0].percentage), 100);
   json({ deploymentId: body.result.id, versionId, percentage: 100, createdOn: body.result.created_on ?? null });
 }
+// Candidate promotion has a final deadline check. Emergency recovery uses activateVersion directly.
+export async function promoteCandidateVersion(versionId, message, checkApproval = () => assertCurrentApproval(process.cwd())) {
+  return activateVersion(versionId, message, () => assertApprovalDeadline(checkApproval()));
+}
+
 function singleActiveVersion(snapshotFile) {
   const snapshot = JSON.parse(fs.readFileSync(snapshotFile, 'utf8'));
   assert.ok(Array.isArray(snapshot.versions) && snapshot.versions.length === 1, 'Production baseline must be a single-version deployment');
@@ -473,6 +484,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   case 'dist-hash':
     json(distHash(args[0] ?? 'dist'));
     break;
+  case 'assert-risk-artifact':
+    json(assertApprovedArtifact(process.cwd(), path.resolve(args[0] ?? 'dist')));
+    break;
   case 'verify-ci':
     await verifyCi(args[0]);
     break;
@@ -496,6 +510,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     break;
   case 'verify-version':
     await verifyVersion(args[0]);
+    break;
+  case 'promote-version':
+    await promoteCandidateVersion(args[0], args.slice(1).join(' '));
     break;
   case 'activate-version':
     await activateVersion(args[0], args.slice(1).join(' '));
