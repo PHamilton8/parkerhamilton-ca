@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "parkerhamilton-three-pages-2026-10-22",
+  "approval": {
+    "approvedAtUtc": "2026-10-22T04:30:27Z",
+    "expiresAtUtc": "2026-10-23T04:30:27Z",
+    "expiryReason": "Conservative 24-hour implementation limit; later use needs re-review. This does not extend owner approval.",
+    "privateEvidenceSha256": "d7748f01584088be7318a8e2a3b9202a4e6b38ead5ceeaadd642f28420807b77",
+    "evidenceDescription": "Exact owner approval evidence is retained privately; this digest binds its canonical JSON record. No public conversation content or identifiers are required."
+  },
+  "subject": {
+    "repository": "PHamilton8/parkerhamilton-ca",
+    "reviewedBaseCommit": "0acd810587f55bbde4ae7fddc6d22cb1bbdde3a9",
+    "reviewedBaseTree": "634cb3e05793a6fa2293b7a73c89ef415b2c5606",
+    "packageHashes": {
+      "package.json": "eab289b03b1a7b7cfc5684fa436e51503309486595bb20a3fb5f9c09fe1889b5",
+      "package-lock.json": "0bfc310c98955d6906a102e9cefaffdabd130b4f6eb36f0ac9785789d26017d7"
+    },
+    "artifact": {
+      "algorithm": "sha256-manifest-v1",
+      "fileCount": 70,
+      "sha256": "c0e42fe31b4f293206714ff90566c695636afe8ad4432ec2a978daed8edbe4ef"
+    },
+    "toolchain": {
+      "node": "v24.22.1",
+      "nodeUndici": "7.30.1",
+      "openssl": "3.5.9",
+      "npm": "11.19.1",
+      "npmCliSha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "wranglerCliSha256": "85a0fd68160392c7b9233a2a3406a94d61ab2a84d6dc192ebcb758774a76ee61",
+      "installedPackages": {
+        "astro": {
+          "version": "7.3.3",
+          "sha256": "52e1cf1509a5762418fc014c00b1af5120f1d64a2a11a64779304e47f2e7bc30"
+        },
+        "wrangler": {
+          "version": "4.151.3",
+          "sha256": "6fb2634a7130ce179f8f6462067c7821191588a296e8e798d6f2ff52add60228"
+        },
+        "miniflare": {
+          "version": "5.20261019.1-beta",
+          "sha256": "e2349545887eb236d46dacf2cd65802316cb6bf20b8a78e99753323c0a20fa06"
+        },
+        "miniflare/node_modules/undici": {
+          "version": "7.29.1",
+          "sha256": "10e55f4adb6a43e72823ea235ff6a0c777db1ef68e3a1c810f0246e1b9332d8b"
+        },
+        "sharp": {
+          "version": "0.35.5",
+          "sha256": "ad4a2535d72eb638053a38867b1abf43c328cd1c1dbae5cf4172d498365a8b97"
+        },
+        "undici": {
+          "version": "8.12.2",
+          "sha256": "16723528eaa06df7f3b29ea52584e9127608fd9e8de066c39339aa806ad9da84"
+        },
+        "devalue": {
+          "version": "5.9.3",
+          "sha256": "73848cc2689e4021c1d83d1ed6bbee66ba84d434c2756e3f684f7a6e72100681"
+        },
+        "source-map-js": {
+          "version": "1.2.2",
+          "sha256": "9f1ea63b1661d0f6e5fcd50b625d86cddd77de870a0019b23262360987b487f5"
+        },
+        "vite": {
+          "version": "8.2.4",
+          "sha256": "957f44e8e8cad72131365571a2b619977462327068eaf05bfa276689f2361d78"
+        },
+        "smol-toml": {
+          "version": "1.9.0",
+          "sha256": "0e35bde6992fef675058596ea0e94c2d3ca65e5f9b73a326d94208be6210f192"
+        },
+        "fast-uri": {
+          "version": "3.1.9",
+          "sha256": "06728ad83c4df979c6895d089452622441e34afe9b1c24584e2acac8d94a2876"
+        },
+        "http-cache-semantics": {
+          "version": "4.2.0",
+          "sha256": "bee0609d5ab09a590afe0e1209d3702b0afb0a3c158492f90902a724d889d22b"
+        }
+      }
+    },
+    "allowedExceptionPaths": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/cloudflare-preview.yml",
+      ".github/workflows/cloudflare-production-release.yml",
+      ".gitignore",
+      "release-risk-exception.json",
+      "scripts/postlaunch-release.mjs",
+      "scripts/release-risk-audit.mjs",
+      "tests/ci-release-evidence.test.mjs",
+      "tests/postlaunch-release-architecture.test.mjs",
+      "tests/release-risk-exception.test.mjs"
+    ]
+  },
+  "expectedAudit": {
+    "exitCode": 1,
+    "reportSha256": "7f261adf6113ae79d9be2cfab291bd0817a3e0ae8a0a23d401cd2b0b3dceb6bd",
+    "report": {
+      "auditReportVersion": 2,
+      "vulnerabilities": {
+        "http-cache-semantics": {
+          "name": "http-cache-semantics",
+          "severity": "high",
+          "isDirect": false,
+          "via": [
+            {
+              "source": 1240991,
+              "name": "http-cache-semantics",
+              "dependency": "http-cache-semantics",
+              "title": "http-cache-semantics max-stale handling can disclose cross-user cached responses",
+              "url": "https://github.com/advisories/GHSA-ch52-4w7c-c8xp",
+              "severity": "high",
+              "cwe": [
+                "CWE-524"
+              ],
+              "cvss": {
+                "score": 7.5,
+                "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+              },
+              "range": "<=4.2.0"
+            }
+          ],
+          "effects": [],
+          "range": "<=4.2.0",
+          "nodes": [
+            "node_modules/http-cache-semantics"
+          ],
+          "fixAvailable": true
+        }
+      },
+      "metadata": {
+        "vulnerabilities": {
+          "info": 0,
+          "low": 0,
+          "moderate": 0,
+          "high": 1,
+          "critical": 0,
+          "total": 1
+        },
+        "dependencies": {
+          "prod": 184,
+          "dev": 108,
+          "optional": 111,
+          "peer": 2,
+          "peerOptional": 0,
+          "total": 397
+        }
+      }
+    }
+  },
+  "manualResiduals": {
+    "bundledWranglerUndici": "7.29.1",
+    "externalMiniflareUndici": "7.29.1",
+    "advisoryIds": [
+      "GHSA-qrxm-fqhp-jwvm",
+      "GHSA-xjj6-f33q-929c"
+    ],
+    "status": "OWNER_ACCEPTED_KNOWN_RESIDUAL_FOR_THIS_CANDIDATE_ONLY",
+    "notPatched": true,
+    "newDisclosureRequiresReReview": true,
+    "upstreamDiscoveryLimitation": "Registry reports omit these copies/findings. This evaluator does not discover unreported upstream advisories; any new disclosure requires independent re-review before use."
+  },
+  "conditions": {
+    "purpose": "Only the reviewed standard Worker version-upload path for this single release candidate",
+    "registryOrigin": "https://registry.npmjs.org",
+    "providerApiOrigin": "https://api.cloudflare.com",
+    "trustAssumptions": [
+      "Reviewed trusted source/dependencies/runner inputs",
+      "Existing guarded HTTPS account/Worker/preview destination binding",
+      "No new HTTP feature paths or unreviewed runtime/CLI/environment overrides"
+    ],
+    "excluded": [
+      "New advisories or unrelated findings",
+      "Changed source inputs, package versions or toolchain",
+      "Changed artifact inventory or endpoints",
+      "New feature paths",
+      "Later releases",
+      "Live-deployment approval",
+      "Credential/security-setting changes"
+    ],
+    "futureProtectedQualificationStillRequired": true,
+    "initialCredentialInheritedRunCaveat": "Initial operations inherited provider credentials. Later filtering neither proves earlier access/transmission nor absence of exposure. No compromise or leak conclusion is made."
+  },
+  "binding": {
+    "algorithm": "sha256-git-inputs-v1",
+    "excludedSelfDescribingPath": "release-risk-exception.json",
+    "inputsSha256": "77d56d9d765f3ca6c53aa8801242b6d19459c4abef37b98c75ab2aa48ef3f087"
+  }
+}

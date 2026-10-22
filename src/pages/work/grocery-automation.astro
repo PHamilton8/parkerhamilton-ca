@@ -5,7 +5,7 @@ import { groceryOptions } from '../../data/grocery-demo';
 
 const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Walmart Grocery\"],\n  \"Independent\": [\"Your Independent Grocer\"],\n}\n\nresponse = requests.get(\n  FLIPP_SEARCH_URL, params=params,\n  headers=headers, timeout=timeout_seconds\n)", "response = client.models.generate_content(\n  model=model_name,\n  contents=prompt,\n  config=types.GenerateContentConfig(\n    response_mime_type=\"application/json\"\n  ),\n)\npayload = json.loads(response.text)"];
 ---
-<BaseLayout title="Grocery Automation" description="To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists." canonicalPath="/work/grocery-automation">
+<BaseLayout approvedMobileContact title="Grocery Automation" description="To automate a recurring task at work, I built a Python workflow that turns weekly flyer data into menu options and grocery lists." canonicalPath="/work/grocery-automation">
 <article class="grocery-case" data-house-rules="C">
 <header class="grocery-hero">
 <p class="grocery-meta">Python · Flipp/Wishabi · Gemini API · JSON · Excel</p>
@@ -18,17 +18,17 @@ const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Wa
 
 </section>
 <section aria-labelledby="pivot-title" class="grocery-section">
-<div class="editorial-split split-left-heading"><div class="section-heading-block split-heading"><p class="eyebrow">Data source</p><h2 id="pivot-title">The bot detector won. I changed tactics.</h2></div><div class="evidence-column"><div class="section-copy"><p>I started with browser automation, but retailer bot protection quickly made it unreliable. Instead of fighting the websites, I switched to the structured flyer data available through Flipp/Wishabi.</p><p>That gave Python structured product and price records to work with instead of trying to read information from a webpage.</p></div><pre aria-label="Approved code excerpt showing the final store query groups" class="grocery-code"><code>{codeExcerpts[0]}</code></pre></div></div>
+<div class="editorial-split split-left-heading"><div class="section-heading-block split-heading"><p class="eyebrow">Data source</p><h2 id="pivot-title">The bot detector won. I changed tactics.</h2></div><div class="evidence-column"><div class="section-copy"><p>I started with browser automation, but retailer bot protection quickly made it unreliable. Instead of fighting the websites, I switched to the structured flyer data available through Flipp/Wishabi.</p><p>That gave Python structured product and price records to work with instead of trying to read information from a webpage. The script extracted the store, product name and sale price into a pandas table, then passed that table into the planning prompt. These were flyer offers, not a guarantee of inventory or checkout prices.</p></div><pre aria-label="Approved code excerpt showing the final store query groups" class="grocery-code"><code>{codeExcerpts[0]}</code></pre></div></div>
 
 
 </section>
 <section aria-labelledby="rules-title" class="grocery-section">
 <div class="house-rules-intro"><div class="house-rules-heading"><p class="eyebrow">Planning rules</p><h2 id="rules-title">Giving the model some house rules</h2></div><div class="house-rules-copy"><p>The Gemini API was given the actual planning rules we used at work: serving size, restrictions, preferred meals, pantry assumptions, and opportunities to reuse ingredients across dinners.</p></div></div>
-<div aria-label="House Rules treatment C" aria-live="polite" class="grocery-rule-grid"><div class="rule-card"><h3>Scale</h3><p>Exactly 6 dinners for 9 adult portions.</p></div><div class="rule-card"><h3>Preferences</h3><p>Chicken thighs, ground beef, tacos, smash burgers, Greek and Mexican flavours.</p></div><div class="rule-card"><h3>Constraints</h3><p>Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale (sorry beef tenderloin, $2 off per kilo still doesn't make you a budget protein).</p></div><div class="rule-card"><h3>Pantry</h3><p>Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.</p></div></div>
+<div aria-label="House Rules treatment C" aria-live="polite" class="grocery-rule-grid"><div class="rule-card"><h3>Scale</h3><p>Exactly 6 dinners for 9 adult portions.</p></div><div class="rule-card"><h3>Preferences</h3><p>Chicken thighs, ground beef, Greek and Mexican flavours.</p></div><div class="rule-card"><h3>Constraints</h3><p>Pork-free and shellfish-free, and no expensive proteins just because they happened to be on sale (sorry beef tenderloin, $2 off per kilo still doesn't make you a budget protein).</p></div><div class="rule-card"><h3>Pantry</h3><p>Basic oil, seasonings, salt, pepper, oregano, and garlic powder were already available.</p></div></div>
 
 </section>
 <section aria-labelledby="json-title" class="grocery-section">
-<div class="editorial-split split-right-heading json-split"><div class="section-heading-block split-heading"><p class="eyebrow">Structured output</p><h2 id="json-title">Switching the output to JSON</h2></div><div class="evidence-column"><div class="section-copy"><p>The first Gemini version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.</p><p>Python could then check that the expected fields were present before using the response to generate the Excel workbook.</p></div><pre aria-label="Approved code excerpt showing structured JSON output" class="grocery-code"><code>{codeExcerpts[1]}</code></pre></div></div>
+<div class="editorial-split split-right-heading json-split"><div class="section-heading-block split-heading"><p class="eyebrow">Structured output</p><h2 id="json-title">Switching the output to JSON</h2></div><div class="evidence-column"><div class="section-copy"><p>The first version returned the menu as a block of text. It was easy enough for a person to read, but difficult for Python to turn reliably into an Excel workbook. I changed the response to structured JSON with separate fields for stores, days, meals, ingredients, instructions, and costs.</p><p>The original script parsed the JSON and used those fields to generate the Excel workbook. The public reconstruction adds explicit checks for the expected fields and six-dinner structure.</p></div><pre aria-label="Approved code excerpt showing structured JSON output" class="grocery-code"><code>{codeExcerpts[1]}</code></pre></div></div>
 
 
 </section>
@@ -67,8 +67,18 @@ const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Wa
   </section>)}
 </div>
 </section>
+<section class="grocery-section" aria-labelledby="grocery-build-title">
+<div class="editorial-split split-left-heading">
+<div class="section-heading-block split-heading"><p class="eyebrow">Iteration</p><h2 id="grocery-build-title">Getting from working code <span class="grocery-build-title-tail">to a useful file</span></h2></div>
+<div class="section-copy">
+<p>I developed the workflow with Gemini's help, starting with the task I needed to solve and testing the output as we went. When Walmart appeared to have too few food offers, I compared the result with the flyer and added a separate Walmart Grocery query. The script then removed overlapping product-and-price records.</p>
+<p>The first menus were readable prose. Asking for JSON made the response usable by Python: each store option contained dinners, instructions, ingredient quantities and estimated costs. The script wrote Walmart and Independent options into separate Excel sheets so we could choose one store for the week's order.</p>
+<p>Later changes were about making that handoff usable: package sizes, unit costs, meal totals, short cooking instructions, sensible column widths and wrapped text.</p>
+</div>
+</div>
+</section>
 </article>
-<ContactBand />
+<ContactBand mobileEmailLabel />
 </BaseLayout>
 
 <style>
@@ -135,4 +145,12 @@ const codeExcerpts = ["STORE_QUERY_GROUPS = {\n  \"Walmart\": [\"Walmart\", \"Wa
 @media (max-width:56.25rem){.grocery-rule-grid{height:auto;min-height:0;grid-template-rows:auto auto}}
 
 .grocery-details, .store-compare { min-width: 0; }
+/* Preserve the rightward JSON title while giving its copy a little more width. */
+@media (min-width:56.26rem) {
+  .json-split { grid-template-columns:minmax(0,1.28fr) minmax(21rem,.72fr); gap:2.5rem; }
+}
+@media (min-width:35.01rem) and (max-width:56.25rem) {
+  .grocery-section[aria-labelledby="grocery-build-title"] .section-copy { margin-top:1.25rem; }
+}
+@media (min-width:61.26rem) { .grocery-build-title-tail { display:block; } }
 </style>

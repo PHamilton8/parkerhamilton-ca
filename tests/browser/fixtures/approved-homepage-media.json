@@ -1,0 +1,426 @@
+{
+  "schemaVersion": 1,
+  "acceptedReferenceSha256": "5aab0b8e1f47506e7e98fcee7bee0629d557719d4bdfbcd351c430e126c98cdc",
+  "measurementLibraryFileId": "libfile_6a2075cd276081918b783a6ff3e49cae",
+  "measurementSha256": "0ba085e0e281b8343e7309fa0a317f091bf6d8fe9ecb6d897b237161cc7f0835",
+  "coordinates": "top/bottom relative to the same featured-grid top; exact measured frames, not interpolated",
+  "browser": "153.0.8010.12",
+  "frames": {
+    "981": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 259.34375,
+        "outerBottom": 507.34375,
+        "outerHeight": 248,
+        "outerWidth": 251.65625,
+        "innerTop": 259.34375,
+        "innerBottom": 507.34375,
+        "innerHeight": 248,
+        "innerWidth": 251.65625
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 254.796875,
+        "outerBottom": 502.796875,
+        "outerHeight": 248,
+        "outerWidth": 251.671875,
+        "innerTop": 254.796875,
+        "innerBottom": 502.796875,
+        "innerHeight": 248,
+        "innerWidth": 251.671875
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 247.21875,
+        "outerBottom": 495.21875,
+        "outerHeight": 248,
+        "outerWidth": 251.65625,
+        "innerTop": 247.21875,
+        "innerBottom": 495.21875,
+        "innerHeight": 248,
+        "innerWidth": 251.65625
+      }
+    ],
+    "1024": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 259.34375,
+        "outerBottom": 507.34375,
+        "outerHeight": 248,
+        "outerWidth": 266,
+        "innerTop": 259.34375,
+        "innerBottom": 507.34375,
+        "innerHeight": 248,
+        "innerWidth": 266
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 247.21875,
+        "outerBottom": 495.21875,
+        "outerHeight": 248,
+        "outerWidth": 266,
+        "innerTop": 247.21875,
+        "innerBottom": 495.21875,
+        "innerHeight": 248,
+        "innerWidth": 266
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 247.21875,
+        "outerBottom": 495.21875,
+        "outerHeight": 248,
+        "outerWidth": 266,
+        "innerTop": 247.21875,
+        "innerBottom": 495.21875,
+        "innerHeight": 248,
+        "innerWidth": 266
+      }
+    ],
+    "1025": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 259.34375,
+        "outerBottom": 507.34375,
+        "outerHeight": 248,
+        "outerWidth": 266.328125,
+        "innerTop": 259.34375,
+        "innerBottom": 507.34375,
+        "innerHeight": 248,
+        "innerWidth": 266.328125
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 247.21875,
+        "outerBottom": 495.21875,
+        "outerHeight": 248,
+        "outerWidth": 266.328125,
+        "innerTop": 247.21875,
+        "innerBottom": 495.21875,
+        "innerHeight": 248,
+        "innerWidth": 266.328125
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 247.21875,
+        "outerBottom": 495.21875,
+        "outerHeight": 248,
+        "outerWidth": 266.34375,
+        "innerTop": 247.21875,
+        "innerBottom": 495.21875,
+        "innerHeight": 248,
+        "innerWidth": 266.34375
+      }
+    ],
+    "1100": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 236.59375,
+        "outerBottom": 484.59375,
+        "outerHeight": 248,
+        "outerWidth": 291.328125,
+        "innerTop": 236.59375,
+        "innerBottom": 484.59375,
+        "innerHeight": 248,
+        "innerWidth": 291.328125
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 232.046875,
+        "outerBottom": 480.046875,
+        "outerHeight": 248,
+        "outerWidth": 291.328125,
+        "innerTop": 232.046875,
+        "innerBottom": 480.046875,
+        "innerHeight": 248,
+        "innerWidth": 291.328125
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 232.046875,
+        "outerBottom": 480.046875,
+        "outerHeight": 248,
+        "outerWidth": 291.34375,
+        "innerTop": 232.046875,
+        "innerBottom": 480.046875,
+        "innerHeight": 248,
+        "innerWidth": 291.34375
+      }
+    ],
+    "1101": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 236.59375,
+        "outerBottom": 484.59375,
+        "outerHeight": 248,
+        "outerWidth": 291.65625,
+        "innerTop": 236.59375,
+        "innerBottom": 484.59375,
+        "innerHeight": 248,
+        "innerWidth": 291.65625
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 232.046875,
+        "outerBottom": 480.046875,
+        "outerHeight": 248,
+        "outerWidth": 291.671875,
+        "innerTop": 232.046875,
+        "innerBottom": 480.046875,
+        "innerHeight": 248,
+        "innerWidth": 291.671875
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 232.046875,
+        "outerBottom": 480.046875,
+        "outerHeight": 248,
+        "outerWidth": 291.65625,
+        "innerTop": 232.046875,
+        "innerBottom": 480.046875,
+        "innerHeight": 248,
+        "innerWidth": 291.65625
+      }
+    ],
+    "1180": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318
+      }
+    ],
+    "1181": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318.328125,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318.328125
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318.328125,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318.328125
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 318.34375,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 318.34375
+      }
+    ],
+    "1280": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 351.328125,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 351.328125
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 351.328125,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 351.328125
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 351.34375,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 351.34375
+      }
+    ],
+    "1312": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 362,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 362
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 362,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 362
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 222.984375,
+        "outerBottom": 470.984375,
+        "outerHeight": 248,
+        "outerWidth": 362,
+        "innerTop": 222.984375,
+        "innerBottom": 470.984375,
+        "innerHeight": 248,
+        "innerWidth": 362
+      }
+    ],
+    "1313": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 222.046875,
+        "outerBottom": 470.046875,
+        "outerHeight": 248,
+        "outerWidth": 362.328125,
+        "innerTop": 222.046875,
+        "innerBottom": 470.046875,
+        "innerHeight": 248,
+        "innerWidth": 362.328125
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 217.015625,
+        "outerBottom": 465.015625,
+        "outerHeight": 248,
+        "outerWidth": 362.328125,
+        "innerTop": 217.015625,
+        "innerBottom": 465.015625,
+        "innerHeight": 248,
+        "innerWidth": 362.328125
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 217.015625,
+        "outerBottom": 465.015625,
+        "outerHeight": 248,
+        "outerWidth": 362.34375,
+        "innerTop": 217.015625,
+        "innerBottom": 465.015625,
+        "innerHeight": 248,
+        "innerWidth": 362.34375
+      }
+    ],
+    "1440": [
+      {
+        "slug": "compound-growth",
+        "outerTop": 206.984375,
+        "outerBottom": 454.984375,
+        "outerHeight": 248,
+        "outerWidth": 385.59375,
+        "innerTop": 206.984375,
+        "innerBottom": 454.984375,
+        "innerHeight": 248,
+        "innerWidth": 385.59375
+      },
+      {
+        "slug": "design-day",
+        "outerTop": 206.984375,
+        "outerBottom": 454.984375,
+        "outerHeight": 248,
+        "outerWidth": 385.59375,
+        "innerTop": 206.984375,
+        "innerBottom": 454.984375,
+        "innerHeight": 248,
+        "innerWidth": 385.59375
+      },
+      {
+        "slug": "askwill",
+        "outerTop": 206.984375,
+        "outerBottom": 454.984375,
+        "outerHeight": 248,
+        "outerWidth": 385.59375,
+        "innerTop": 206.984375,
+        "innerBottom": 454.984375,
+        "innerHeight": 248,
+        "innerWidth": 385.59375
+      }
+    ]
+  },
+  "featuredCopyMeasurementSha256": "b5529f3fd8127b5a8999394b53d3f33ad7723b67a5b30325ea5913c3af614fbd",
+  "featuredCopyGaps": {
+    "1280": [
+      {
+        "slug": "compound-growth",
+        "gap": 12.9375
+      },
+      {
+        "slug": "design-day",
+        "gap": 36.625
+      },
+      {
+        "slug": "askwill",
+        "gap": 12.9375
+      }
+    ],
+    "1440": [
+      {
+        "slug": "compound-growth",
+        "gap": 20.625
+      },
+      {
+        "slug": "design-day",
+        "gap": 20.625
+      },
+      {
+        "slug": "askwill",
+        "gap": 20.625
+      }
+    ]
+  }
+}

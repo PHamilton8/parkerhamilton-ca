@@ -4,12 +4,17 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { verifyCiEvidence, refreshPromotionCi, readCiProvenanceArtifact, assertSuccessfulRun } from './ci-release-evidence.mjs';
+import { assertPreviewDestination, reconcileUploadEvidence, assertCompleteCandidateEvidence } from './release-evidence.mjs';
+import { assertCurrentApproval, assertApprovedArtifact, assertApprovalDeadline } from './release-risk-audit.mjs';
 
 const WORKER_NAME = 'parkerhamilton-ca';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHA = /^[0-9a-f]{40}$/i;
 const API = 'https://api.github.com';
 const CF_API = 'https://api.cloudflare.com/client/v4';
+const RELEASE_REPOSITORY = 'PHamilton8/parkerhamilton-ca';
 
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
@@ -24,7 +29,7 @@ function requiredEnv(name) {
 }
 const ERROR_BODY_LIMIT = 8000;
 const SENSITIVE_KEY = /(?:authorization|api[-_]?key|token|secret|password)/i;
-const SECRET_ENV_NAMES = ['GITHUB_TOKEN', 'CLOUDFLARE_API_TOKEN', 'CF_ACCESS_CLIENT_SECRET'];
+const SECRET_ENV_NAMES = ['GITHUB_TOKEN', 'CLOUDFLARE_API_TOKEN', 'CF_ACCESS_CLIENT_SECRET', 'CF_ACCESS_CLIENT_ID'];
 
 function redactString(value) {
   let text = String(value);
@@ -73,8 +78,16 @@ function apiErrorSummary(body, rawText) {
       : {}),
   };
 }
-export async function fetchJson(url, options = {}) {
-  const response = await fetch(url, options);
+export async function fetchJson(url, options = {}, beforeDispatch) {
+  const target = new URL(url);
+  const headers = new Headers(options.headers);
+  if (headers.has('authorization')) {
+    assert.ok(target.protocol === 'https:' && !target.username && !target.password && !target.port && !target.search.includes('token'), 'Clean HTTPS API destination required');
+    assert.ok((target.origin === API && target.pathname.startsWith(`/repos/${RELEASE_REPOSITORY}/`)) ||
+      (target.origin === 'https://api.cloudflare.com' && /^\/client\/v4\/accounts\/[a-f0-9]{32}\/workers\//.test(target.pathname)), 'Authenticated API request destination rejected');
+  }
+  if (beforeDispatch) beforeDispatch();
+  const response = await fetch(url, { ...options, redirect: 'manual', signal: options.signal ?? AbortSignal.timeout(30000) });
   const rawText = await response.text();
   let body;
   let parsed = false;
@@ -128,16 +141,49 @@ function distHash(root) {
   const canonical = rows.map((r) => `${r.sha256}  ${r.size}  ${r.path}`).join('\n') + '\n';
   return { algorithm: 'sha256-manifest-v1', fileCount: rows.length, sha256: sha256(Buffer.from(canonical)), files: rows };
 }
-async function verifyCi(sha) {
-  assert.match(sha, SHA, 'Exact 40-character candidate SHA required');
-  const repo = requiredEnv('GITHUB_REPOSITORY');
-  const url = `${API}/repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&status=completed&per_page=100`;
-  const body = await fetchJson(url, { headers: githubHeaders() });
-  const runs = (body.workflow_runs ?? []).filter((run) => run.head_sha === sha && run.conclusion === 'success');
-  assert.ok(runs.length >= 1, `No successful ci.yml run exists for exact SHA ${sha}`);
-  runs.sort((a, b) => (b.run_number ?? 0) - (a.run_number ?? 0));
-  const run = runs[0];
-  json({ sha, workflowRunId: run.id, runNumber: run.run_number, event: run.event, conclusion: run.conclusion });
+export async function verifyCi(sha) {
+  assertCurrentApproval(process.cwd());
+  const repository = requiredEnv('GITHUB_REPOSITORY');
+  const checkoutSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const result = await verifyCiEvidence({ sha, checkoutSha, repository,
+    readJson: (pathname) => fetchJson(API + pathname, { headers: githubHeaders() }),
+    readArtifact: (artifactId) => readCiProvenanceArtifact({ repository, artifactId, headers: githubHeaders() }),
+  });
+  assertCurrentApproval(process.cwd());
+  json(result);
+}
+export async function verifyPromotionCi(file, { checkApproval = () => assertCurrentApproval(process.cwd()), refresh = refreshPromotionCi } = {}) {
+  checkApproval();
+  const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.match(manifest.sourceSha ?? '', SHA, 'Exact reviewed source required');
+  const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+  git('diff', '--quiet', 'HEAD', '--');
+  const result = await refresh({ manifest, repository: requiredEnv('GITHUB_REPOSITORY'),
+    mainSha: git('rev-parse', 'HEAD'), mainTree: git('rev-parse', 'HEAD^{tree}'),
+    candidateTree: git('rev-parse', `${manifest.sourceSha}^{tree}`),
+    readJson: (pathname) => fetchJson(API + pathname, { headers: githubHeaders() }),
+    readArtifact: (artifactId) => readCiProvenanceArtifact({ repository: requiredEnv('GITHUB_REPOSITORY'), artifactId, headers: githubHeaders() }),
+  });
+  checkApproval();
+  json(result);
+}
+function releaseEnvironment() {
+  assert.equal(process.version, 'v24.22.1', 'Reviewed exact Node runtime required');
+  assert.equal(process.versions.undici, '7.30.1', 'Reviewed Node fetch runtime required');
+  const actual = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  const expected = requiredEnv('EXPECTED_CLOUDFLARE_ACCOUNT_ID');
+  assert.ok(/^[a-f0-9]{32}$/.test(actual) && /^[a-f0-9]{32}$/.test(expected) && actual === expected, 'Reviewed account binding required');
+  assert.match(requiredEnv('EXPECTED_WORKERS_SUBDOMAIN'), /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/, 'Reviewed workers.dev subdomain required');
+  assert.ok(requiredEnv('CLOUDFLARE_API_TOKEN'), 'Provider credential presence required');
+  return { runtime: process.version, nodeUndici: process.versions.undici, accountMatchesReviewedPolicy: true,
+    providerCredentialPresent: true, previewSubdomainPolicyPresent: true,
+    limitation: 'Presence and destination policy checks do not attest credential scopes, environment approvals or earlier runner processes.' };
+}
+function requiredAccount() {
+  const value = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  assert.match(value, /^[a-f0-9]{32}$/, 'Cloudflare account ID format rejected');
+  assert.equal(value, requiredEnv('EXPECTED_CLOUDFLARE_ACCOUNT_ID'), 'Cloudflare account differs from reviewed policy');
+  return value;
 }
 function collectHttpsStrings(value, out = []) {
   if (typeof value === 'string' && value.startsWith('https://')) out.push(value);
@@ -145,7 +191,8 @@ function collectHttpsStrings(value, out = []) {
   else if (value && typeof value === 'object') for (const item of Object.values(value)) collectHttpsStrings(item, out);
   return out;
 }
-function parseWranglerOutput(file) {
+export function parseWranglerOutput(file) {
+  assert.ok(fs.statSync(file).size <= 1024 * 1024, 'Structured uploader output exceeds evidence limit');
   const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
   const failed = lines.filter((entry) => entry.type === 'command-failed');
   assert.equal(failed.length, 0, 'Wrangler structured output reports command failure');
@@ -154,18 +201,18 @@ function parseWranglerOutput(file) {
   const upload = uploads[0];
   const versionId = upload.version_id ?? upload.versionId;
   assert.match(versionId ?? '', UUID, 'Structured output must contain exact Worker Version UUID');
+  if (upload.worker_name !== undefined) assert.equal(upload.worker_name, WORKER_NAME, 'Unexpected Worker in uploader receipt');
   const urls = [...new Set(collectHttpsStrings(upload))];
-  const previewUrls = urls.filter((url) => {
-    try {
-      const host = new URL(url).hostname;
-      return host.includes(`-${WORKER_NAME}.`) && host.endsWith('.workers.dev');
-    } catch { return false; }
+  const previewUrls = urls.filter((value) => {
+    try { assertPreviewDestination(value, versionId, requiredEnv('EXPECTED_WORKERS_SUBDOMAIN')); return true; }
+    catch { return false; }
   });
-  assert.equal(previewUrls.length, 1, `Expected exactly one version-specific preview URL, got ${previewUrls.length}`);
-  json({ versionId, previewUrl: previewUrls[0], workerName: upload.worker_name ?? WORKER_NAME, rawType: upload.type });
+  assert.equal(previewUrls.length, 1, 'Exactly one account-bound, version-specific preview URL required');
+  return { versionId, previewUrl: previewUrls[0], workerName: WORKER_NAME, rawType: upload.type };
 }
+
 async function cfSnapshot() {
-  const account = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  const account = requiredAccount();
   const url = `${CF_API}/accounts/${account}/workers/scripts/${WORKER_NAME}/deployments`;
   const body = await fetchJson(url, { headers: cloudflareHeaders() });
   assert.equal(body.success, true, 'Cloudflare deployment list must succeed');
@@ -174,14 +221,43 @@ async function cfSnapshot() {
   const active = deployments[0];
   assert.match(active.id ?? '', UUID, 'Active deployment UUID required');
   assert.ok(Array.isArray(active.versions) && active.versions.length > 0, 'Active deployment versions required');
+  for (const item of active.versions) {
+    assert.match(item.version_id ?? item.id ?? '', UUID, 'Production version UUID required');
+    assert.ok(Number.isFinite(Number(item.percentage)) && Number(item.percentage) > 0 && Number(item.percentage) <= 100, 'Production allocation invalid');
+  }
   const total = active.versions.reduce((sum, v) => sum + Number(v.percentage), 0);
   assert.ok(Math.abs(total - 100) < 0.0001, 'Active deployment allocations must total 100%');
-  json({
+  return {
     workerName: WORKER_NAME,
     deploymentId: active.id,
     versions: active.versions.map((v) => ({ versionId: v.version_id ?? v.id, percentage: Number(v.percentage) })),
-    createdOn: active.created_on ?? null,
-  });
+    createdOn: typeof active.created_on === 'string' && /^\d{4}-\d{2}-\d{2}T[0-9:.]+Z$/.test(active.created_on) ? active.created_on : null,
+  };
+}
+async function versionInventory() {
+  const account = requiredAccount();
+  const body = await fetchJson(`${CF_API}/accounts/${account}/workers/scripts/${WORKER_NAME}/versions`, { headers: cloudflareHeaders() });
+  assert.equal(body.success, true);
+  const items = body.result?.items ?? body.result;
+  assert.ok(Array.isArray(items), 'Provider version window required');
+  const ids = items.map((item) => item.id);
+  for (const id of ids) assert.match(id ?? '', UUID);
+  return [...new Set(ids)].sort();
+}
+export async function collectAfterState(directory, rawFile, outcome) {
+  const read = (name) => { try { return JSON.parse(fs.readFileSync(path.join(directory, name), 'utf8')); } catch { return null; } };
+  const [production, inventory] = await Promise.allSettled([cfSnapshot(), versionInventory()]);
+  const after = production.status === 'fulfilled' ? production.value : null;
+  const versionsAfter = inventory.status === 'fulfilled' ? inventory.value : null;
+  let upload = null;
+  try { upload = parseWranglerOutput(rawFile); } catch {}
+  const evidence = reconcileUploadEvidence({ outcome, before: read('production-before.json'), after,
+    versionsBefore: read('versions-before.json'), versionsAfter, upload });
+  evidence.afterStateRead = { production: production.status, versionWindow: inventory.status };
+  evidence.versionWindowScope = 'Provider-returned version list; absence is not proof of no partial upload';
+  fs.writeFileSync(path.join(directory, 'operation-evidence.json'), JSON.stringify(evidence, null, 2) + '\n');
+  if (after) fs.writeFileSync(path.join(directory, 'production-after.json'), JSON.stringify(after, null, 2) + '\n');
+  return evidence;
 }
 function assertProductionUnchanged(beforeFile, afterFile) {
   const before = JSON.parse(fs.readFileSync(beforeFile, 'utf8'));
@@ -189,15 +265,33 @@ function assertProductionUnchanged(beforeFile, afterFile) {
   assert.deepEqual(after, before, 'Production deployment identity changed during non-production candidate creation');
   json({ productionUnchanged: true, deploymentId: after.deploymentId, versions: after.versions });
 }
-async function previewSmoke(previewUrl) {
-  const url = new URL(previewUrl);
-  assert.equal(url.protocol, 'https:');
-  assert.ok(url.hostname.includes(`-${WORKER_NAME}.`) && url.hostname.endsWith('.workers.dev'), 'Version-specific workers.dev preview required');
+/** Follow authenticated preview redirects only within the original HTTPS origin. */
+export async function fetchPreviewSameOrigin(url, accessHeaders, fetchImpl = fetch) {
+  const original = new URL(url);
+  assert.ok(original.protocol === 'https:' && !original.username && !original.password, 'Clean HTTPS preview request required');
+  let current = original;
+  for (let redirects = 0; redirects <= 5; redirects++) {
+    const response = await fetchImpl(current, { redirect: 'manual', headers: accessHeaders });
+    if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+    assert.ok(redirects < 5, 'Too many preview redirects');
+    const location = response.headers.get('location');
+    assert.ok(location, 'Preview redirect requires Location');
+    let target;
+    try { target = new URL(location, current); }
+    catch { throw new Error('Invalid preview redirect Location'); }
+    assert.ok(target.protocol === 'https:' && target.origin === original.origin && !target.username && !target.password, 'Authenticated preview cannot forward Access credentials to another origin, a non-HTTPS URL, or a credential-bearing URL');
+    current = target;
+  }
+  throw new Error('Too many preview redirects');
+}
+async function previewSmoke(previewUrl, versionId) {
+  assertPreviewDestination(previewUrl, versionId, requiredEnv('EXPECTED_WORKERS_SUBDOMAIN'));
   const anonymous = await fetch(previewUrl, { redirect: 'manual', headers: { 'Cache-Control': 'no-cache' } });
   if (![401, 403].includes(anonymous.status)) {
     assert.ok([302, 303, 307, 308].includes(anonymous.status), `Anonymous preview must be denied/challenged, got ${anonymous.status}`);
     const location = anonymous.headers.get('location') ?? '';
-    assert.ok(location.includes('cloudflareaccess.com'), 'Anonymous challenge must be Cloudflare Access');
+    const challenge = new URL(location);
+    assert.ok(challenge.protocol === 'https:' && challenge.hostname.endsWith('.cloudflareaccess.com') && !challenge.username && !challenge.password && !challenge.port, 'Anonymous challenge must be a clean Cloudflare Access URL');
   }
   const accessHeaders = {
     'CF-Access-Client-Id': requiredEnv('CF_ACCESS_CLIENT_ID'),
@@ -206,6 +300,8 @@ async function previewSmoke(previewUrl) {
   };
   const routes = [
     ['/', 200],
+    ['/work/askwill/', 200],
+    ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
     ['/wealthsimple-2026/', 200],
@@ -213,7 +309,7 @@ async function previewSmoke(previewUrl) {
   ];
   const results = [];
   for (const [pathname, expected] of routes) {
-    const response = await fetch(new URL(pathname, previewUrl), { redirect: 'follow', headers: accessHeaders });
+    const response = await fetchPreviewSameOrigin(new URL(pathname, previewUrl), accessHeaders);
     assert.equal(response.status, expected, `${pathname}: expected HTTP ${expected}, got ${response.status}`);
     const robots = (response.headers.get('x-robots-tag') ?? '').toLowerCase();
     assert.ok(robots.includes('noindex'), `${pathname}: preview response must carry noindex`);
@@ -224,6 +320,7 @@ async function previewSmoke(previewUrl) {
 async function resolveCandidateArtifact(tree) {
   assert.match(tree, SHA, 'Exact tree SHA required');
   const repo = requiredEnv('GITHUB_REPOSITORY');
+  assert.equal(repo, RELEASE_REPOSITORY);
   const name = `review-candidate-${tree}`;
   const url = `${API}/repos/${repo}/actions/artifacts?name=${encodeURIComponent(name)}&per_page=100`;
   const body = await fetchJson(url, { headers: githubHeaders() });
@@ -231,11 +328,17 @@ async function resolveCandidateArtifact(tree) {
   assert.equal(artifacts.length, 1, `Expected exactly one non-expired candidate artifact for tree ${tree}; found ${artifacts.length}`);
   const artifact = artifacts[0];
   assert.ok(artifact.workflow_run?.id, 'Candidate artifact must carry workflow run identity');
-  json({ name, artifactId: artifact.id, runId: artifact.workflow_run.id });
+  const run = await fetchJson(`${API}/repos/${repo}/actions/runs/${artifact.workflow_run.id}`, { headers: githubHeaders() });
+  assertSuccessfulRun(run, repo, '.github/workflows/cloudflare-preview.yml');
+  assert.equal(run.event, 'workflow_dispatch');
+  assert.equal(run.head_branch, 'main', 'Candidate creator must be dispatched from authoritative main');
+  assert.equal(run.id, artifact.workflow_run.id);
+  assert.ok(Number.isSafeInteger(run.run_attempt) && run.run_attempt > 0);
+  json({ name, artifactId: artifact.id, runId: run.id, runAttempt: run.run_attempt, creatorSha: run.head_sha });
 }
 async function verifyVersion(versionId) {
   assert.match(versionId, UUID, 'Exact Worker Version UUID required');
-  const account = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  const account = requiredAccount();
   const url = `${CF_API}/accounts/${account}/workers/scripts/${WORKER_NAME}/versions/${versionId}`;
   const body = await fetchJson(url, { headers: cloudflareHeaders() });
   assert.equal(body.success, true, 'Cloudflare version lookup must succeed');
@@ -248,13 +351,15 @@ function makeCandidateManifest(args) {
   assert.match(treeSha ?? '', SHA);
   assert.match(distSha ?? '', /^[0-9a-f]{64}$/i);
   assert.match(versionId ?? '', UUID);
-  const preview = new URL(previewUrl);
-  assert.ok(preview.hostname.includes(`-${WORKER_NAME}.`) && preview.hostname.endsWith('.workers.dev'));
+  assertPreviewDestination(previewUrl, versionId, requiredEnv('EXPECTED_WORKERS_SUBDOMAIN'));
+  const ciEvidence = JSON.parse(fs.readFileSync('.release-candidate/ci.json', 'utf8'));
+  const operationEvidence = JSON.parse(fs.readFileSync('.release-candidate/operation-evidence.json', 'utf8'));
+  assertCompleteCandidateEvidence(ciEvidence, operationEvidence, { sourceSha, treeSha, versionId, ciRunId: Number(ciRunId) });
   const before = JSON.parse(fs.readFileSync(productionBeforeFile, 'utf8'));
   const after = JSON.parse(fs.readFileSync(productionAfterFile, 'utf8'));
   assert.deepEqual(after, before, 'Production changed during candidate creation');
   json({
-    schemaVersion: 1,
+    schemaVersion: 2,
     status: 'REVIEW_CANDIDATE_UNPUBLISHED',
     workerName: WORKER_NAME,
     sourceSha,
@@ -263,31 +368,42 @@ function makeCandidateManifest(args) {
     versionId,
     previewUrl,
     ciRunId: Number(ciRunId),
+    ciEvidence,
+    operationEvidence,
     candidateWorkflowRunId: Number(requiredEnv('GITHUB_RUN_ID')),
     candidateWorkflowAttempt: Number(process.env.GITHUB_RUN_ATTEMPT ?? 1),
     productionSnapshot: before,
     createdAt: new Date().toISOString(),
   });
 }
-function verifyManifest(file, tree) {
+function verifyManifest(file, tree, artifactFile) {
   assert.match(tree, SHA);
   const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
-  assert.equal(manifest.schemaVersion, 1);
+  assert.equal(manifest.schemaVersion, 2);
   assert.equal(manifest.status, 'REVIEW_CANDIDATE_UNPUBLISHED');
   assert.equal(manifest.workerName, WORKER_NAME);
   assert.equal(manifest.treeSha, tree, 'Current main tree must exactly match reviewed candidate tree');
   assert.match(manifest.sourceSha ?? '', SHA);
   assert.match(manifest.distSha256 ?? '', /^[0-9a-f]{64}$/i);
   assert.match(manifest.versionId ?? '', UUID);
-  const url = new URL(manifest.previewUrl);
-  assert.ok(url.hostname.includes(`-${WORKER_NAME}.`) && url.hostname.endsWith('.workers.dev'));
+  assertPreviewDestination(manifest.previewUrl, manifest.versionId, requiredEnv('EXPECTED_WORKERS_SUBDOMAIN'));
+  const artifact = JSON.parse(fs.readFileSync(artifactFile, 'utf8'));
+  assert.equal(manifest.candidateWorkflowRunId, artifact.runId);
+  assert.equal(manifest.candidateWorkflowAttempt, artifact.runAttempt, 'Stale creator attempt receipt rejected');
+  const candidateTree = execFileSync('git', ['rev-parse', `${manifest.sourceSha}^{tree}`], { encoding: 'utf8' }).trim();
+  assert.equal(candidateTree, tree, 'Candidate source commit must resolve to the exact reviewed tree');
+  assert.equal(manifest.ciEvidence?.sha, manifest.sourceSha);
+  assert.equal(manifest.ciEvidence?.checkoutSha, manifest.sourceSha);
+  assertCompleteCandidateEvidence(manifest.ciEvidence, manifest.operationEvidence, {
+    sourceSha: manifest.sourceSha, treeSha: manifest.treeSha, versionId: manifest.versionId, ciRunId: manifest.ciRunId,
+  });
   json(manifest);
 }
 
-async function activateVersion(versionId, message) {
+export async function activateVersion(versionId, message, beforeDispatch) {
   assert.match(versionId, UUID, 'Exact Worker Version UUID required');
   assert.ok(message && message.length <= 1000, 'Deployment message required and must fit Cloudflare annotation limit');
-  const account = requiredEnv('CLOUDFLARE_ACCOUNT_ID');
+  const account = requiredAccount();
   const url = `${CF_API}/accounts/${account}/workers/scripts/${WORKER_NAME}/deployments`;
   const body = await fetchJson(url, {
     method: 'POST',
@@ -297,7 +413,7 @@ async function activateVersion(versionId, message) {
       versions: [{ version_id: versionId, percentage: 100 }],
       annotations: { 'workers/message': message, 'workers/triggered_by': 'deployment' },
     }),
-  });
+  }, beforeDispatch);
   assert.equal(body.success, true, 'Cloudflare exact-version deployment must succeed');
   assert.match(body.result?.id ?? '', UUID, 'Deployment UUID required');
   const versions = body.result?.versions ?? [];
@@ -306,6 +422,11 @@ async function activateVersion(versionId, message) {
   assert.equal(Number(versions[0].percentage), 100);
   json({ deploymentId: body.result.id, versionId, percentage: 100, createdOn: body.result.created_on ?? null });
 }
+// Candidate promotion has a final deadline check. Emergency recovery uses activateVersion directly.
+export async function promoteCandidateVersion(versionId, message, checkApproval = () => assertCurrentApproval(process.cwd())) {
+  return activateVersion(versionId, message, () => assertApprovalDeadline(checkApproval()));
+}
+
 function singleActiveVersion(snapshotFile) {
   const snapshot = JSON.parse(fs.readFileSync(snapshotFile, 'utf8'));
   assert.ok(Array.isArray(snapshot.versions) && snapshot.versions.length === 1, 'Production baseline must be a single-version deployment');
@@ -327,6 +448,8 @@ async function productionSmoke() {
   const origin = 'https://parkerhamilton.ca';
   const routes = [
     ['/', 200],
+    ['/work/askwill/', 200],
+    ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
     ['/work/smith-manoeuvre/', 200],
@@ -344,30 +467,52 @@ async function productionSmoke() {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [command, ...args] = process.argv.slice(2);
+  try {
   switch (command) {
+  case 'release-environment':
+    json(releaseEnvironment());
+    break;
+  case 'cf-version-inventory':
+    json(await versionInventory());
+    break;
+  case 'collect-after-state':
+    { const evidence = await collectAfterState(args[0], args[1], args[2]);
+      json(evidence);
+      if (evidence.reconciliationRequired) process.exitCode = 1;
+    }
+    break;
   case 'dist-hash':
     json(distHash(args[0] ?? 'dist'));
+    break;
+  case 'assert-risk-artifact':
+    json(assertApprovedArtifact(process.cwd(), path.resolve(args[0] ?? 'dist')));
     break;
   case 'verify-ci':
     await verifyCi(args[0]);
     break;
+  case 'verify-promotion-ci':
+    await verifyPromotionCi(args[0]);
+    break;
   case 'parse-upload-output':
-    parseWranglerOutput(args[0]);
+    json(parseWranglerOutput(args[0]));
     break;
   case 'cf-snapshot':
-    await cfSnapshot();
+    json(await cfSnapshot());
     break;
   case 'assert-production-unchanged':
     assertProductionUnchanged(args[0], args[1]);
     break;
   case 'preview-smoke':
-    await previewSmoke(args[0]);
+    await previewSmoke(args[0], args[1]);
     break;
   case 'resolve-candidate-artifact':
     await resolveCandidateArtifact(args[0]);
     break;
   case 'verify-version':
     await verifyVersion(args[0]);
+    break;
+  case 'promote-version':
+    await promoteCandidateVersion(args[0], args.slice(1).join(' '));
     break;
   case 'activate-version':
     await activateVersion(args[0], args.slice(1).join(' '));
@@ -382,12 +527,17 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     makeCandidateManifest(args);
     break;
   case 'verify-manifest':
-    verifyManifest(args[0], args[1]);
+    verifyManifest(args[0], args[1], args[2]);
     break;
   case 'production-smoke':
     await productionSmoke();
     break;
     default:
       throw new Error(`Unknown post-launch release command: ${command ?? '(none)'}`);
+  }
+  } catch (error) {
+    const message = error instanceof SyntaxError ? 'Invalid structured release evidence' : redactString(error.message).slice(0, 2000);
+    process.stderr.write(JSON.stringify({ status: 'FAILED', message }) + '\n');
+    process.exitCode = 1;
   }
 }

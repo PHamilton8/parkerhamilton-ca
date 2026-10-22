@@ -117,7 +117,14 @@ test('Homepage and global ContactBand final source authority remain intact', () 
   assert.match(contact, /min-height:\s*44px/i);
   assert.match(contact, /padding:\s*10px 12px/i);
   assert.match(contact, /gap:\s*8px/i);
-  assert.equal(gitBlob('src/components/layout/ContactBand.astro'), '711e5ac0ee1ff64aab9aa393ad35a276b1faf187');
+  assert.equal(gitBlob('src/components/layout/ContactBand.astro'), '950a4e5fdc24f7ee31b39dbccd8f55206f9c9b02');
+  assert.match(contact, /mobileEmailLabel = false/);
+  const layout = readText('src/layouts/BaseLayout.astro');
+  assert.match(layout, /approvedMobileContact = false/);
+  const optedIn = walk(path.join(root, 'src/pages')).filter((p) => p.endsWith('.astro') && /<BaseLayout\b[^>]*\bapprovedMobileContact\b/.test(fs.readFileSync(p, 'utf8')));
+  assert.deepEqual(optedIn.map((p) => path.relative(root, p).replaceAll(path.sep, '/')).sort(), [
+    'src/pages/index.astro', 'src/pages/work/askwill.astro', 'src/pages/work/grocery-automation.astro',
+  ]);
 });
 
 test('Design Day final media and caption timing are release exact', () => {

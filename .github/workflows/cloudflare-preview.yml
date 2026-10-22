@@ -22,6 +22,9 @@ concurrency:
 
 env:
   ASTRO_TELEMETRY_DISABLED: '1'
+  WRANGLER_SEND_METRICS: 'false'
+  EXPECTED_WORKERS_SUBDOMAIN: ${{ vars.EXPECTED_WORKERS_SUBDOMAIN }}
+  EXPECTED_CLOUDFLARE_ACCOUNT_ID: ${{ vars.EXPECTED_CLOUDFLARE_ACCOUNT_ID }}
 
 jobs:
   candidate:
@@ -43,7 +46,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: npm
 
       - name: Freeze exact source
@@ -64,7 +67,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p .release-candidate
-          node scripts/postlaunch-release.mjs verify-ci "$CANDIDATE_SHA" > .release-candidate/ci.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-ci "$CANDIDATE_SHA" > .release-candidate/ci.json
           echo "run_id=$(node -e "const j=require('./.release-candidate/ci.json');process.stdout.write(String(j.workflowRunId))")" >> "$GITHUB_OUTPUT"
 
       - name: Release build and public-safety validation
@@ -73,23 +76,46 @@ jobs:
       - name: Cloudflare infrastructure validation
         run: npm run infra:validate
 
+      - name: Recheck tracked source after build
+        run: git diff --exit-code HEAD
+
       - name: Freeze tree and dist identity
         id: identity
         shell: bash
         run: |
           TREE_SHA="$(git rev-parse HEAD^{tree})"
-          node scripts/postlaunch-release.mjs dist-hash dist > .release-candidate/dist.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs dist-hash dist > .release-candidate/dist.json
           DIST_SHA="$(node -e "const j=require('./.release-candidate/dist.json');process.stdout.write(j.sha256)")"
           echo "tree_sha=$TREE_SHA" >> "$GITHUB_OUTPUT"
           echo "dist_sha=$DIST_SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Snapshot production before candidate upload
+      - name: Validate release runtime and reviewed destination policy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: node scripts/postlaunch-release.mjs cf-snapshot > .release-candidate/production-before.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs release-environment > .release-candidate/environment-policy.json
+
+      - name: Recheck selected CI immediately before upload
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-ci "$CANDIDATE_SHA" > .release-candidate/ci-rechecked.json
+          node -e "const a=require('./.release-candidate/ci.json');const b=require('./.release-candidate/ci-rechecked.json');require('node:assert/strict').deepEqual(b,a)"
+
+      - name: Snapshot production before candidate upload
+        id: before
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-candidate/production-before.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-version-inventory > .release-candidate/versions-before.json
 
       - name: Upload exactly one unpublished Worker Version
+        id: upload_command
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -97,13 +123,18 @@ jobs:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
         shell: bash
         run: |
-          npx wrangler versions upload --message "ParkerHamilton review candidate $CANDIDATE_SHA"
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-risk-artifact dist > /dev/null
+          set +e
+          bash scripts/release-node.sh --wrangler versions upload --message "ParkerHamilton review candidate $CANDIDATE_SHA" > "${{ runner.temp }}/wrangler-upload.log" 2>&1
+          result=$?
+          printf '{"exitCode":%d,"rawLogRetainedInRunnerOnly":true}\n' "$result" > .release-candidate/upload-attempt.json
+          exit "$result"
 
       - name: Resolve immutable Version ID and preview URL
         id: upload
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs parse-upload-output "${{ runner.temp }}/wrangler-version-upload.ndjson" > .release-candidate/upload.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs parse-upload-output "${{ runner.temp }}/wrangler-version-upload.ndjson" > .release-candidate/upload.json
           echo "version_id=$(node -e "const j=require('./.release-candidate/upload.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
           echo "preview_url=$(node -e "const j=require('./.release-candidate/upload.json');process.stdout.write(j.previewUrl)")" >> "$GITHUB_OUTPUT"
 
@@ -112,16 +143,23 @@ jobs:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           PREVIEW_URL: ${{ steps.upload.outputs.preview_url }}
-        run: node scripts/postlaunch-release.mjs preview-smoke "$PREVIEW_URL" > .release-candidate/preview-smoke.json
+          VERSION_ID: ${{ steps.upload.outputs.version_id }}
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs preview-smoke "$PREVIEW_URL" "$VERSION_ID" > .release-candidate/preview-smoke.json
 
-      - name: Prove production stayed unchanged
+      - name: Always collect sanitized provider after-state
+        id: after
+        if: ${{ always() && steps.before.outcome == 'success' && steps.upload_command.outcome != 'skipped' }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          UPLOAD_OUTCOME: ${{ steps.upload_command.outcome }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-candidate/production-after.json
-          node scripts/postlaunch-release.mjs assert-production-unchanged             .release-candidate/production-before.json             .release-candidate/production-after.json             > .release-candidate/production-unchanged.json
+          if ! bash scripts/release-node.sh scripts/postlaunch-release.mjs collect-after-state .release-candidate "${{ runner.temp }}/wrangler-version-upload.ndjson" "$UPLOAD_OUTCOME"; then
+            test -s .release-candidate/operation-evidence.json || printf '{"status":"NON_PROMOTABLE_OPERATION_EVIDENCE","reconciliationRequired":true,"afterState":"unavailable"}\n' > .release-candidate/operation-evidence.json
+            exit 1
+          fi
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-production-unchanged .release-candidate/production-before.json .release-candidate/production-after.json > .release-candidate/production-unchanged.json
 
       - name: Write immutable candidate manifest
         env:
@@ -133,13 +171,50 @@ jobs:
           CI_RUN_ID: ${{ steps.ci.outputs.run_id }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs make-candidate-manifest             "$CANDIDATE_SHA" "$TREE_SHA" "$DIST_SHA" "$VERSION_ID" "$PREVIEW_URL" "$CI_RUN_ID"             .release-candidate/production-before.json .release-candidate/production-after.json             > .release-candidate/candidate.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs make-candidate-manifest             "$CANDIDATE_SHA" "$TREE_SHA" "$DIST_SHA" "$VERSION_ID" "$PREVIEW_URL" "$CI_RUN_ID"             .release-candidate/production-before.json .release-candidate/production-after.json             > .release-candidate/candidate.json
 
       - name: Preserve candidate evidence
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: review-candidate-${{ steps.identity.outputs.tree_sha }}
-          path: .release-candidate/
+          path: |
+            .release-candidate/ci.json
+            .release-candidate/ci-rechecked.json
+            .release-candidate/dist.json
+            .release-candidate/environment-policy.json
+            .release-candidate/production-before.json
+            .release-candidate/versions-before.json
+            .release-candidate/upload-attempt.json
+            .release-candidate/upload.json
+            .release-candidate/preview-smoke.json
+            .release-candidate/operation-evidence.json
+            .release-candidate/production-after.json
+            .release-candidate/production-unchanged.json
+            .release-candidate/candidate.json
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 90
+
+      - name: Preserve non-promotable failure evidence
+        if: ${{ always() && !success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-review-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .release-candidate/ci.json
+            .release-candidate/ci-rechecked.json
+            .release-candidate/dist.json
+            .release-candidate/environment-policy.json
+            .release-candidate/production-before.json
+            .release-candidate/versions-before.json
+            .release-candidate/upload-attempt.json
+            .release-candidate/upload.json
+            .release-candidate/preview-smoke.json
+            .release-candidate/operation-evidence.json
+            .release-candidate/production-after.json
+            .release-candidate/production-unchanged.json
+            .release-candidate/candidate.json
+          include-hidden-files: true
+          if-no-files-found: warn
           retention-days: 90

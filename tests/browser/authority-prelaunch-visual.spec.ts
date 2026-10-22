@@ -316,8 +316,12 @@ test.describe('Wave 2 prelaunch visual authority — route-local H1 measures', (
       expect(geometry.headingRight).toBeLessThanOrEqual(geometry.parentRight + 1);
       expect(geometry.followingTop, `AskWill lede follows H1 at ${width}px`).toBeGreaterThan(geometry.headingBottom);
 
-      const ledeMaxWidth = await page.locator('.askwill-lede').evaluate((node) => getComputedStyle(node).maxWidth);
-      expect(ledeMaxWidth).toBe('832px');
+      const ledes = page.locator('.askwill-lede');
+      await expect(ledes).toHaveCount(2);
+      await expect(ledes.nth(0)).toBeVisible();
+      await expect(ledes.nth(1)).toBeVisible();
+      const ledeMaxWidths = await ledes.evaluateAll((nodes) => nodes.map((node) => getComputedStyle(node).maxWidth));
+      expect(ledeMaxWidths).toEqual(['832px', '832px']);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow, `AskWill horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
     }

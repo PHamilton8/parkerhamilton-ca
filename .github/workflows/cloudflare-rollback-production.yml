@@ -23,6 +23,11 @@ concurrency:
   group: parker-production-release
   cancel-in-progress: false
 
+env:
+  WRANGLER_SEND_METRICS: 'false'
+  EXPECTED_WORKERS_SUBDOMAIN: ${{ vars.EXPECTED_WORKERS_SUBDOMAIN }}
+  EXPECTED_CLOUDFLARE_ACCOUNT_ID: ${{ vars.EXPECTED_CLOUDFLARE_ACCOUNT_ID }}
+
 jobs:
   rollback:
     if: github.ref == 'refs/heads/main' && inputs.confirm == 'ROLLBACK parkerhamilton.ca'
@@ -35,7 +40,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
 
       - name: Resolve exactly one rollback target
         id: target
@@ -70,7 +75,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VERSION_ID: ${{ steps.target.outputs.version_id }}
-        run: node scripts/postlaunch-release.mjs verify-version "$VERSION_ID" > .release-rollback/target-version.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs verify-version "$VERSION_ID" > .release-rollback/target-version.json
 
       - name: Snapshot current production before rollback
         id: before
@@ -79,8 +84,8 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-before.json
-          node scripts/postlaunch-release.mjs single-active-version .release-rollback/production-before.json > .release-rollback/original.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-before.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs single-active-version .release-rollback/production-before.json > .release-rollback/original.json
           echo "version_id=$(node -e "const j=require('./.release-rollback/original.json');process.stdout.write(j.versionId)")" >> "$GITHUB_OUTPUT"
 
       - name: Activate exact rollback version
@@ -88,7 +93,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           VERSION_ID: ${{ steps.target.outputs.version_id }}
-        run: node scripts/postlaunch-release.mjs activate-version "$VERSION_ID" "Owner-triggered ParkerHamilton rollback" > .release-rollback/rollback-deployment.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs activate-version "$VERSION_ID" "Owner-triggered ParkerHamilton rollback" > .release-rollback/rollback-deployment.json
 
       - name: Verify exact rollback version is active
         env:
@@ -97,13 +102,13 @@ jobs:
           VERSION_ID: ${{ steps.target.outputs.version_id }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-after.json
-          node scripts/postlaunch-release.mjs assert-active-version .release-rollback/production-after.json "$VERSION_ID" > .release-rollback/active-version.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/production-after.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-active-version .release-rollback/production-after.json "$VERSION_ID" > .release-rollback/active-version.json
 
       - name: Focused live smoke after rollback
         id: smoke
         continue-on-error: true
-        run: node scripts/postlaunch-release.mjs production-smoke > .release-rollback/live-smoke.json
+        run: bash scripts/release-node.sh scripts/postlaunch-release.mjs production-smoke > .release-rollback/live-smoke.json
 
       - name: Restore pre-rollback production if rollback smoke fails
         if: steps.smoke.outcome != 'success'
@@ -113,10 +118,10 @@ jobs:
           ORIGINAL_VERSION_ID: ${{ steps.before.outputs.version_id }}
         shell: bash
         run: |
-          node scripts/postlaunch-release.mjs activate-version "$ORIGINAL_VERSION_ID" "Restore pre-rollback ParkerHamilton version after failed rollback smoke" > .release-rollback/restored-original.json
-          node scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/restored-after.json
-          node scripts/postlaunch-release.mjs assert-active-version .release-rollback/restored-after.json "$ORIGINAL_VERSION_ID" > .release-rollback/restored-verified.json
-          node scripts/postlaunch-release.mjs production-smoke > .release-rollback/restored-smoke.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs activate-version "$ORIGINAL_VERSION_ID" "Restore pre-rollback ParkerHamilton version after failed rollback smoke" > .release-rollback/restored-original.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs cf-snapshot > .release-rollback/restored-after.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs assert-active-version .release-rollback/restored-after.json "$ORIGINAL_VERSION_ID" > .release-rollback/restored-verified.json
+          bash scripts/release-node.sh scripts/postlaunch-release.mjs production-smoke > .release-rollback/restored-smoke.json
 
       - name: Write rollback record
         if: steps.smoke.outcome == 'success'

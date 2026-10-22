@@ -12,3 +12,6 @@ blob-report/
 
 .sites-runtime/
 .release-preview/
+
+.ci-provenance/
+.release-audit/

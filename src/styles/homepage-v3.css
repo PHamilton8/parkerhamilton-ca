@@ -1484,3 +1484,36 @@ body.route-home .site-footer {
     margin: 0 7px;
   }
 }
+
+/* Accepted homepage rhythm. */
+.home-page .hero{padding-top:34px;padding-bottom:34px}
+.home-page .hero-lede{margin-top:22px}
+.home-page .credential{margin-top:18px}
+.home-page .hero-link{margin-top:28px}
+.home-page .hero-monument-zone{height:24rem;overflow:hidden}
+.home-page .work-section,.home-page .more-section{margin-top:60px}
+.home-page .featured-card,.home-page .secondary-card{padding-top:22px;row-gap:12px}
+.home-page .secondary-card .project-premise{align-self:start}
+@media(min-width:61.26rem){
+ .home-page .featured-card{grid-template-rows:4.35rem minmax(4.5rem,auto) minmax(1.4rem,auto) 15.5rem auto}
+ .home-page .featured-card .project-media{height:15.5rem;min-height:15.5rem}
+ .home-page .secondary-card{grid-template-rows:4.55rem minmax(6.8rem,auto) minmax(1.5rem,auto) 8rem auto}
+ .home-page .secondary-card .title-band{align-self:start}
+ .home-page .secondary-card .secondary-visual{height:8rem;min-height:8rem}
+}
+@media(min-width:82.01rem){
+ .home-page .featured-card{grid-template-rows:4.35rem minmax(3.5rem,auto) minmax(1.4rem,auto) 15.5rem auto}
+ .home-page .secondary-card{grid-template-rows:4.55rem minmax(5rem,auto) minmax(1.5rem,auto) 8rem auto}
+}
+@media(max-width:61.25rem){.home-page .secondary-card .project-premise{align-self:start}}
+@media(max-width:51.25rem){.home-page .hero-monument-zone{height:15rem}.home-page .hero{padding-top:28px;padding-bottom:28px}}
+@media(max-width:35rem){.home-page .hero-monument-zone{height:10rem}.home-page .work-section,.home-page .more-section{margin-top:44px}}
+
+/* Align shared card content rows rather than sizing every card independently. */
+.home-page .featured-card>.project-media{padding-top:0}
+@media (min-width:35.01rem){.home-page .secondary-grid{row-gap:12px}.home-page .secondary-card{grid-template-rows:subgrid;grid-row:span 5;row-gap:12px;align-items:start}.home-page .secondary-card>.project-premise,.home-page .secondary-card>.project-metadata,.home-page .secondary-card>.secondary-visual{margin-top:0;margin-bottom:0;align-self:start}}
+@media (min-width:61.26rem){.home-page .secondary-card>.project-premise{padding-right:4px}.home-page .secondary-card[data-project-slug="grocery-automation"]>.project-premise{padding-right:32px}}
+
+
+
+@media (width<=480px){.home-page .hero-lede .hero-lede-mobile-wrap{display:block}}

@@ -15,7 +15,7 @@
     "check:astro": "astro check",
     "check:ts": "tsc --noEmit --project tsconfig.json",
     "test": "npm run test:source && npm run test:engines",
-    "test:source": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs tests/coast-download-safety.test.mjs tests/smith-download-safety.test.mjs tests/final-rc-contract.test.mjs tests/postlaunch-release-architecture.test.mjs",
+    "test:source": "node --test tests/source-contract.test.mjs tests/route-contract.test.mjs tests/coast-download-safety.test.mjs tests/smith-download-safety.test.mjs tests/final-rc-contract.test.mjs tests/postlaunch-release-architecture.test.mjs tests/ci-release-evidence.test.mjs tests/release-boundaries.test.mjs",
     "test:engines": "node --experimental-strip-types --test tests/compound-growth.test.ts tests/coast-fi-invariants.test.ts && node --experimental-strip-types tests/coast-fi-v2-runner.ts tests/fixtures/coast-fi/coast-fi-test-cases-v2.json && node tests/run-smith-manoeuvre-tests.cjs",
     "test:browser": "playwright test tests/browser/site.spec.ts tests/browser/authority-global.spec.ts tests/browser/authority-home.spec.ts tests/browser/authority-prelaunch-visual.spec.ts tests/browser/authority-reporting.spec.ts tests/browser/authority-utility-layout.spec.ts tests/browser/authority-coast-fi.spec.ts tests/browser/authority-compound-growth.spec.ts tests/browser/authority-pending-routes.spec.ts tests/browser/wealthsimple-application.spec.ts tests/browser/final-prelaunch-v2-evidence.spec.ts",
     "test:browser:legacy": "playwright test tests/browser/release-qa.spec.ts",
@@ -30,13 +30,13 @@
     "test:release-architecture": "node --test tests/postlaunch-release-architecture.test.mjs"
   },
   "dependencies": {
-    "astro": "7.2.8"
+    "astro": "7.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@playwright/test": "1.63.0",
     "@types/node": "24.10.1",
     "typescript": "5.9.3",
-    "wrangler": "4.131.1"
+    "wrangler": "4.151.3"
   }
 }
