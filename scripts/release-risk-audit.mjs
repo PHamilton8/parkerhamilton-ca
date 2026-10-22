@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 export const POLICY_PATH = 'release-risk-exception.json';
 // The approval constraints contain no source/self hash. Only binding is excluded.
-const APPROVAL_SHA256 = 'fea3e31f0bd369363b81d26fce1c1b542721ea514a4f4faa2334d24f69ccd92c';
+const APPROVAL_SHA256 = 'fdcd8f284616fa5b1f6bc4d311e937048f96f2f5136fe498fcf9e841cf8894f0';
 export const AUDIT_ARGS = ['audit', '--audit-level=high', '--json', '--include=dev', '--include=optional', '--include=peer',
   '--registry=https://registry.npmjs.org', '--strict-ssl=true', '--fetch-timeout=300000', '--fetch-retries=0'];
 const SHA = /^[a-f0-9]{40}$/;
