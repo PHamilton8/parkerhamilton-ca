@@ -411,7 +411,7 @@ export async function activateVersion(versionId, message, beforeDispatch) {
     body: JSON.stringify({
       strategy: 'percentage',
       versions: [{ version_id: versionId, percentage: 100 }],
-      annotations: { 'workers/message': message, 'workers/triggered_by': 'deployment' },
+      annotations: { 'workers/message': message },
     }),
   }, beforeDispatch);
   assert.equal(body.success, true, 'Cloudflare exact-version deployment must succeed');
