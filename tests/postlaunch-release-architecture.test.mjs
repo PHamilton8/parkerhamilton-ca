@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { fetchJson, fetchPreviewSameOrigin } from '../scripts/postlaunch-release.mjs';
+import { activateVersion, promoteCandidateVersion, fetchJson, fetchPreviewSameOrigin } from '../scripts/postlaunch-release.mjs';
 
 const read = (path) => fs.readFileSync(path, 'utf8');
 const candidate = read('.github/workflows/cloudflare-preview.yml');
@@ -100,6 +100,65 @@ async function withMockFetch(mock, fn) {
     globalThis.fetch = previous;
   }
 }
+
+async function withMockDeployment(t, action) {
+  const keys = ['CLOUDFLARE_ACCOUNT_ID', 'EXPECTED_CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN'];
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  const account = 'a'.repeat(32);
+  const versionId = '11111111-1111-4111-8111-111111111111';
+  const calls = [];
+  process.env.CLOUDFLARE_ACCOUNT_ID = process.env.EXPECTED_CLOUDFLARE_ACCOUNT_ID = account;
+  process.env.CLOUDFLARE_API_TOKEN = 'synthetic-deployment-test-only';
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url, options });
+    return new Response(JSON.stringify({ success: true, result: {
+      id: '22222222-2222-4222-8222-222222222222',
+      versions: [{ version_id: versionId, percentage: 100 }],
+    } }), { status: 200 });
+  });
+  try {
+    await action({ account, versionId, calls });
+  } finally {
+    for (const key of keys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+  }
+}
+
+function assertDeploymentRequest(calls, account, versionId, message) {
+  assert.equal(calls.length, 1);
+  const [{ url, options }] = calls;
+  assert.equal(url, `https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts/parkerhamilton-ca/deployments`);
+  assert.equal(options.method, 'POST');
+  assert.equal(options.redirect, 'manual');
+  assert.equal(new Headers(options.headers).get('Content-Type'), 'application/json');
+  assert.deepEqual(JSON.parse(options.body), {
+    strategy: 'percentage',
+    versions: [{ version_id: versionId, percentage: 100 }],
+    annotations: { 'workers/message': message },
+  });
+}
+
+test('promotion request keeps the message and excludes unsupported deployment annotations', { concurrency: false }, async (t) => {
+  const { approval } = JSON.parse(read('release-risk-exception.json'));
+  t.mock.method(Date, 'now', () => Date.parse(approval.approvedAtUtc) + 1);
+  await withMockDeployment(t, async ({ account, versionId, calls }) => {
+    const message = 'Synthetic reviewed promotion';
+    let approvalChecks = 0;
+    await promoteCandidateVersion(versionId, message, () => { approvalChecks++; return approval; });
+    assert.equal(approvalChecks, 1, 'promotion must retain the final approval check');
+    assertDeploymentRequest(calls, account, versionId, message);
+  });
+});
+
+test('rollback request keeps the message and excludes unsupported deployment annotations', { concurrency: false }, async (t) => {
+  await withMockDeployment(t, async ({ account, versionId, calls }) => {
+    const message = 'Synthetic exact-version rollback';
+    await activateVersion(versionId, message);
+    assertDeploymentRequest(calls, account, versionId, message);
+  });
+});
 
 test('fetchJson returns successful JSON unchanged', { concurrency: false }, async () => {
   const expected = { success: true, result: { id: 'ok' } };
