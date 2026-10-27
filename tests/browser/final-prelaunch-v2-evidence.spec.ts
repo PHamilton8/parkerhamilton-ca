@@ -142,5 +142,7 @@ test('generate final prelaunch V2 screenshot ZIP from exact source', async ({ pa
   execFileSync('python3', ['-c', python, root, zipPath], { stdio: 'inherit' });
 
   expect(fs.statSync(zipPath).size).toBeGreaterThan(100_000);
-  expect(captures.length).toBe(160);
+  // Route retirement removes its full-page and seam captures, not other coverage.
+  const expectedCaptureCount = routes.length * matrix.length + seamCaptures.length;
+  expect(captures.length).toBe(expectedCaptureCount);
 });
