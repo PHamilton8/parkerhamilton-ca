@@ -39,7 +39,7 @@ jobs:
       - run: npm run public-safety
       - run: npm run qa:contrast
       - name: Complete npm audit and exact candidate risk evaluation
-        run: bash scripts/release-node.sh scripts/release-risk-audit.mjs run dist
+        run: bash scripts/release-node.sh scripts/clean-release-risk.mjs run dist
       - name: Preserve complete audit and distinct risk decision
         if: always()
         uses: actions/upload-artifact@v4
@@ -50,7 +50,7 @@ jobs:
             .release-audit/audit.stderr.log
             .release-audit/audit-run.json
             .release-audit/risk-evaluation.json
-            .release-audit/risk-policy.json
+            .release-audit/clean-policy.json
             .release-audit/context.json
             .release-audit/artifact.json
           include-hidden-files: true

@@ -56,13 +56,13 @@ test('final upload guard rejects changed artifact identity before error handling
   assert.ok(check >= 0 && check < upload.indexOf('set +e') && check < upload.indexOf('--wrangler versions upload'));
 });
 
-test('an old green CI result cannot skip the approval expiry check before preview or promotion', () => {
+test('legacy exception stays expired while current pipeline selects distinct clean qualification', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'risk-expiry-'));
   try {
     const { policy } = fixture(); fs.writeFileSync(path.join(dir, 'release-risk-exception.json'), JSON.stringify(policy));
     assert.throws(() => assertCurrentApproval(dir, Date.parse(policy.approval.expiresAtUtc)), /APPROVAL_EXPIRED_OR_NOT_YET_VALID/);
     const helper = fs.readFileSync(new URL('../scripts/postlaunch-release.mjs', import.meta.url), 'utf8');
-    assert.match(helper, /export async function verifyCi\(sha\) \{\n  assertCurrentApproval\(process.cwd\(\)\);/);
+    assert.match(helper, /export async function verifyCi\(sha\) \{\n  assertCleanSource\(process.cwd\(\)\);/);
     assert.match(helper, /export async function verifyPromotionCi/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
@@ -254,9 +254,9 @@ test('workflow retains the full original severity gate, complete graph, distinct
   assert.deepEqual(AUDIT_ARGS.slice(0, 6), ['audit', '--audit-level=high', '--json', '--include=dev', '--include=optional', '--include=peer']);
   assert.ok(AUDIT_ARGS.includes('--registry=https://registry.npmjs.org') && AUDIT_ARGS.includes('--strict-ssl=true'));
   const workflow = fs.readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
-  assert.match(workflow, /run: bash scripts\/release-node.sh scripts\/release-risk-audit.mjs run dist/);
+  assert.match(workflow, /run: bash scripts\/release-node.sh scripts\/clean-release-risk.mjs run dist/);
   assert.match(workflow, /Preserve complete audit and distinct risk decision\n        if: always\(\)/);
-  for (const name of ['audit.json', 'audit.stderr.log', 'audit-run.json', 'risk-evaluation.json', 'risk-policy.json', 'context.json', 'artifact.json']) {
+  for (const name of ['audit.json', 'audit.stderr.log', 'audit-run.json', 'risk-evaluation.json', 'clean-policy.json', 'context.json', 'artifact.json']) {
     assert.ok(workflow.includes('            .release-audit/' + name + '\n'));
   }
   assert.doesNotMatch(workflow, /continue-on-error|--omit|--audit=false|--audit-level=critical|path: \.release-audit\//);

@@ -73,6 +73,9 @@ jobs:
       - name: Release build and public-safety validation
         run: npm run release:build
 
+      - name: Fresh complete clean audit before credentialed candidate upload
+        run: bash scripts/release-node.sh scripts/clean-release-risk.mjs run dist
+
       - name: Cloudflare infrastructure validation
         run: npm run infra:validate
 
@@ -215,6 +218,23 @@ jobs:
             .release-candidate/production-after.json
             .release-candidate/production-unchanged.json
             .release-candidate/candidate.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Preserve complete candidate clean-audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-clean-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .release-audit/audit.json
+            .release-audit/audit.stderr.log
+            .release-audit/audit-run.json
+            .release-audit/risk-evaluation.json
+            .release-audit/clean-policy.json
+            .release-audit/context.json
+            .release-audit/artifact.json
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 90
