@@ -71,49 +71,13 @@ test.describe('Utility-route viewport shell', () => {
     });
   }
 
-  const wealthsimpleViewports: Viewport[] = [
-    { width: 820, height: 1180 },
-    { width: 768, height: 1024 },
-    { width: 430, height: 932 },
-    { width: 390, height: 844 },
-    { width: 375, height: 812 },
-    { width: 360, height: 800 },
-    { width: 320, height: 568 },
-  ];
-
-  for (const viewport of wealthsimpleViewports) {
-    test(`Wealthsimple footer remains below video at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+  for (const viewport of notFoundViewports) {
+    test(`retired application is a readable 404 at ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       const response = await page.goto('/wealthsimple-2026', { waitUntil: 'networkidle' });
-      expect(response?.status()).toBe(200);
-      const state = await assertUtilityShell(page);
-      expect(state.headingTop).not.toBeNull();
-      expect(state.headingBottom).not.toBeNull();
-      expect(state.videoTop).not.toBeNull();
-      expect(state.videoBottom).not.toBeNull();
-      expect(state.videoWidth).not.toBeNull();
-      expect(state.videoHeight).not.toBeNull();
-      expect(state.footerTop).toBeGreaterThanOrEqual((state.videoBottom ?? 0) - 1);
-
-      const headerToTitle = (state.headingTop ?? 0) - state.mainTop;
-      const titleToVideo = (state.videoTop ?? 0) - (state.headingBottom ?? 0);
-      const videoToFooter = state.footerTop - (state.videoBottom ?? 0);
-      const visibleBands = [headerToTitle, titleToVideo, videoToFooter];
-      const totalBands = visibleBands.reduce((sum, value) => sum + value, 0);
-      const dominantShare = Math.max(...visibleBands) / totalBands;
-
-      expect(headerToTitle, `header/main → H1 spacing at ${viewport.width}x${viewport.height}`).toBeGreaterThanOrEqual(0);
-      expect(titleToVideo, `H1 → video spacing at ${viewport.width}x${viewport.height}`).toBeGreaterThanOrEqual(30);
-      expect(videoToFooter, `video → footer spacing at ${viewport.width}x${viewport.height}`).toBeGreaterThanOrEqual(0);
-      expect(
-        dominantShare,
-        `no single vertical whitespace band dominates Wealthsimple at ${viewport.width}x${viewport.height}`,
-      ).toBeLessThanOrEqual(0.62);
-
-      const videoRatio = (state.videoWidth ?? 0) / (state.videoHeight ?? 1);
-      expect(videoRatio, `Wealthsimple video remains 16:9 at ${viewport.width}x${viewport.height}`).toBeCloseTo(16 / 9, 2);
-
-      if (viewport.width === 320) expect(state.documentHeight).toBeGreaterThan(viewport.height);
+      expect(response?.status()).toBe(404);
+      await assertUtilityShell(page);
+      await expect(page.locator('video')).toHaveCount(0);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });

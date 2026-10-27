@@ -11,16 +11,16 @@ export const publicRoutes = [
   '/work/smith-manoeuvre',
 ] as const;
 
-export const auxiliaryNoindexRoutes = ['/wealthsimple-2026'] as const;
+export const auxiliaryNoindexRoutes = [] as const;
 export const allHtmlRoutes = [...publicRoutes, ...auxiliaryNoindexRoutes] as const;
 
-export type AuthoritySurface = 'home' | 'designDay' | 'reporting' | 'grocery' | 'askWill' | 'coast' | 'compound' | 'smith' | 'wealthsimple';
+export type AuthoritySurface = 'home' | 'designDay' | 'reporting' | 'grocery' | 'askWill' | 'coast' | 'compound' | 'smith';
 
 const profileSurfaces: Record<string, ReadonlySet<AuthoritySurface>> = {
   baseline: new Set(),
   'homepage-v3': new Set(['home']),
   'reporting-v3': new Set(['reporting']),
-  'final-rc': new Set(['home', 'designDay', 'reporting', 'grocery', 'askWill', 'coast', 'compound', 'smith', 'wealthsimple']),
+  'final-rc': new Set(['home', 'designDay', 'reporting', 'grocery', 'askWill', 'coast', 'compound', 'smith']),
 };
 
 if (!Object.hasOwn(profileSurfaces, QA_PROFILE)) throw new Error(`Unknown QA authority profile: ${QA_PROFILE}`);
@@ -38,5 +38,4 @@ export const routeAuthority = {
   '/work/coast-fi': { visual: 'final', note: 'Four-mode final interactive approved; graph/engine/workbook remain frozen.' },
   '/work/compound-growth': { visual: 'final', note: 'Five-experiment evidence frozen; final simulator uses monthly recurring contributions, $0 start, and 8% default.' },
   '/work/smith-manoeuvre': { visual: 'final', note: 'Simplified page approved; Graph A with Emerald ladder is the only final graph.' },
-  '/wealthsimple-2026': { visual: 'final', note: 'Implemented noindex auxiliary application route; verbatim synchronized caption track remains a final-RC accessibility gate.' },
 } as const;

@@ -6,7 +6,6 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 const projects = read('src/data/projects.ts');
 const site = read('src/data/site.ts');
 const baseLayout = read('src/layouts/BaseLayout.astro');
-const wealthsimple = read('src/pages/wealthsimple-2026.astro');
 const sitemap = read('src/pages/sitemap.xml.ts');
 
 const expected = [
@@ -38,16 +37,7 @@ test('no public LinkedIn placeholder is configured', () => {
   assert.match(site, /linkedinUrl:\s*undefined/);
 });
 
-test('Wealthsimple application page is an unlisted noindex auxiliary route', () => {
-  assert.match(wealthsimple, /Wealthsimple 2027 - Parker Hamilton/);
-  assert.doesNotMatch(wealthsimple, /Wealthsimple 2026 - Parker Hamilton/);
-  assert.match(wealthsimple, /canonicalPath="\/wealthsimple-2026"/);
-  assert.match(wealthsimple, /robots="noindex, noarchive"/);
-  assert.match(wealthsimple, /\bcontrols\b/);
-  assert.match(wealthsimple, /\bplaysinline\b/);
-  assert.match(wealthsimple, /preload="metadata"/);
-  assert.match(wealthsimple, /wealthsimple-application-video\.mp4/);
-  assert.match(wealthsimple, /wealthsimple-application-video-poster\.webp/);
+test('retired Wealthsimple route stays unlisted', () => {
   assert.doesNotMatch(projects, /\/wealthsimple-2026/);
   assert.doesNotMatch(site, /\/wealthsimple-2026/);
   assert.doesNotMatch(sitemap, /wealthsimple-2026/);

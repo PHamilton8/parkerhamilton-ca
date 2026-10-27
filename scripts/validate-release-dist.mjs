@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 export const PRODUCTION_ORIGIN = 'https://parkerhamilton.ca';
 export const INDEXABLE_ROUTES = Object.freeze(['/', '/work/design-day', '/work/reporting-workflow', '/work/grocery-automation', '/work/askwill', '/work/coast-fi', '/work/compound-growth', '/work/smith-manoeuvre']);
 export const AUXILIARY_ROUTE = '/wealthsimple-2026';
-export const ACCOUNTING = '8 indexable portfolio routes + 1 noindex auxiliary application route + true 404';
+export const ACCOUNTING = '8 indexable portfolio routes + true 404; retired application absent';
 const WORKBOOKS = Object.freeze({
   'downloads/Coast_FI_Calculator_Public_Sanitized.xlsx': '469df9f9c589f57f17c4de52652abeca295223fbe90fe004268354958da6cf6a',
   'downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx': '3eb26f8f76c6dbc16ca42ec10debbb7d8b9f5b56fe9169fc55c49618a98c6ef9',
@@ -33,18 +33,14 @@ export function validateReleaseDist(directory) {
     assert.ok(files.includes(relative), `Missing release artifact: ${relative}`);
     const b = fs.readFileSync(path.join(root, relative)); assert.ok(b.length, `Empty release artifact: ${relative}`); return b;
   };
-  const routes = [...INDEXABLE_ROUTES, AUXILIARY_ROUTE];
-  assert.deepEqual(files.filter(f => f.endsWith('.html')).sort(), [...routes.map(routeFile), '404.html'].sort(), 'Release HTML must be exactly 8+1+404');
+  const routes = [...INDEXABLE_ROUTES];
+  assert.deepEqual(files.filter(f => f.endsWith('.html')).sort(), [...routes.map(routeFile), '404.html'].sort(), 'Release HTML must be exactly 8+404');
   for (const route of routes) {
     const html = read(routeFile(route)).toString();
     const canonical = tags(html, 'link').filter(a => a.rel?.toLowerCase().split(/\s+/).includes('canonical'));
     assert.deepEqual(canonical.map(a => a.href), [new URL(route, PRODUCTION_ORIGIN).href], `Production canonical mismatch: ${route}`);
     const directives = robots(html);
-    if (route === AUXILIARY_ROUTE) {
-      assert.ok(directives.includes('noindex') && directives.includes('noarchive'), 'Wealthsimple requires noindex, noarchive');
-      const h1 = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map(m => decode(m[1].replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim());
-      assert.deepEqual(h1, ['Wealthsimple 2027 - Parker Hamilton'], 'Wealthsimple H1 mismatch');
-    } else {
+    {
       assert.ok(!directives.some(x => ['noindex', 'none'].includes(x)), `Portfolio route must be indexable: ${route}`);
       for (const a of tags(html, 'a')) {
         if (!a.href) continue;
@@ -67,10 +63,11 @@ export function validateReleaseDist(directory) {
     assert.equal(createHash('sha256').update(bytes).digest('hex'), expected, `Frozen workbook hash mismatch: ${file}`);
   }
   for (const file of files) {
+    assert.ok(!/wealthsimple/i.test(file), `Retired application artifact: ${file}`);
     assert.ok(!/\.(map|zip|docx?|pptx?|csv|tsv)$/i.test(file), `Unapproved public file: ${file}`);
     if (/\.xlsx?$/i.test(file)) assert.ok(Object.hasOwn(WORKBOOKS, file), `Unapproved workbook: ${file}`);
   }
-  return { passed: true, routeAccounting: ACCOUNTING, indexableRoutes: [...INDEXABLE_ROUTES], auxiliaryRoutes: [AUXILIARY_ROUTE], true404: true, fileCount: files.length };
+  return { passed: true, routeAccounting: ACCOUNTING, indexableRoutes: [...INDEXABLE_ROUTES], auxiliaryRoutes: [], true404: true, fileCount: files.length };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

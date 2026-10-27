@@ -7,7 +7,8 @@ import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { verifyCiEvidence, refreshPromotionCi, readCiProvenanceArtifact, assertSuccessfulRun } from './ci-release-evidence.mjs';
 import { assertPreviewDestination, reconcileUploadEvidence, assertCompleteCandidateEvidence } from './release-evidence.mjs';
-import { assertCurrentApproval, assertApprovedArtifact, assertApprovalDeadline } from './release-risk-audit.mjs';
+import { assertApprovalDeadline } from './release-risk-audit.mjs';
+import { assertCleanSource, assertCleanArtifact, assertEmbeddedQualification, assertPromotionQualification, assertQualificationFresh, strictJson } from './clean-release-risk.mjs';
 
 const WORKER_NAME = 'parkerhamilton-ca';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -142,17 +143,17 @@ function distHash(root) {
   return { algorithm: 'sha256-manifest-v1', fileCount: rows.length, sha256: sha256(Buffer.from(canonical)), files: rows };
 }
 export async function verifyCi(sha) {
-  assertCurrentApproval(process.cwd());
+  assertCleanSource(process.cwd());
   const repository = requiredEnv('GITHUB_REPOSITORY');
   const checkoutSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const result = await verifyCiEvidence({ sha, checkoutSha, repository,
     readJson: (pathname) => fetchJson(API + pathname, { headers: githubHeaders() }),
     readArtifact: (artifactId) => readCiProvenanceArtifact({ repository, artifactId, headers: githubHeaders() }),
   });
-  assertCurrentApproval(process.cwd());
+  assertCleanSource(process.cwd());
   json(result);
 }
-export async function verifyPromotionCi(file, { checkApproval = () => assertCurrentApproval(process.cwd()), refresh = refreshPromotionCi } = {}) {
+export async function verifyPromotionCi(file, { checkApproval = () => assertPromotionQualification(process.cwd()), refresh = refreshPromotionCi } = {}) {
   checkApproval();
   const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.match(manifest.sourceSha ?? '', SHA, 'Exact reviewed source required');
@@ -304,7 +305,9 @@ async function previewSmoke(previewUrl, versionId) {
     ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
-    ['/wealthsimple-2026/', 200],
+    ['/work/design-day/', 200],
+    ['/assets/application/wealthsimple-application-video.mp4', 404],
+    ['/wealthsimple-2026/', 404],
     ['/gate0-preview-definitely-missing/', 404],
   ];
   const results = [];
@@ -358,9 +361,11 @@ function makeCandidateManifest(args) {
   const before = JSON.parse(fs.readFileSync(productionBeforeFile, 'utf8'));
   const after = JSON.parse(fs.readFileSync(productionAfterFile, 'utf8'));
   assert.deepEqual(after, before, 'Production changed during candidate creation');
+  const cleanQualification = assertCleanArtifact(process.cwd(), path.resolve('dist'));
   json({
     schemaVersion: 2,
     status: 'REVIEW_CANDIDATE_UNPUBLISHED',
+    cleanQualification,
     workerName: WORKER_NAME,
     sourceSha,
     treeSha,
@@ -397,6 +402,7 @@ function verifyManifest(file, tree, artifactFile) {
   assertCompleteCandidateEvidence(manifest.ciEvidence, manifest.operationEvidence, {
     sourceSha: manifest.sourceSha, treeSha: manifest.treeSha, versionId: manifest.versionId, ciRunId: manifest.ciRunId,
   });
+  assertEmbeddedQualification(process.cwd(), manifest);
   json(manifest);
 }
 
@@ -423,8 +429,20 @@ export async function activateVersion(versionId, message, beforeDispatch) {
   json({ deploymentId: body.result.id, versionId, percentage: 100, createdOn: body.result.created_on ?? null });
 }
 // Candidate promotion has a final deadline check. Emergency recovery uses activateVersion directly.
-export async function promoteCandidateVersion(versionId, message, checkApproval = () => assertCurrentApproval(process.cwd())) {
+export async function promoteCandidateVersion(versionId, message, checkApproval = () => { throw new Error('Legacy exception promotion is disabled'); }) {
   return activateVersion(versionId, message, () => assertApprovalDeadline(checkApproval()));
+}
+
+export async function promoteCleanCandidateVersion(versionId, message, checkQualification = () => assertPromotionQualification(process.cwd())) {
+  return activateVersion(versionId, message, () => {
+    const candidateFile = path.resolve('.release-production/candidate.json');
+    const candidateBytes = fs.readFileSync(candidateFile, 'utf8');
+    const candidate = strictJson(candidateBytes);
+    assert.equal(candidate.versionId, versionId, 'Requested promotion version differs from reviewed candidate');
+    const qualification = checkQualification();
+    assert.equal(fs.readFileSync(candidateFile, 'utf8'), candidateBytes, 'Reviewed candidate changed before dispatch');
+    assertQualificationFresh(qualification);
+  });
 }
 
 function singleActiveVersion(snapshotFile) {
@@ -452,8 +470,10 @@ async function productionSmoke() {
     ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
+    ['/work/design-day/', 200],
+    ['/assets/application/wealthsimple-application-video.mp4', 404],
     ['/work/smith-manoeuvre/', 200],
-    ['/wealthsimple-2026/', 200],
+    ['/wealthsimple-2026/', 404],
     ['/gate0-production-definitely-missing/', 404],
   ];
   const results = [];
@@ -485,7 +505,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     json(distHash(args[0] ?? 'dist'));
     break;
   case 'assert-risk-artifact':
-    json(assertApprovedArtifact(process.cwd(), path.resolve(args[0] ?? 'dist')));
+    json(assertCleanArtifact(process.cwd(), path.resolve(args[0] ?? 'dist')));
     break;
   case 'verify-ci':
     await verifyCi(args[0]);
@@ -512,7 +532,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     await verifyVersion(args[0]);
     break;
   case 'promote-version':
-    await promoteCandidateVersion(args[0], args.slice(1).join(' '));
+    await promoteCleanCandidateVersion(args[0], args.slice(1).join(' '));
     break;
   case 'activate-version':
     await activateVersion(args[0], args.slice(1).join(' '));

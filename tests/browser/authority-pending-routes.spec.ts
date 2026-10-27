@@ -54,52 +54,8 @@ test.describe('Design Day accessibility gate', () => {
   });
 });
 
-test.describe('Final Grocery / AskWill / Smith / Wealthsimple authority gates', () => {
+test.describe('Final Grocery / AskWill / Smith authority gates', () => {
   test.skip(!requiresAuthority('designDay'), 'Final route assertions are required only for final-rc.');
-
-  test('Wealthsimple final owner-confirmed native captions load, stay within the exact media, and preserve verbatim wording', async ({ page, request }, testInfo) => {
-    await page.goto('/wealthsimple-2026');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wealthsimple 2027 - Parker Hamilton');
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, noarchive');
-    await expect(page.locator('.contact-band')).toHaveCount(0);
-    const video = page.locator('video');
-    const track = video.locator('track[kind="captions"]');
-    await expect(track).toHaveCount(1);
-    await expect(track).toHaveAttribute('srclang', 'en');
-    await expect(track).toHaveAttribute('src', '/assets/application/wealthsimple-application-video.vtt');
-    await expect.poll(() => video.evaluate((el: HTMLVideoElement) => Number.isFinite(el.duration))).toBe(true);
-    // The exact MP4 has 101.652s container/audio and 101.6348667s video.
-    // WebKit reports the rounded video stream; the other engines report the container.
-    expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeCloseTo(testInfo.project.name === 'webkit' ? 101.635 : 101.652, 3);
-    for (const [url, hash] of [
-      ['/assets/application/wealthsimple-application-video.mp4', '585bd8d3eb5d040f06bd82515fdcbbe9a8c55d696145405c09d6db3c4fcc5f14'],
-      ['/assets/application/wealthsimple-application-video-poster.webp', 'cae70f2f04abc54267d34742f2349adc5920616dd3f118fa984647c9173effec'],
-    ]) {
-      const asset = await request.get(url);
-      expect(asset.status()).toBe(200);
-      expect(createHash('sha256').update(await asset.body()).digest('hex')).toBe(hash);
-    }
-    // Native caption preferences may initially disable the default track.
-    // Select English explicitly, as a viewer can using the native player.
-    await track.evaluate((el: HTMLTrackElement) => { el.track.mode = 'showing'; });
-    await expect.poll(() => track.evaluate((el: HTMLTrackElement) => el.readyState)).toBe(2);
-    const cues = await track.evaluate((el: HTMLTrackElement) => Array.from(el.track.cues ?? []).map(cue => ({ start: cue.startTime, end: cue.endTime, text: (cue as VTTCue).text })));
-    expect(cues.length).toBeGreaterThan(0);
-    let priorEnd = 0;
-    for (const cue of cues) {
-      expect(cue.start).toBeGreaterThanOrEqual(priorEnd);
-      expect(cue.end).toBeGreaterThan(cue.start);
-      expect(cue.end).toBeLessThanOrEqual(101.652);
-      priorEnd = cue.end;
-    }
-    const transcript = cues.map(cue => cue.text).join(' ').replace(/\s+/g, ' ');
-    expect(transcript).toContain('a six experiment program');
-    expect(transcript).toContain('Five experiments later, my family still groans when the compound growth soapbox comes out.');
-    expect(transcript).not.toMatch(/BLOCKED|NOT RELEASE AUTHORITY|\[in\/out\]/i);
-    await video.evaluate(async (el: HTMLVideoElement) => { el.muted = true; await el.play(); });
-    await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
-    await video.evaluate((el: HTMLVideoElement) => el.pause());
-  });
 
   test('Grocery Automation contains the final owner-approved content boundary', async ({ page }) => {
     await page.goto('/work/grocery-automation');
