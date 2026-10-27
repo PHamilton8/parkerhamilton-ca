@@ -24,7 +24,7 @@ const indexableRoutes = [
   '/work/compound-growth',
   '/work/smith-manoeuvre',
 ];
-const auxiliaryNoindexRoutes = ['/wealthsimple-2026'];
+const auxiliaryNoindexRoutes = [];
 
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -50,18 +50,17 @@ function latestVttCueEnd(text) {
   return latest;
 }
 
-test('source route accounting is exactly 8 indexable portfolio routes plus 1 noindex auxiliary route', () => {
+test('source route accounting is exactly 8 indexable portfolio routes with no retired application route', () => {
   const pages = walk(path.join(root, 'src/pages')).filter((p) => p.endsWith('.astro'));
   const rel = pages.map((p) => path.relative(path.join(root, 'src/pages'), p).replaceAll(path.sep, '/')).sort();
   const expected = [
     '404.astro',
     'index.astro',
-    'wealthsimple-2026.astro',
     'work/[slug].astro',
     ...indexableRoutes.slice(1).map((route) => `work/${route.slice('/work/'.length)}.astro`),
   ].sort();
   assert.deepEqual(rel, expected);
-  assert.deepEqual(auxiliaryNoindexRoutes, ['/wealthsimple-2026']);
+  assert.deepEqual(auxiliaryNoindexRoutes, []);
   const sharedShell = readText('src/pages/work/[slug].astro');
   assert.match(sharedShell, /projects\.filter\(\(project\) => project\.usesSharedShell\)/);
 });
@@ -143,32 +142,8 @@ test('Design Day final media and caption timing are release exact', () => {
   assert.ok(end <= 8.475 + 0.001, `Design Day VTT contains stale timing beyond 8.475s: ${end}`);
 });
 
-test('Wealthsimple route remains noindex/unlisted and exact media is captioned', () => {
-  const page = readText('src/pages/wealthsimple-2026.astro');
-  const base = readText('src/layouts/BaseLayout.astro');
-  const projects = readText('src/data/projects.ts');
-  const site = readText('src/data/site.ts');
-  const sitemap = readText('src/pages/sitemap.xml.ts');
-  assert.match(page, /Wealthsimple 2027 - Parker Hamilton/);
-  assert.doesNotMatch(page, /Wealthsimple 2026 - Parker Hamilton/);
-  assert.match(page, /canonicalPath="\/wealthsimple-2026"/);
-  assert.match(page, /robots="noindex, noarchive"/);
-  assert.match(page, /<video\b[^>]*\bcontrols\b/i);
-  assert.match(page, /preload="metadata"/i);
-  assert.match(page, /<track\b[^>]*kind="captions"[^>]*src="\/assets\/application\/wealthsimple-application-video\.vtt"/i);
-  assert.match(base, /robots\?:\s*string/);
-  assert.doesNotMatch(projects, /\/wealthsimple-2026/);
-  assert.doesNotMatch(site, /\/wealthsimple-2026/);
-  assert.doesNotMatch(sitemap, /wealthsimple-2026/);
-  assert.equal(sha256('public/assets/application/wealthsimple-application-video.mp4'), '585bd8d3eb5d040f06bd82515fdcbbe9a8c55d696145405c09d6db3c4fcc5f14');
-  assert.equal(sha256('public/assets/application/wealthsimple-application-video-poster.webp'), 'cae70f2f04abc54267d34742f2349adc5920616dd3f118fa984647c9173effec');
-  const vtt = readText('public/assets/application/wealthsimple-application-video.vtt');
-  assert.match(vtt, /^WEBVTT/m);
-  assert.ok(latestVttCueEnd(vtt) > 0, 'Wealthsimple VTT must contain synchronized timed cues');
-  assert.ok(latestVttCueEnd(vtt) <= 101.652, 'Wealthsimple captions must remain within the exact approved media duration');
-  assert.equal((page.match(/<track\b[^>]*kind="captions"/gi) ?? []).length, 1, 'Exactly one native caption track is required');
-  assert.match(page, /<track\b[^>]*srclang="en"/i);
-  assert.doesNotMatch(vtt, /BLOCKED|NOT RELEASE AUTHORITY|DRAFT[- ]ONLY|\[in\/out\]/i);
+test('retired Wealthsimple page and dedicated media stay removed', () => {
+  for (const p of ['src/pages/wealthsimple-2026.astro', 'public/assets/application/wealthsimple-application-video.mp4', 'public/assets/application/wealthsimple-application-video-poster.webp', 'public/assets/application/wealthsimple-application-video.vtt']) assert.equal(fs.existsSync(path.join(root, p)), false, p);
 });
 
 test('approved public workbook bytes remain exact', () => {

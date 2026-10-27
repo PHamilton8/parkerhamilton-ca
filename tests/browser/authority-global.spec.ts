@@ -258,7 +258,7 @@ test.describe('Final-RC global release gates', () => {
     expect(narrow.contactHeight).not.toBe(desktop.contactHeight);
   });
 
-  test('Option 6 is scoped away from Wealthsimple and 404 utility surfaces', async ({ page }, testInfo) => {
+  test('retired application and missing routes use the 404 utility surface', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Special-route visual scoping is exercised once in Chromium.');
     await page.setViewportSize({ width: 1440, height: 900 });
 
@@ -271,7 +271,7 @@ test.describe('Final-RC global release gates', () => {
     expect(portfolio.backgroundImage).toContain('radial-gradient');
 
     const ws = await page.goto('/wealthsimple-2026', { waitUntil: 'domcontentloaded' });
-    expect(ws?.status()).toBe(200);
+    expect(ws?.status()).toBe(404);
     const wealthsimple = await page.locator('body').evaluate((body) => ({
       className: body.className,
       backgroundImage: getComputedStyle(body).backgroundImage,

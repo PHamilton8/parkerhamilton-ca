@@ -13,7 +13,6 @@ const routes = [
   { key: 'coast-fi', path: '/work/coast-fi' },
   { key: 'compound-growth', path: '/work/compound-growth' },
   { key: 'smith-manoeuvre', path: '/work/smith-manoeuvre' },
-  { key: 'wealthsimple', path: '/wealthsimple-2026' },
   { key: '404', path: '/404' },
 ] as const;
 
@@ -100,7 +99,6 @@ test('generate final prelaunch V2 screenshot ZIP from exact source', async ({ pa
     ...[980, 981, 1023, 1024, 1025].map((width) => ({ key: 'homepage', route: '/', width, height: 900 })),
     ...[1440, 1536, 1920].map((width) => ({ key: 'smith', route: '/work/smith-manoeuvre', width, height: 1000 })),
     ...[1536, 1920].map((width) => ({ key: 'askwill', route: '/work/askwill', width, height: 1000 })),
-    ...[1280, 1366, 1440, 1536, 1920].map((width) => ({ key: 'wealthsimple', route: '/wealthsimple-2026', width, height: 1000 })),
     ...[430, 390, 375, 360, 320].map((width) => ({ key: 'reporting', route: '/work/reporting-workflow', width, height: 844 })),
   ];
 

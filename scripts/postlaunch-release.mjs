@@ -304,7 +304,9 @@ async function previewSmoke(previewUrl, versionId) {
     ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
-    ['/wealthsimple-2026/', 200],
+    ['/work/design-day/', 200],
+    ['/assets/application/wealthsimple-application-video.mp4', 404],
+    ['/wealthsimple-2026/', 404],
     ['/gate0-preview-definitely-missing/', 404],
   ];
   const results = [];
@@ -452,8 +454,10 @@ async function productionSmoke() {
     ['/work/grocery-automation/', 200],
     ['/work/compound-growth/', 200],
     ['/work/coast-fi/', 200],
+    ['/work/design-day/', 200],
+    ['/assets/application/wealthsimple-application-video.mp4', 404],
     ['/work/smith-manoeuvre/', 200],
-    ['/wealthsimple-2026/', 200],
+    ['/wealthsimple-2026/', 404],
     ['/gate0-production-definitely-missing/', 404],
   ];
   const results = [];

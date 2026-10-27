@@ -16,7 +16,7 @@ const indexableRoutes = [
   '/work/compound-growth',
   '/work/smith-manoeuvre',
 ];
-const auxiliaryNoindexRoutes = ['/wealthsimple-2026'];
+const auxiliaryNoindexRoutes = [];
 const allHtmlRoutes = [...indexableRoutes, ...auxiliaryNoindexRoutes];
 
 function walk(dir) {
@@ -49,7 +49,7 @@ function metaRobots(html) {
   return '';
 }
 
-test('built output is exactly 8 indexable portfolio routes + 1 noindex auxiliary route + true 404', () => {
+test('built output is exactly 8 indexable portfolio routes + true 404', () => {
   assert.equal(fs.existsSync(dist), true, 'dist/ must exist before built-route contract runs');
   const htmlFiles = walk(dist).filter((file) => file.endsWith('.html'));
   const routes = htmlFiles.map(routeForHtml).filter(Boolean).sort();
@@ -65,17 +65,12 @@ test('every built route has one production-apex self canonical', () => {
   }
 });
 
-test('portfolio routes remain indexable while Wealthsimple remains noindex/noarchive', () => {
+test('portfolio routes remain indexable while Wealthsimple is removed', () => {
   for (const route of indexableRoutes) {
     const html = fs.readFileSync(pagePath(route), 'utf8');
     assert.doesNotMatch(metaRobots(html), /\bnoindex\b/, `${route} must remain indexable`);
   }
-  const ws = fs.readFileSync(pagePath('/wealthsimple-2026'), 'utf8');
-  const robots = metaRobots(ws);
-  assert.match(robots, /\bnoindex\b/);
-  assert.match(robots, /\bnoarchive\b/);
-  assert.match(ws, /<h1[^>]*>\s*Wealthsimple 2027 - Parker Hamilton\s*<\/h1>/i);
-  assert.match(ws, /<track\b[^>]*kind=["']captions["']/i);
+  assert.equal(fs.existsSync(pagePath('/wealthsimple-2026')), false);
 });
 
 test('sitemap contains exactly the 8 indexable portfolio routes and excludes Wealthsimple', () => {
