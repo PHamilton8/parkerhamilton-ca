@@ -4,14 +4,16 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createDistFixture } from './preview-v3-dist-fixture.mjs';
-import { validateReleaseDist } from '../scripts/validate-release-dist.mjs';
+import { validateReleaseDist, AUXILIARY_ROUTES } from '../scripts/validate-release-dist.mjs';
 
-const withFixture = (action) => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'parker-dist-contract-')); const dist = path.join(dir, 'dist'); createDistFixture(dist); fs.rmSync(path.join(dist, 'wealthsimple-2026'), { recursive: true }); try { action(dist); } finally { fs.rmSync(dir, { recursive: true, force: true }); } };
+const withFixture = (action) => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'parker-dist-contract-')); const dist = path.join(dir, 'dist'); createDistFixture(dist); fs.rmSync(path.join(dist, 'wealthsimple-2026'), { recursive: true }); fs.cpSync(new URL('../public/lean-career/', import.meta.url), path.join(dist, 'lean-career'), { recursive: true }); try { action(dist); } finally { fs.rmSync(dir, { recursive: true, force: true }); } };
 const edit = (d, f, fn) => fs.writeFileSync(path.join(d, f), fn(fs.readFileSync(path.join(d, f), 'utf8')));
 test('valid synthetic 8+404 fixture with exact frozen public workbooks passes', () => withFixture(d => {
-  const result = validateReleaseDist(d); assert.equal(result.passed, true); assert.equal(result.indexableRoutes.length, 8); assert.deepEqual(result.auxiliaryRoutes, []); assert.equal(result.true404, true);
+  const result = validateReleaseDist(d); assert.equal(result.passed, true); assert.equal(result.indexableRoutes.length, 8); assert.deepEqual(result.auxiliaryRoutes, [...AUXILIARY_ROUTES]); assert.equal(result.true404, true);
 }));
 const negative = [
+  ['indexable Lean Career page', d => edit(d, 'lean-career/index.html', x => x.replace('noindex', 'index')), /must be noindex/],
+  ['Lean Career portfolio discovery', d => edit(d, 'index.html', x => x.replace('</main>', '<a href="/lean-career/">Lean Career</a></main>')), /discovery link/],
   ['restored retired page', d => { fs.mkdirSync(path.join(d, 'wealthsimple-2026')); fs.writeFileSync(path.join(d, 'wealthsimple-2026/index.html'), '<h1>Retired</h1>'); }, /exactly 8\+404/],
   ['restored retired media', d => fs.writeFileSync(path.join(d, 'wealthsimple-application-video.mp4'), 'obsolete'), /Retired application artifact/],
   ['extra public route', d => fs.writeFileSync(path.join(d, 'extra.html'), '<h1>Unexpected</h1>'), /exactly 8\+404/],

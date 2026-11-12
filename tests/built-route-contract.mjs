@@ -16,7 +16,7 @@ const indexableRoutes = [
   '/work/compound-growth',
   '/work/smith-manoeuvre',
 ];
-const auxiliaryNoindexRoutes = [];
+const auxiliaryNoindexRoutes = ['/lean-career', '/lean-career/privacy'];
 const allHtmlRoutes = [...indexableRoutes, ...auxiliaryNoindexRoutes];
 
 function walk(dir) {
@@ -49,12 +49,25 @@ function metaRobots(html) {
   return '';
 }
 
-test('built output is exactly 8 indexable portfolio routes + true 404', () => {
+test('built output is 8 indexable portfolio routes, 2 noindex Lean Career pages and a true 404', () => {
   assert.equal(fs.existsSync(dist), true, 'dist/ must exist before built-route contract runs');
   const htmlFiles = walk(dist).filter((file) => file.endsWith('.html'));
   const routes = htmlFiles.map(routeForHtml).filter(Boolean).sort();
   assert.deepEqual(routes, [...allHtmlRoutes].sort());
   assert.equal(htmlFiles.some((file) => path.relative(dist, file).replaceAll(path.sep, '/') === '404.html'), true, 'dist/404.html is required');
+});
+
+test('Lean Career pages are noindex, static, linked together and absent from the sitemap', () => {
+  const sitemap = fs.readFileSync(path.join(dist, 'sitemap.xml'), 'utf8');
+  assert.doesNotMatch(sitemap, /lean-career/);
+  for (const route of auxiliaryNoindexRoutes) {
+    const html = fs.readFileSync(pagePath(route), 'utf8');
+    assert.match(metaRobots(html), /\bnoindex\b/);
+    assert.doesNotMatch(html, /<script\b|<form\b/i);
+    assert.match(html, /parkerhamilton5324@gmail\.com/);
+  }
+  assert.match(fs.readFileSync(pagePath('/lean-career'), 'utf8'), /href="\/lean-career\/privacy\/"/);
+  assert.match(fs.readFileSync(pagePath('/lean-career/privacy'), 'utf8'), /Google API Services User Data Policy/);
 });
 
 test('every built route has one production-apex self canonical', () => {
