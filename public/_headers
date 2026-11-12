@@ -12,3 +12,9 @@ https://:version.:subdomain.workers.dev/*
 
 /downloads/*.xlsx
   Content-Disposition: attachment
+
+/lean-career
+  X-Robots-Tag: noindex, noarchive
+
+/lean-career/*
+  X-Robots-Tag: noindex, noarchive

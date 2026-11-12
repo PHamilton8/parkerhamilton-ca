@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 export const PRODUCTION_ORIGIN = 'https://parkerhamilton.ca';
 export const INDEXABLE_ROUTES = Object.freeze(['/', '/work/design-day', '/work/reporting-workflow', '/work/grocery-automation', '/work/askwill', '/work/coast-fi', '/work/compound-growth', '/work/smith-manoeuvre']);
 export const AUXILIARY_ROUTE = '/wealthsimple-2026';
-export const ACCOUNTING = '8 indexable portfolio routes + true 404; retired application absent';
+export const AUXILIARY_ROUTES = Object.freeze(['/lean-career', '/lean-career/privacy']);
+export const ACCOUNTING = '8 indexable portfolio routes + 2 noindex Lean Career pages + true 404; retired application absent';
 const WORKBOOKS = Object.freeze({
   'downloads/Coast_FI_Calculator_Public_Sanitized.xlsx': '469df9f9c589f57f17c4de52652abeca295223fbe90fe004268354958da6cf6a',
   'downloads/Smith_Manoeuvre_Public_Sanitized_V2.xlsx': '3eb26f8f76c6dbc16ca42ec10debbb7d8b9f5b56fe9169fc55c49618a98c6ef9',
@@ -34,7 +35,7 @@ export function validateReleaseDist(directory) {
     const b = fs.readFileSync(path.join(root, relative)); assert.ok(b.length, `Empty release artifact: ${relative}`); return b;
   };
   const routes = [...INDEXABLE_ROUTES];
-  assert.deepEqual(files.filter(f => f.endsWith('.html')).sort(), [...routes.map(routeFile), '404.html'].sort(), 'Release HTML must be exactly 8+404');
+  assert.deepEqual(files.filter(f => f.endsWith('.html')).sort(), [...routes.map(routeFile), ...AUXILIARY_ROUTES.map(routeFile), '404.html'].sort(), 'Release HTML must be exactly 8+404 plus two approved Lean Career pages');
   for (const route of routes) {
     const html = read(routeFile(route)).toString();
     const canonical = tags(html, 'link').filter(a => a.rel?.toLowerCase().split(/\s+/).includes('canonical'));
@@ -46,9 +47,16 @@ export function validateReleaseDist(directory) {
         if (!a.href) continue;
         const link = new URL(a.href, new URL(route, PRODUCTION_ORIGIN));
         assert.ok(link.origin !== PRODUCTION_ORIGIN || link.pathname.replace(/\/$/, '') !== AUXILIARY_ROUTE, `Wealthsimple discovery link on ${route}`);
+        assert.ok(link.origin !== PRODUCTION_ORIGIN || !AUXILIARY_ROUTES.includes(link.pathname.replace(/\/$/, '')), `Lean Career discovery link on ${route}`);
       }
     }
     assert.doesNotMatch(html, /(?:drive\.google\.com|docs\.google\.com|localhost|127\.0\.0\.1|file:\/\/|https?:\/\/[^\s"'<>]*workers\.dev)/i, `Private/preview URL in ${route}`);
+  }
+  for (const route of AUXILIARY_ROUTES) {
+    const html = read(routeFile(route)).toString();
+    assert.ok(robots(html).includes('noindex'), `Lean Career page must be noindex: ${route}`);
+    assert.deepEqual(tags(html, 'link').filter(a => a.rel === 'canonical').map(a => a.href), [new URL(route, PRODUCTION_ORIGIN).href], `Lean Career canonical mismatch: ${route}`);
+    assert.equal(tags(html, 'script').length, 0, `Lean Career pages must remain static: ${route}`);
   }
   const missing = read('404.html').toString();
   assert.match(missing, /404|not found/i, '404 must identify not-found state');
@@ -67,7 +75,7 @@ export function validateReleaseDist(directory) {
     assert.ok(!/\.(map|zip|docx?|pptx?|csv|tsv)$/i.test(file), `Unapproved public file: ${file}`);
     if (/\.xlsx?$/i.test(file)) assert.ok(Object.hasOwn(WORKBOOKS, file), `Unapproved workbook: ${file}`);
   }
-  return { passed: true, routeAccounting: ACCOUNTING, indexableRoutes: [...INDEXABLE_ROUTES], auxiliaryRoutes: [], true404: true, fileCount: files.length };
+  return { passed: true, routeAccounting: ACCOUNTING, indexableRoutes: [...INDEXABLE_ROUTES], auxiliaryRoutes: [...AUXILIARY_ROUTES], true404: true, fileCount: files.length };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
